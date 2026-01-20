@@ -105,33 +105,6 @@ export default function Expenses() {
     }
   };
 
-  const handleResetFilters = () => {
-    const initialStartDate = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1,
-    );
-    const initialEndDate = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    );
-
-    setStartDate(initialStartDate);
-    setEndDate(initialEndDate);
-    setFilters({
-      startDate: format(initialStartDate, "yyyy-MM-dd"),
-      endDate: format(initialEndDate, "yyyy-MM-dd"),
-      currency: "",
-      isPaid: undefined as boolean | undefined,
-    });
-  };
-
-  // Get unique currencies from expenses
-  const currencies = Array.from(
-    new Set(expenses?.map((e) => e.currency) || []),
-  );
-
   // Group expenses by payment period
   const expensesByPeriod = useMemo(() => {
     if (!expenses) return {};
@@ -237,76 +210,6 @@ export default function Expenses() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex flex-col gap-1 w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Currency
-              </label>
-              <Select
-                value={filters.currency}
-                onValueChange={(value) =>
-                  setFilters({
-                    ...filters,
-                    currency: value === "all" ? "" : value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem key="all" value="all">
-                    All
-                  </SelectItem>
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency} value={currency}>
-                      {currency}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1 w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <Select
-                value={
-                  filters.isPaid === undefined
-                    ? ""
-                    : filters.isPaid
-                      ? "paid"
-                      : "pending"
-                }
-                onValueChange={(value) =>
-                  setFilters({
-                    ...filters,
-                    isPaid: value === "all" ? undefined : value === "paid",
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem key="all" value="all">
-                    All
-                  </SelectItem>
-                  <SelectItem key="pending" value="pending">
-                    Pending
-                  </SelectItem>
-                  <SelectItem key="paid" value="paid">
-                    Paid
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              className="flex items-center justify-center gap-2 w-full"
-              variant="ghostDestructive"
-              onClick={handleResetFilters}
-            >
-              <RotateCw className="w-4 h-4" /> Reset filters
-            </Button>
           </div>
         </div>
 
@@ -320,12 +223,21 @@ export default function Expenses() {
             {sortedPeriods.map((period) => (
               <div
                 key={period}
-                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-lg overflow-hidden"
+                className="bg-linear-to-b from-white to-gray-50 border border-gray-200 shadow-md rounded-lg overflow-hidden"
               >
-                <div className="px-2 py-2">
+                <div className="flex justify-between items-center gap-2 px-2 py-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     Payment Period: {period}
                   </h3>
+                  <Button
+                    size="icon"
+                    onClick={() => {
+                      setEditingExpense(null);
+                      setIsAddDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
                 <ExpenseTable
                   expenses={expensesByPeriod[period]}

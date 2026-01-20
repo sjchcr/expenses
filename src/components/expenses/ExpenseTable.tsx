@@ -1,19 +1,23 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import {
   Trash2,
   Edit,
-  Loader,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   Sigma,
   CircleDashed,
   CircleCheck,
+  CircleOff,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Expense } from "@/types";
+import { Spinner } from "../ui/spinner";
+import { cn } from "@/lib/utils";
+import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -28,6 +32,18 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 const getCurrencySymbol = (currency: string): string => {
   return CURRENCY_SYMBOLS[currency] || currency;
+};
+
+const formatAmount = (amount: number): string => {
+  return amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Get total amount for sorting (sum of all amounts)
+const getTotalAmount = (expense: Expense): number => {
+  return expense.amounts.reduce((sum, a) => sum + a.amount, 0);
 };
 
 interface ExpenseTableProps {
@@ -45,8 +61,9 @@ export function ExpenseTable({
   onEdit,
   onDelete,
 }: ExpenseTableProps) {
-  const [sortColumn, setSortColumn] = useState<string | null>("status");
+  const [sortColumn, setSortColumn] = useState<string | null>("due_date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [activeTab, setActiveTab] = useState("all");
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -57,63 +74,127 @@ export function ExpenseTable({
     }
   };
 
-  const columns = ["name", "amount", "due_date", "status"];
+  const columns = ["name", "amount", "due_date"];
 
-  const sortedExpenses = [...expenses].sort((a, b) => {
-    if (!sortColumn) return 0;
-
-    let aValue: any;
-    let bValue: any;
-
-    switch (sortColumn) {
-      case "name":
-        aValue = a.name;
-        bValue = b.name;
-        break;
-      case "amount":
-        aValue = a.amount;
-        bValue = b.amount;
-        break;
-      case "currency":
-        aValue = a.currency;
-        bValue = b.currency;
-        break;
-      case "due_date":
-        aValue = new Date(a.due_date).getTime();
-        bValue = new Date(b.due_date).getTime();
-        break;
-      case "status":
-        aValue = a.is_paid ? 1 : 0;
-        bValue = b.is_paid ? 1 : 0;
-        break;
+  const filterExpenses = (items: Expense[]) => {
+    switch (activeTab) {
+      case "pending":
+        return items.filter((e) => !e.is_paid);
+      case "paid":
+        return items.filter((e) => e.is_paid);
       default:
-        return 0;
+        return items;
     }
+  };
 
-    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortExpenses = (items: Expense[]) => {
+    return [...items].sort((a, b) => {
+      if (!sortColumn) return 0;
 
-  // Calculate totals by currency
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortColumn) {
+        case "name":
+          aValue = a.name;
+          bValue = b.name;
+          break;
+        case "amount":
+          aValue = getTotalAmount(a);
+          bValue = getTotalAmount(b);
+          break;
+        case "due_date":
+          aValue = parseISO(a.due_date).getTime();
+          bValue = parseISO(b.due_date).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const filteredExpenses = filterExpenses(expenses);
+  const sortedExpenses = sortExpenses(filteredExpenses);
+
+  // Get all unique currencies from all expenses
+  const allCurrencies = useMemo(
+    () => Array.from(new Set(expenses.flatMap((e) => e.amounts.map((a) => a.currency)))),
+    [expenses],
+  );
+
+  // Fetch exchange rates from API for currencies without manual rates
+  const { data: fetchedRates, isLoading: isLoadingRates } = useExchangeRates(allCurrencies);
+
+  // Calculate totals by currency (supports multiple amounts per expense)
   const totals = expenses.reduce(
     (acc, expense) => {
-      if (!acc[expense.currency]) {
-        acc[expense.currency] = { total: 0, paid: 0, pending: 0 };
-      }
-      acc[expense.currency].total += expense.amount;
-      if (expense.is_paid) {
-        acc[expense.currency].paid += expense.amount;
-      } else {
-        acc[expense.currency].pending += expense.amount;
+      for (const { currency, amount } of expense.amounts) {
+        if (!acc[currency]) {
+          acc[currency] = { total: 0, paid: 0, pending: 0 };
+        }
+        acc[currency].total += amount;
+        if (expense.is_paid) {
+          acc[currency].paid += amount;
+        } else {
+          acc[currency].pending += amount;
+        }
       }
       return acc;
     },
     {} as Record<string, { total: number; paid: number; pending: number }>,
   );
 
-  return (
-    <div className="w-full">
+  // Calculate grand totals by converting all amounts to each target currency
+  const grandTotals = useMemo(() => {
+    return expenses.reduce(
+      (acc, expense) => {
+        // For each target currency, sum up all amounts converted using exchange rates
+        for (const targetCurrency of allCurrencies) {
+          if (!acc[targetCurrency]) {
+            acc[targetCurrency] = { total: 0, paid: 0, pending: 0, hasAllRates: true };
+          }
+
+          for (const amountData of expense.amounts) {
+            let convertedAmount: number;
+
+            if (amountData.currency === targetCurrency) {
+              // Same currency, no conversion needed
+              convertedAmount = amountData.amount;
+            } else if (amountData.exchange_rate) {
+              // Use manual exchange rate from the expense
+              convertedAmount = amountData.amount * amountData.exchange_rate;
+            } else {
+              // Try to get rate from API-fetched rates
+              const apiRate = getExchangeRate(fetchedRates, amountData.currency, targetCurrency);
+              if (apiRate !== null) {
+                convertedAmount = amountData.amount * apiRate;
+              } else {
+                // No exchange rate available, mark as incomplete
+                acc[targetCurrency].hasAllRates = false;
+                continue;
+              }
+            }
+
+            acc[targetCurrency].total += convertedAmount;
+            if (expense.is_paid) {
+              acc[targetCurrency].paid += convertedAmount;
+            } else {
+              acc[targetCurrency].pending += convertedAmount;
+            }
+          }
+        }
+        return acc;
+      },
+      {} as Record<string, { total: number; paid: number; pending: number; hasAllRates: boolean }>,
+    );
+  }, [expenses, allCurrencies, fetchedRates]);
+
+  const renderExpenseList = (tab: string) => (
+    <>
       <div className="w-full flex items-center justify-center gap-2 p-2 pr-19 border-b border-gray-200">
         {columns.map((column) => (
           <div
@@ -122,7 +203,9 @@ export function ExpenseTable({
             onClick={() => handleSort(column)}
           >
             <span className="truncate text-sm font-medium text-gray-700 cursor-pointer">
-              {column.charAt(0).toUpperCase() + column.slice(1)}
+              {column === "due_date"
+                ? "Due Date"
+                : column.charAt(0).toUpperCase() + column.slice(1)}
             </span>
             {sortColumn === column ? (
               sortDirection === "asc" ? (
@@ -136,63 +219,118 @@ export function ExpenseTable({
           </div>
         ))}
       </div>
-      {sortedExpenses.map((expense) => (
-        <div
-          key={expense.id}
-          className="w-full flex items-center justify-center gap-2 p-2 bg-transparent hover:bg-primary/5"
-        >
-          <div className="w-full">
-            <div className="text-sm font-medium text-gray-900 truncate max-w-37.5">
-              {expense.name}
-            </div>
-          </div>
-          <div className="w-full">
-            <div className="text-sm text-gray-900">
-              {getCurrencySymbol(expense.currency)}
-              {expense.amount.toFixed(2)}
-            </div>
-          </div>
-          <div className="w-full">
-            <div className="text-sm text-gray-900">
-              {format(parseISO(expense.due_date), "MM/dd")}
-            </div>
-          </div>
-          <div className="w-full">
-            {togglingExpenseId === expense.id ? (
-              <Loader className="h-4 w-4 animate-spin text-gray-600" />
-            ) : (
-              <Badge
-                variant={expense.is_paid ? "success" : "warning"}
-                className="cursor-pointer text-xs"
-                onClick={() =>
-                  onTogglePaid(expense.id, expense.is_paid || false)
-                }
-              >
-                {expense.is_paid ? "Paid" : "Pending"}
-              </Badge>
-            )}
-          </div>
-          <div className="w-15 flex justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(expense)}
-              className="h-7 w-7 p-0"
-            >
-              <Edit className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(expense)}
-              className="h-7 w-7 p-0"
-            >
-              <Trash2 className="h-3 w-3 text-red-600" />
-            </Button>
-          </div>
+      {sortedExpenses.length === 0 ? (
+        <div className="w-full flex flex-col items-center justify-center gap-2 p-6 text-sm text-gray-500">
+          <CircleOff className="h-6 w-6" />
+          No {tab !== "all" && tab} expenses found
         </div>
-      ))}
-      <div className="border-t flex gap-8 p-2">
+      ) : (
+        sortedExpenses.map((expense) => (
+          <div
+            key={expense.id}
+            onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 p-2 cursor-pointer",
+              expense.is_paid
+                ? "bg-green-600/5 hover:bg-green-600/20"
+                : "bg-amber-600/5 hover:bg-amber-600/20",
+            )}
+          >
+            <div className="w-full flex items-center justify-start gap-1">
+              {togglingExpenseId === expense.id ? (
+                <Spinner className="h-3 w-3 text-gray-500" />
+              ) : expense.is_paid ? (
+                <CircleCheck className="h-3 w-3 text-green-600 shrink-0" />
+              ) : (
+                <CircleDashed className="h-3 w-3 text-yellow-600 shrink-0" />
+              )}
+              <p className="text-sm font-medium text-gray-900 truncate max-w-37.5">
+                {expense.name}
+              </p>
+            </div>
+            <div className="w-full">
+              <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
+                {allCurrencies.map((currency) => {
+                  const amountData = expense.amounts.find(
+                    (a) => a.currency === currency,
+                  );
+                  return (
+                    <div
+                      key={currency}
+                      className="flex justify-start items-center gap-1 w-1/2"
+                    >
+                      <span>{getCurrencySymbol(currency)}</span>
+                      <span className={!amountData ? "text-gray-400" : ""}>
+                        {amountData ? formatAmount(amountData.amount) : "-"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="w-full">
+              <div className="text-sm text-gray-900">
+                {format(parseISO(expense.due_date), "MM/dd")}
+              </div>
+            </div>
+            <div className="w-15 flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(expense);
+                }}
+                className="h-7 w-7 p-0"
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(expense);
+                }}
+                className="h-7 w-7 p-0"
+              >
+                <Trash2 className="h-3 w-3 text-red-600" />
+              </Button>
+            </div>
+          </div>
+        ))
+      )}
+    </>
+  );
+
+  return (
+    <div className="w-full h-[calc(100%-44px)] flex flex-col justify-between">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList background={false} className="mx-2 gap-1">
+          <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
+            <Sigma className="w-3 h-3" />
+            All
+          </TabsTrigger>
+          <TabsTrigger
+            variant="warning"
+            value="pending"
+            className="flex-1 gap-1"
+          >
+            <CircleDashed className="w-3 h-3" />
+            Pending
+          </TabsTrigger>
+          <TabsTrigger variant="success" value="paid" className="flex-1 gap-1">
+            <CircleCheck className="w-3 h-3" />
+            Paid
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="all">{renderExpenseList("all")}</TabsContent>
+        <TabsContent value="pending">
+          {renderExpenseList("pending")}
+        </TabsContent>
+        <TabsContent value="paid">{renderExpenseList("paid")}</TabsContent>
+      </Tabs>
+      <div className="border-t w-full flex gap-8 p-2">
         {Object.entries(totals).map(([currency, values]) => (
           <div key={currency} className="flex flex-col text-sm w-full">
             <h4 className="font-semibold text-gray-800 mb-1">{currency}</h4>
@@ -204,7 +342,7 @@ export function ExpenseTable({
                 </span>
                 <span className="text-gray-600">
                   {getCurrencySymbol(currency)}
-                  {values.total.toFixed(2)}
+                  {formatAmount(values.total)}
                 </span>
               </div>
               <div className="flex justify-between gap-2 w-full">
@@ -214,7 +352,7 @@ export function ExpenseTable({
                 </span>
                 <span className="text-green-600">
                   {getCurrencySymbol(currency)}
-                  {values.paid.toFixed(2)}
+                  {formatAmount(values.paid)}
                 </span>
               </div>
               <div className="flex justify-between gap-2 w-full">
@@ -224,9 +362,30 @@ export function ExpenseTable({
                 </span>
                 <span className="text-yellow-600">
                   {getCurrencySymbol(currency)}
-                  {values.pending.toFixed(2)}
+                  {formatAmount(values.pending)}
                 </span>
               </div>
+              {grandTotals[currency] && allCurrencies.length > 1 && (
+                <div className="flex justify-between gap-2 w-full mt-2 pt-2 border-t border-dashed">
+                  <span className="flex items-center gap-1 font-medium text-blue-700">
+                    Grand Total:
+                  </span>
+                  <span className="text-blue-700">
+                    {isLoadingRates ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                    ) : grandTotals[currency].hasAllRates ? (
+                      <>
+                        {getCurrencySymbol(currency)}
+                        {formatAmount(grandTotals[currency].total)}
+                      </>
+                    ) : (
+                      <span className="text-gray-400 text-xs">
+                        Missing rates
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         ))}

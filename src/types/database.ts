@@ -76,12 +76,9 @@ export type Database = {
       }
       expenses: {
         Row: {
-          amount: number
+          amounts: Json
           created_at: string | null
-          currency: string
           due_date: string
-          exchange_rate: number | null
-          exchange_rate_source: string | null
           id: string
           is_paid: boolean | null
           name: string
@@ -91,12 +88,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          amount: number
+          amounts: Json
           created_at?: string | null
-          currency: string
           due_date: string
-          exchange_rate?: number | null
-          exchange_rate_source?: string | null
           id?: string
           is_paid?: boolean | null
           name: string
@@ -106,12 +100,9 @@ export type Database = {
           user_id: string
         }
         Update: {
-          amount?: number
+          amounts?: Json
           created_at?: string | null
-          currency?: string
           due_date?: string
-          exchange_rate?: number | null
-          exchange_rate_source?: string | null
           id?: string
           is_paid?: boolean | null
           name?: string

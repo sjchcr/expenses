@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { format, set } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/select";
 import { useCreateExpense, useUpdateExpense } from "@/hooks/useExpenses";
 import { expensesService } from "@/services/expenses.service";
-import type { Expense, PaymentPeriod } from "@/types";
+import type { Expense, ExpenseAmount, PaymentPeriod } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Plus, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Checkbox } from "../ui/checkbox";
 
@@ -33,21 +33,30 @@ interface AddExpenseDialogProps {
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
+interface AmountFormData {
+  currency: string;
+  amount: string;
+  exchange_rate: string;
+  exchange_rate_source: "api" | "manual";
+}
+
+const createEmptyAmount = (): AmountFormData => ({
+  currency: "USD",
+  amount: "",
+  exchange_rate: "",
+  exchange_rate_source: "api",
+});
+
 export function AddExpenseDialog({
   open,
   onOpenChange,
   expense,
   paymentPeriods,
 }: AddExpenseDialogProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    amount: "",
-    currency: "CRC",
-    due_date: format(new Date(), "yyyy-MM-dd"),
-    is_paid: false,
-    exchange_rate: "",
-    exchange_rate_source: "api" as "api" | "manual",
-  });
+  const [name, setName] = useState("");
+  const [dueDate, setDueDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [isPaid, setIsPaid] = useState(false);
+  const [amounts, setAmounts] = useState<AmountFormData[]>([createEmptyAmount()]);
   const [openStartDate, setOpenStartDate] = useState(false);
 
   const createMutation = useCreateExpense();
@@ -55,51 +64,77 @@ export function AddExpenseDialog({
 
   useEffect(() => {
     if (expense) {
-      setFormData({
-        name: expense.name,
-        amount: expense.amount.toString(),
-        currency: expense.currency,
-        due_date: expense.due_date,
-        is_paid: expense.is_paid || false,
-        exchange_rate: expense.exchange_rate?.toString() || "",
-        exchange_rate_source:
-          expense.exchange_rate_source === "manual" ? "manual" : "api",
-      });
+      setName(expense.name);
+      setDueDate(expense.due_date);
+      setIsPaid(expense.is_paid || false);
+      setAmounts(
+        expense.amounts.map((a) => ({
+          currency: a.currency,
+          amount: a.amount.toString(),
+          exchange_rate: a.exchange_rate?.toString() || "",
+          exchange_rate_source: a.exchange_rate_source || "api",
+        }))
+      );
     } else {
-      setFormData({
-        name: "",
-        amount: "",
-        currency: "USD",
-        due_date: format(new Date(), "yyyy-MM-dd"),
-        is_paid: false,
-        exchange_rate: "",
-        exchange_rate_source: "api",
-      });
+      setName("");
+      setDueDate(format(new Date(), "yyyy-MM-dd"));
+      setIsPaid(false);
+      setAmounts([createEmptyAmount()]);
     }
   }, [expense, open]);
+
+  const handleAddAmount = () => {
+    setAmounts([...amounts, createEmptyAmount()]);
+  };
+
+  const handleRemoveAmount = (index: number) => {
+    if (amounts.length > 1) {
+      setAmounts(amounts.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleAmountChange = (
+    index: number,
+    field: keyof AmountFormData,
+    value: string
+  ) => {
+    const newAmounts = [...amounts];
+    newAmounts[index] = { ...newAmounts[index], [field]: value };
+    if (field === "exchange_rate" && value) {
+      newAmounts[index].exchange_rate_source = "manual";
+    }
+    setAmounts(newAmounts);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const dueDate = new Date(formData.due_date);
+    const parsedDueDate = parseISO(dueDate);
     const paymentPeriod = expensesService.getPaymentPeriod(
-      dueDate,
-      paymentPeriods,
+      parsedDueDate,
+      paymentPeriods
     );
 
+    const expenseAmounts: ExpenseAmount[] = amounts
+      .filter((a) => a.amount && parseFloat(a.amount) > 0)
+      .map((a) => ({
+        currency: a.currency,
+        amount: parseFloat(a.amount),
+        exchange_rate: a.exchange_rate ? parseFloat(a.exchange_rate) : null,
+        exchange_rate_source: a.exchange_rate ? a.exchange_rate_source : null,
+      }));
+
+    if (expenseAmounts.length === 0) {
+      alert("Please add at least one amount.");
+      return;
+    }
+
     const expenseData = {
-      name: formData.name,
-      amount: parseFloat(formData.amount),
-      currency: formData.currency,
-      due_date: formData.due_date,
-      is_paid: formData.is_paid,
+      name,
+      due_date: dueDate,
+      is_paid: isPaid,
       payment_period: paymentPeriod,
-      exchange_rate: formData.exchange_rate
-        ? parseFloat(formData.exchange_rate)
-        : null,
-      exchange_rate_source: formData.exchange_rate
-        ? formData.exchange_rate_source
-        : null,
+      amounts: expenseAmounts,
     };
 
     try {
@@ -122,7 +157,7 @@ export function AddExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {expense ? "Edit Expense" : "Add New Expense"}
@@ -134,51 +169,87 @@ export function AddExpenseDialog({
             <Label htmlFor="name">Name *</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Rent, Electricity, Groceries"
               required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="amount">Amount *</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
-                }
-                placeholder="0.00"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="currency">Currency *</Label>
-              <Select
-                value={formData.currency}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, currency: value })
-                }
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label>Amounts *</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleAddAmount}
+                className="h-7 text-xs"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COMMON_CURRENCIES.map((curr) => (
-                    <SelectItem key={curr} value={curr}>
-                      {curr}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Plus className="h-3 w-3 mr-1" />
+                Add Currency
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {amounts.map((amountData, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
+                    <div>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={amountData.amount}
+                        onChange={(e) =>
+                          handleAmountChange(index, "amount", e.target.value)
+                        }
+                        placeholder="0.00"
+                        required={index === 0}
+                      />
+                    </div>
+                    <Select
+                      value={amountData.currency}
+                      onValueChange={(value) =>
+                        handleAmountChange(index, "currency", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COMMON_CURRENCIES.map((curr) => (
+                          <SelectItem key={curr} value={curr}>
+                            {curr}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveAmount(index)}
+                      disabled={amounts.length === 1}
+                      className="h-9 w-9 p-0"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      step="0.0001"
+                      min="0"
+                      value={amountData.exchange_rate}
+                      onChange={(e) =>
+                        handleAmountChange(index, "exchange_rate", e.target.value)
+                      }
+                      placeholder="Exchange rate (optional)"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -187,7 +258,7 @@ export function AddExpenseDialog({
               htmlFor="due_date"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Start date
+              Due date
             </label>
             <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
               <PopoverTrigger asChild>
@@ -196,7 +267,7 @@ export function AddExpenseDialog({
                   id="date"
                   className="w-full justify-between font-normal"
                 >
-                  {formData.due_date ? formData.due_date : "Select date"}
+                  {dueDate ? dueDate : "Select date"}
                   <ChevronDownIcon />
                 </Button>
               </PopoverTrigger>
@@ -206,13 +277,10 @@ export function AddExpenseDialog({
               >
                 <Calendar
                   mode="single"
-                  selected={new Date(formData.due_date)}
+                  selected={parseISO(dueDate)}
                   captionLayout="dropdown"
                   onSelect={(date) => {
-                    setFormData({
-                      ...formData,
-                      due_date: format(date!, "yyyy-MM-dd"),
-                    });
+                    setDueDate(format(date!, "yyyy-MM-dd"));
                     setOpenStartDate(false);
                   }}
                 />
@@ -223,66 +291,10 @@ export function AddExpenseDialog({
           <div className="flex items-center gap-1">
             <Checkbox
               id="is_paid"
-              checked={formData.is_paid}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, is_paid: checked as boolean })
-              }
+              checked={isPaid}
+              onCheckedChange={(checked) => setIsPaid(checked as boolean)}
             />
             <Label htmlFor="is_paid">Already paid</Label>
-          </div>
-
-          <div className="border-t pt-4">
-            <h4 className="text-sm font-medium mb-3">
-              Exchange Rate (Optional)
-            </h4>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="exchange_rate">Custom Rate</Label>
-                <Input
-                  id="exchange_rate"
-                  type="number"
-                  step="0.000001"
-                  min="0"
-                  value={formData.exchange_rate}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      exchange_rate: e.target.value,
-                      exchange_rate_source: "manual",
-                    })
-                  }
-                  placeholder="Leave empty for API rate"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="exchange_rate_source">Source</Label>
-                <Select
-                  //id="exchange_rate_source"
-                  value={formData.exchange_rate_source}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      exchange_rate_source: value as "api" | "manual",
-                    })
-                  }
-                  disabled={!formData.exchange_rate}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="api">API</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              If you don't specify a custom rate, we'll use the current exchange
-              rate from the API
-            </p>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

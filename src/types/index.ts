@@ -1,9 +1,30 @@
 import type { Database } from "./database";
 
-// Use the database types as base
-export type Expense = Database["public"]["Tables"]["expenses"]["Row"];
-export type ExpenseInsert = Database["public"]["Tables"]["expenses"]["Insert"];
-export type ExpenseUpdate = Database["public"]["Tables"]["expenses"]["Update"];
+// Expense Amount interface for multiple currencies per expense
+export interface ExpenseAmount {
+  currency: string;
+  amount: number;
+  exchange_rate?: number | null;
+  exchange_rate_source?: "api" | "manual" | null;
+}
+
+// Base database types
+type ExpenseRow = Database["public"]["Tables"]["expenses"]["Row"];
+type ExpenseInsertBase = Database["public"]["Tables"]["expenses"]["Insert"];
+type ExpenseUpdateBase = Database["public"]["Tables"]["expenses"]["Update"];
+
+// Override Expense to type amounts as ExpenseAmount[] instead of Json
+export interface Expense extends Omit<ExpenseRow, "amounts"> {
+  amounts: ExpenseAmount[];
+}
+
+export interface ExpenseInsert extends Omit<ExpenseInsertBase, "amounts"> {
+  amounts: ExpenseAmount[];
+}
+
+export interface ExpenseUpdate extends Omit<ExpenseUpdateBase, "amounts"> {
+  amounts?: ExpenseAmount[];
+}
 
 export type ExpenseTemplate =
   Database["public"]["Tables"]["expense_templates"]["Row"];

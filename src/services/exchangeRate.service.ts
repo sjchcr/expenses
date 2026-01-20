@@ -25,6 +25,11 @@ export const exchangeRateService = {
     }
 
     // Fetch from API
+    if (!API_KEY) {
+      console.error("Exchange rate API key not configured");
+      return null;
+    }
+
     try {
       const response = await fetch(
         `https://v6.exchangerate-api.com/v6/${API_KEY}/pair/${fromCurrency}/${toCurrency}`
@@ -35,7 +40,7 @@ export const exchangeRateService = {
         const rate = data.conversion_rate;
 
         // Cache the rate
-        await supabase.from("exchange_rates").insert({
+        const { error: insertError } = await supabase.from("exchange_rates").insert({
           from_currency: fromCurrency,
           to_currency: toCurrency,
           rate,
@@ -43,7 +48,13 @@ export const exchangeRateService = {
           source: "exchangerate-api",
         });
 
+        if (insertError) {
+          console.error("Failed to cache exchange rate:", insertError);
+        }
+
         return rate;
+      } else {
+        console.error("Exchange rate API error:", data);
       }
     } catch (error) {
       console.error("Failed to fetch exchange rate:", error);
