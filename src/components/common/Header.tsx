@@ -26,7 +26,7 @@ const Header = () => {
                 Expense Tracker
               </h1>
             </div>
-            <div className="hidden sm:ml-6 sm:flex">
+            <div className="sm:ml-6 sm:flex">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -34,14 +34,14 @@ const Header = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`inline-flex items-center px-4 pt-1 border-b-2 text-sm font-medium ${
+                    className={`inline-flex items-center gap-2 h-full px-4 pt-1 border-b-2 text-sm font-medium ${
                       isActive
                         ? "border-primary text-gray-900"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                     }`}
                   >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {item.label}
+                    <Icon className="h-4 w-4" />
+                    <p className="hidden md:block">{item.label}</p>
                   </Link>
                 );
               })}
