@@ -3,9 +3,6 @@ import { format, parseISO } from "date-fns";
 import {
   Trash2,
   Edit,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   Sigma,
   CircleDashed,
   CircleCheck,
@@ -18,6 +15,7 @@ import type { Expense } from "@/types";
 import { Spinner } from "../ui/spinner";
 import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
+import { Badge } from "../ui/badge";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -61,20 +59,9 @@ export function ExpenseTable({
   onEdit,
   onDelete,
 }: ExpenseTableProps) {
-  const [sortColumn, setSortColumn] = useState<string | null>("due_date");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortColumn] = useState<string | null>("due_date");
+  const [sortDirection] = useState<"asc" | "desc">("asc");
   const [activeTab, setActiveTab] = useState("all");
-
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  };
-
-  const columns = ["name", "amount", "due_date"];
 
   const filterExpenses = (items: Expense[]) => {
     switch (activeTab) {
@@ -122,12 +109,16 @@ export function ExpenseTable({
 
   // Get all unique currencies from all expenses
   const allCurrencies = useMemo(
-    () => Array.from(new Set(expenses.flatMap((e) => e.amounts.map((a) => a.currency)))),
+    () =>
+      Array.from(
+        new Set(expenses.flatMap((e) => e.amounts.map((a) => a.currency))),
+      ),
     [expenses],
   );
 
   // Fetch exchange rates from API for currencies without manual rates
-  const { data: fetchedRates, isLoading: isLoadingRates } = useExchangeRates(allCurrencies);
+  const { data: fetchedRates, isLoading: isLoadingRates } =
+    useExchangeRates(allCurrencies);
 
   // Calculate totals by currency (supports multiple amounts per expense)
   const totals = expenses.reduce(
@@ -155,7 +146,12 @@ export function ExpenseTable({
         // For each target currency, sum up all amounts converted using exchange rates
         for (const targetCurrency of allCurrencies) {
           if (!acc[targetCurrency]) {
-            acc[targetCurrency] = { total: 0, paid: 0, pending: 0, hasAllRates: true };
+            acc[targetCurrency] = {
+              total: 0,
+              paid: 0,
+              pending: 0,
+              hasAllRates: true,
+            };
           }
 
           for (const amountData of expense.amounts) {
@@ -169,7 +165,11 @@ export function ExpenseTable({
               convertedAmount = amountData.amount * amountData.exchange_rate;
             } else {
               // Try to get rate from API-fetched rates
-              const apiRate = getExchangeRate(fetchedRates, amountData.currency, targetCurrency);
+              const apiRate = getExchangeRate(
+                fetchedRates,
+                amountData.currency,
+                targetCurrency,
+              );
               if (apiRate !== null) {
                 convertedAmount = amountData.amount * apiRate;
               } else {
@@ -189,87 +189,78 @@ export function ExpenseTable({
         }
         return acc;
       },
-      {} as Record<string, { total: number; paid: number; pending: number; hasAllRates: boolean }>,
+      {} as Record<
+        string,
+        { total: number; paid: number; pending: number; hasAllRates: boolean }
+      >,
     );
   }, [expenses, allCurrencies, fetchedRates]);
 
   const renderExpenseList = (tab: string) => (
     <>
-      <div className="w-full flex items-center justify-center gap-2 p-2 pr-19 border-b border-gray-200">
-        {columns.map((column) => (
-          <div
-            key={column}
-            className="flex items-center gap-1 w-full"
-            onClick={() => handleSort(column)}
-          >
-            <span className="truncate text-sm font-medium text-gray-700 cursor-pointer">
-              {column === "due_date"
-                ? "Due Date"
-                : column.charAt(0).toUpperCase() + column.slice(1)}
-            </span>
-            {sortColumn === column ? (
-              sortDirection === "asc" ? (
-                <ArrowUp className="w-3 h-3 shrink-0" />
-              ) : (
-                <ArrowDown className="w-3 h-3 shrink-0" />
-              )
-            ) : (
-              <ArrowUpDown className="w-3 h-3 text-gray-300 shrink-0" />
-            )}
-          </div>
-        ))}
-      </div>
       {sortedExpenses.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center gap-2 p-6 text-sm text-gray-500">
           <CircleOff className="h-6 w-6" />
           No {tab !== "all" && tab} expenses found
         </div>
       ) : (
-        sortedExpenses.map((expense) => (
+        sortedExpenses.map((expense, index) => (
           <div
             key={expense.id}
             onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
             className={cn(
-              "w-full flex items-center justify-center gap-2 p-2 cursor-pointer",
-              expense.is_paid
-                ? "bg-green-600/5 hover:bg-green-600/20"
-                : "bg-amber-600/5 hover:bg-amber-600/20",
+              "w-full flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-primary/5",
+              index !== sortedExpenses.length - 1 && "border-b border-gray-200",
             )}
           >
             <div className="w-full flex items-center justify-start gap-1">
-              {togglingExpenseId === expense.id ? (
-                <Spinner className="h-3 w-3 text-gray-500" />
-              ) : expense.is_paid ? (
-                <CircleCheck className="h-3 w-3 text-green-600 shrink-0" />
-              ) : (
-                <CircleDashed className="h-3 w-3 text-yellow-600 shrink-0" />
-              )}
-              <p className="text-sm font-medium text-gray-900 truncate max-w-37.5">
-                {expense.name}
-              </p>
-            </div>
-            <div className="w-full">
-              <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
-                {allCurrencies.map((currency) => {
-                  const amountData = expense.amounts.find(
-                    (a) => a.currency === currency,
-                  );
-                  return (
-                    <div
-                      key={currency}
-                      className="flex justify-start items-center gap-1 w-1/2"
-                    >
-                      <span>{getCurrencySymbol(currency)}</span>
-                      <span className={!amountData ? "text-gray-400" : ""}>
-                        {amountData ? formatAmount(amountData.amount) : "-"}
-                      </span>
-                    </div>
-                  );
-                })}
+              <div className="w-full flex flex-col justify-start items-center gap-1">
+                <div className="w-full flex justify-start items-center gap-1">
+                  {togglingExpenseId === expense.id ? (
+                    <Spinner className="h-3 w-3 text-gray-500" />
+                  ) : expense.is_paid ? (
+                    <Badge variant="success" className="gap-1">
+                      <CircleCheck className="h-3 w-3 shrink-0" />
+                      Paid
+                    </Badge>
+                  ) : (
+                    <Badge variant="warning" className="gap-1">
+                      <CircleDashed className="h-3 w-3 shrink-0" />
+                      Pending
+                    </Badge>
+                  )}
+                  <p
+                    className={cn(
+                      "text-sm font-bold truncate max-w-37.5",
+                      expense.is_paid ? "text-green-600" : "text-amber-500",
+                    )}
+                  >
+                    {expense.name}
+                  </p>
+                </div>
+                <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
+                  {allCurrencies.map((currency) => {
+                    const amountData = expense.amounts.find(
+                      (a) => a.currency === currency,
+                    );
+                    return (
+                      <div
+                        key={currency}
+                        className="flex justify-start items-center gap-1 w-1/2"
+                      >
+                        <span>{getCurrencySymbol(currency)}</span>
+                        <span className={!amountData ? "text-gray-400" : ""}>
+                          {amountData ? formatAmount(amountData.amount) : "-"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-            <div className="w-full">
-              <div className="text-sm text-gray-900">
+
+            <div className="w-20">
+              <div className="text-sm text-gray-900 w-20">
                 {format(parseISO(expense.due_date), "MM/dd")}
               </div>
             </div>
@@ -304,7 +295,7 @@ export function ExpenseTable({
   );
 
   return (
-    <div className="w-full h-[calc(100%-44px)] flex flex-col justify-between">
+    <div className="w-full h-[calc(100%-52px)] flex flex-col justify-between">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList background={false} className="mx-2 gap-1">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">

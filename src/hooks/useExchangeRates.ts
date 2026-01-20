@@ -29,7 +29,7 @@ export function useExchangeRates(currencies: string[]) {
           if (rate !== null) {
             rates[`${from}_${to}`] = rate;
           }
-        })
+        }),
       );
 
       return rates;
@@ -42,7 +42,7 @@ export function useExchangeRates(currencies: string[]) {
 export function getExchangeRate(
   rates: Record<string, number> | undefined,
   from: string,
-  to: string
+  to: string,
 ): number | null {
   if (from === to) return 1;
   if (!rates) return null;

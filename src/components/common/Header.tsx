@@ -17,7 +17,7 @@ const Header = () => {
     { path: "/settings", label: "Settings", icon: Settings },
   ];
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-background/60 backdrop-blur-2xl shadow-sm sticky top-0 z-50">
       <div className="md:w-10/12 mx-auto sm:w-full sm:px-6 md:px-0">
         <div className="flex justify-between h-16">
           <div className="flex">

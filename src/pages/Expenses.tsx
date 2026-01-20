@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Plus, ChevronDownIcon, RotateCw } from "lucide-react";
+import { Plus, ChevronDownIcon, CircleOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useExpenses,
@@ -8,14 +8,8 @@ import {
   useTogglePaid,
 } from "@/hooks/useExpenses";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { ExpenseTable } from "@/components/expenses/ExpenseTable";
 import { DeleteExpenseDialog } from "@/components/expenses/DeleteExpenseDialog";
@@ -41,7 +35,6 @@ export default function Expenses() {
   const [filters, setFilters] = useState({
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
-    currency: "",
     isPaid: undefined as boolean | undefined,
   });
 
@@ -57,6 +50,18 @@ export default function Expenses() {
   const { settings } = useUserSettings();
   const deleteMutation = useDeleteExpense();
   const togglePaidMutation = useTogglePaid();
+
+  // Get all unique currencies from expenses for exchange rate display
+  const availableCurrencies = useMemo(() => {
+    if (!expenses) return [];
+    return Array.from(
+      new Set(expenses.flatMap((e) => e.amounts.map((a) => a.currency))),
+    );
+  }, [expenses]);
+
+  // Fetch exchange rates for display
+  const { data: exchangeRates, isLoading: isLoadingRates } =
+    useExchangeRates(availableCurrencies);
 
   const handleDelete = (expense: Expense) => {
     setExpenseToDelete(expense);
@@ -143,8 +148,8 @@ export default function Expenses() {
         </div>
 
         {/* Filters */}
-        <div className="border-b pb-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+        <div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-end">
             <div className="flex flex-col gap-1 w-full">
               <label
                 htmlFor="date"
@@ -210,6 +215,41 @@ export default function Expenses() {
                 </PopoverContent>
               </Popover>
             </div>
+            <div></div>
+            {availableCurrencies.length > 1 && (
+              <div className="flex flex-col gap-1 w-full col-span-2 md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Exchange Rates
+                </label>
+                <div className="text-xs text-gray-600 bg-gray-50 rounded-md p-2 space-y-1">
+                  {isLoadingRates ? (
+                    <div className="flex items-center gap-1">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Loading rates...
+                    </div>
+                  ) : (
+                    availableCurrencies.flatMap((from) =>
+                      availableCurrencies
+                        .filter((to) => to !== from)
+                        .map((to) => {
+                          const rate = exchangeRates?.[`${from}_${to}`];
+                          return (
+                            <div
+                              key={`${from}_${to}`}
+                              className="flex justify-between"
+                            >
+                              <span className="font-medium">
+                                {from} → {to}:
+                              </span>
+                              <span>{rate ? rate.toFixed(4) : "N/A"}</span>
+                            </div>
+                          );
+                        }),
+                    )
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -223,11 +263,11 @@ export default function Expenses() {
             {sortedPeriods.map((period) => (
               <div
                 key={period}
-                className="bg-linear-to-b from-white to-gray-50 border border-gray-200 shadow-md rounded-lg overflow-hidden"
+                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden"
               >
                 <div className="flex justify-between items-center gap-2 px-2 py-2">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Payment Period: {period}
+                    {period}
                   </h3>
                   <Button
                     size="icon"
@@ -251,7 +291,10 @@ export default function Expenses() {
           </div>
         ) : (
           <div className="bg-white shadow rounded-lg p-8 text-center">
-            <p className="text-gray-500 mb-4">No expenses found</p>
+            <p className="flex flex-col justify-center items-center gap-2 text-gray-500 mb-4">
+              <CircleOff className="h-6 w-6" />
+              No expenses found
+            </p>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Expense

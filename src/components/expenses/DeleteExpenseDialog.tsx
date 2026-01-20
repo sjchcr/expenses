@@ -45,7 +45,7 @@ export function DeleteExpenseDialog({
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-gray-600">Amount:</span>
                 <span className="text-sm text-gray-900">
-                  {expense.currency} {expense.amount.toFixed(2)}
+                  {expense.amounts.map((a) => `${a.currency} ${a.amount.toFixed(2)}`).join(", ")}
                 </span>
               </div>
             </div>

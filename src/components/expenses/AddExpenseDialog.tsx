@@ -56,7 +56,9 @@ export function AddExpenseDialog({
   const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [isPaid, setIsPaid] = useState(false);
-  const [amounts, setAmounts] = useState<AmountFormData[]>([createEmptyAmount()]);
+  const [amounts, setAmounts] = useState<AmountFormData[]>([
+    createEmptyAmount(),
+  ]);
   const [openStartDate, setOpenStartDate] = useState(false);
 
   const createMutation = useCreateExpense();
@@ -73,7 +75,7 @@ export function AddExpenseDialog({
           amount: a.amount.toString(),
           exchange_rate: a.exchange_rate?.toString() || "",
           exchange_rate_source: a.exchange_rate_source || "api",
-        }))
+        })),
       );
     } else {
       setName("");
@@ -96,7 +98,7 @@ export function AddExpenseDialog({
   const handleAmountChange = (
     index: number,
     field: keyof AmountFormData,
-    value: string
+    value: string,
   ) => {
     const newAmounts = [...amounts];
     newAmounts[index] = { ...newAmounts[index], [field]: value };
@@ -112,7 +114,7 @@ export function AddExpenseDialog({
     const parsedDueDate = parseISO(dueDate);
     const paymentPeriod = expensesService.getPaymentPeriod(
       parsedDueDate,
-      paymentPeriods
+      paymentPeriods,
     );
 
     const expenseAmounts: ExpenseAmount[] = amounts
@@ -235,18 +237,26 @@ export function AddExpenseDialog({
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-start gap-2">
                     <Input
                       type="number"
                       step="0.0001"
                       min="0"
                       value={amountData.exchange_rate}
                       onChange={(e) =>
-                        handleAmountChange(index, "exchange_rate", e.target.value)
+                        handleAmountChange(
+                          index,
+                          "exchange_rate",
+                          e.target.value,
+                        )
                       }
                       placeholder="Exchange rate (optional)"
                       className="text-sm"
                     />
+                    <span className="text-xs text-gray-500 mx-2">
+                      If provided, this exchange rate will be used instead of
+                      fetching from an external API.
+                    </span>
                   </div>
                 </div>
               ))}

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { Database } from "@/types/database";
 import type { Expense, ExpenseInsert, ExpenseUpdate } from "@/types";
 import { format } from "date-fns";
 
@@ -29,7 +30,7 @@ export const expensesService = {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data as Expense[];
+    return data as unknown as Expense[];
   },
 
   async createExpense(expense: Omit<ExpenseInsert, "user_id">) {
@@ -42,25 +43,26 @@ export const expensesService = {
       .from("expenses")
       .insert({
         ...expense,
+        amounts: expense.amounts as unknown as Database["public"]["Tables"]["expenses"]["Insert"]["amounts"],
         user_id: user.id,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data as Expense;
+    return data as unknown as Expense;
   },
 
   async updateExpense(id: string, updates: ExpenseUpdate) {
     const { data, error } = await supabase
       .from("expenses")
-      .update(updates)
+      .update(updates as unknown as Database["public"]["Tables"]["expenses"]["Update"])
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
-    return data as Expense;
+    return data as unknown as Expense;
   },
 
   async deleteExpense(id: string) {
