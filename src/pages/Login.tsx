@@ -1,9 +1,26 @@
 import { useState } from 'react'
 import { authService } from '@/services/auth.service'
 
+const isDev = import.meta.env.DEV
+
 export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      setError(null)
+      await authService.signInWithEmail(email, password)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleGoogleSignIn = async () => {
     try {
@@ -66,6 +83,44 @@ export default function Login() {
             </svg>
             Continue with Apple
           </button>
+
+          {isDev && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-gray-500">Dev Login</span>
+                </div>
+              </div>
+              <form onSubmit={handleEmailSignIn} className="space-y-3">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  Sign in with Email
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>

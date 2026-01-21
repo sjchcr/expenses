@@ -50,7 +50,6 @@ export const authService = {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log("Current user:", user);
     return user;
   },
 

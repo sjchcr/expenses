@@ -1,6 +1,12 @@
 import { useState, useMemo } from "react";
-import { format } from "date-fns";
-import { Plus, ChevronDownIcon, CircleOff, Loader2 } from "lucide-react";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import {
+  Plus,
+  CircleOff,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   useExpenses,
@@ -10,33 +16,98 @@ import {
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { ExpenseTable } from "@/components/expenses/ExpenseTable";
 import { DeleteExpenseDialog } from "@/components/expenses/DeleteExpenseDialog";
 import type { Expense } from "@/types";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+
+// Month names for the select
+const MONTHS = [
+  { value: "0", label: "January" },
+  { value: "1", label: "February" },
+  { value: "2", label: "March" },
+  { value: "3", label: "April" },
+  { value: "4", label: "May" },
+  { value: "5", label: "June" },
+  { value: "6", label: "July" },
+  { value: "7", label: "August" },
+  { value: "8", label: "September" },
+  { value: "9", label: "October" },
+  { value: "10", label: "November" },
+  { value: "11", label: "December" },
+];
 
 export default function Expenses() {
-  const [openStartDate, setOpenStartDate] = useState(false);
-  const [startDate, setStartDate] = useState<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
-  const [openEndDate, setOpenEndDate] = useState(false);
-  const [endDate, setEndDate] = useState<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-  );
+  // Calculate start and end dates from selected month/year
+  const getDateRange = (month: number, year: number) => {
+    const startDate = startOfMonth(new Date(year, month, 1));
+    const endDate = endOfMonth(new Date(year, month, 1));
+    return {
+      startDate: format(startDate, "yyyy-MM-dd"),
+      endDate: format(endDate, "yyyy-MM-dd"),
+    };
+  };
 
-  const [filters, setFilters] = useState({
-    startDate: format(startDate, "yyyy-MM-dd"),
-    endDate: format(endDate, "yyyy-MM-dd"),
+  const [filters, setFilters] = useState(() => ({
+    ...getDateRange(selectedMonth, selectedYear),
     isPaid: undefined as boolean | undefined,
-  });
+  }));
+
+  const updateFilters = (month: number, year: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...getDateRange(month, year),
+    }));
+  };
+
+  const handleMonthChange = (value: string) => {
+    const month = Number(value);
+    setSelectedMonth(month);
+    updateFilters(month, selectedYear);
+  };
+
+  const handlePrevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedMonth(11);
+      setSelectedYear(selectedYear - 1);
+      updateFilters(11, selectedYear - 1);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+      updateFilters(selectedMonth - 1, selectedYear);
+    }
+  };
+
+  const handleNextMonth = () => {
+    const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
+    const nextYear = selectedMonth === 11 ? selectedYear + 1 : selectedYear;
+    setSelectedMonth(nextMonth);
+    setSelectedYear(nextYear);
+    updateFilters(nextMonth, nextYear);
+  };
+
+  const handlePrevYear = () => {
+    const newYear = selectedYear - 1;
+    setSelectedYear(newYear);
+    updateFilters(selectedMonth, newYear);
+  };
+
+  const handleNextYear = () => {
+    const newYear = selectedYear + 1;
+    setSelectedYear(newYear);
+    updateFilters(selectedMonth, newYear);
+  };
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -94,22 +165,6 @@ export default function Expenses() {
     setIsAddDialogOpen(true);
   };
 
-  const handleDateChange = (type: "start" | "end", date: Date) => {
-    if (type === "start") {
-      setStartDate(date);
-      setFilters({
-        ...filters,
-        startDate: format(date, "yyyy-MM-dd"),
-      });
-    } else {
-      setEndDate(date);
-      setFilters({
-        ...filters,
-        endDate: format(date, "yyyy-MM-dd"),
-      });
-    }
-  };
-
   // Group expenses by payment period
   const expensesByPeriod = useMemo(() => {
     if (!expenses) return {};
@@ -135,7 +190,13 @@ export default function Expenses() {
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Expenses</h2>
+          <div className="flex flex-col justify-start items-start gap-1">
+            <h2 className="text-2xl font-bold text-gray-900">Expenses</h2>
+            <div className="text-sm text-gray-600">
+              Manage your monthly expenses, view payment periods, and track your
+              payment status.
+            </div>
+          </div>
           <Button
             onClick={() => {
               setEditingExpense(null);
@@ -148,80 +209,78 @@ export default function Expenses() {
         </div>
 
         {/* Filters */}
-        <div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-end">
-            <div className="flex flex-col gap-1 w-full">
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700 mb-1"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b">
+          <div className="flex flex-col gap-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Month
+            </label>
+            <ButtonGroup className="w-full">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handlePrevMonth}
+                aria-label="Previous month"
               >
-                Start date
-              </label>
-              <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-full justify-between font-normal"
-                  >
-                    {format(startDate, "yyyy-MM-dd")}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-fit overflow-hidden p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      handleDateChange("start", date!);
-                      setOpenStartDate(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="flex flex-col gap-1 w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                End date
-              </label>
-              <Popover open={openEndDate} onOpenChange={setOpenEndDate}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-full justify-between font-normal"
-                  >
-                    {format(endDate, "yyyy-MM-dd")}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-fit overflow-hidden p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      handleDateChange("end", date!);
-                      setOpenEndDate(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div></div>
-            {availableCurrencies.length > 1 && (
-              <div className="flex flex-col gap-1 w-full col-span-2 md:col-span-1">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Select
+                value={String(selectedMonth)}
+                onValueChange={handleMonthChange}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleNextMonth}
+                aria-label="Next month"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </ButtonGroup>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Year
+            </label>
+            <ButtonGroup className="w-full">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handlePrevYear}
+                aria-label="Previous year"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <ButtonGroupText className="w-full justify-center bg-background text-sm">
+                {selectedYear}
+              </ButtonGroupText>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleNextYear}
+                aria-label="Next year"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </ButtonGroup>
+          </div>
+          {availableCurrencies.length > 1 && (
+            <div className="md:col-span-2 lg:col-span-2 grid grid-cols-subgrid gap-4">
+              <div className="flex flex-col gap-1 md:col-start-2 lg:col-start-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Exchange Rates
                 </label>
-                <div className="text-xs text-gray-600 bg-gray-50 rounded-md p-2 space-y-1">
+                <div className="text-xs text-gray-600 rounded-md space-y-1">
                   {isLoadingRates ? (
                     <div className="flex items-center gap-1">
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -249,8 +308,8 @@ export default function Expenses() {
                   )}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Tables by Payment Period */}
