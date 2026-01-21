@@ -10,7 +10,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from "../ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
