@@ -189,7 +189,7 @@ export default function Expenses() {
     <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] sm:px-6">
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
             <h2 className="text-2xl font-bold text-gray-900">Expenses</h2>
             <div className="text-sm text-gray-600">
@@ -227,7 +227,7 @@ export default function Expenses() {
                 value={String(selectedMonth)}
                 onValueChange={handleMonthChange}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-[calc(100%-4.5rem)]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -261,7 +261,7 @@ export default function Expenses() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <ButtonGroupText className="w-full justify-center bg-background text-sm">
+              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm shadow-sm">
                 {selectedYear}
               </ButtonGroupText>
               <Button
@@ -349,7 +349,7 @@ export default function Expenses() {
             ))}
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg p-8 text-center">
+          <div className="bg-white border border-gray-200 shadow-md rounded-xl p-8 text-center">
             <p className="flex flex-col justify-center items-center gap-2 text-gray-500 mb-4">
               <CircleOff className="h-6 w-6" />
               No expenses found
