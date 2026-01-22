@@ -12,10 +12,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Expense } from "@/types";
-import { Spinner } from "../ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -204,92 +204,102 @@ export function ExpenseTable({
           No {tab !== "all" && tab} expenses found
         </div>
       ) : (
-        sortedExpenses.map((expense, index) => (
-          <div
-            key={expense.id}
-            onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
-            className={cn(
-              "w-full flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-primary/5",
-              index !== sortedExpenses.length - 1 && "border-b border-gray-200",
-            )}
-          >
-            <div className="w-full flex items-center justify-start gap-1">
-              <div className="w-full flex flex-col justify-start items-center gap-1">
-                <div className="w-full flex justify-start items-center gap-1">
-                  {togglingExpenseId === expense.id ? (
-                    <Spinner className="h-3 w-3 text-gray-500" />
-                  ) : expense.is_paid ? (
-                    <Badge variant="success" className="gap-1">
-                      <CircleCheck className="h-3 w-3 shrink-0" />
-                      Paid
-                    </Badge>
-                  ) : (
-                    <Badge variant="warning" className="gap-1">
-                      <CircleDashed className="h-3 w-3 shrink-0" />
-                      Pending
-                    </Badge>
-                  )}
-                  <p
-                    className={cn(
-                      "text-sm font-bold truncate max-w-37.5",
-                      expense.is_paid ? "text-green-600" : "text-amber-500",
+        sortedExpenses.map((expense, index) => {
+          const daysLeft = Math.ceil(
+            (parseISO(expense.due_date).getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
+          return (
+            <div
+              key={expense.id}
+              onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-primary/5",
+                index !== sortedExpenses.length - 1 &&
+                  "border-b border-gray-200",
+              )}
+            >
+              <div className="w-full flex items-center justify-start gap-1">
+                <div className="w-full flex flex-col justify-start items-center gap-1">
+                  <div className="w-full flex justify-start items-center gap-1">
+                    {togglingExpenseId === expense.id ? (
+                      <Spinner className="h-3 w-3 text-gray-500" />
+                    ) : expense.is_paid ? (
+                      <Badge variant="success" className="gap-1">
+                        <CircleCheck className="h-3 w-3 shrink-0" />
+                        Paid
+                      </Badge>
+                    ) : (
+                      <Badge variant="warning" className="gap-1">
+                        <CircleDashed className="h-3 w-3 shrink-0" />
+                        Pending{" "}
+                        {daysLeft >= 0
+                          ? `(${daysLeft} days left)`
+                          : `(overdue)`}
+                      </Badge>
                     )}
-                  >
-                    {expense.name}
-                  </p>
-                </div>
-                <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
-                  {allCurrencies.map((currency) => {
-                    const amountData = expense.amounts.find(
-                      (a) => a.currency === currency,
-                    );
-                    return (
-                      <div
-                        key={currency}
-                        className="flex justify-start items-center gap-1 w-1/2"
-                      >
-                        <span>{getCurrencySymbol(currency)}</span>
-                        <span className={!amountData ? "text-gray-400" : ""}>
-                          {amountData ? formatAmount(amountData.amount) : "-"}
-                        </span>
-                      </div>
-                    );
-                  })}
+                    <p
+                      className={cn(
+                        "text-sm font-bold truncate max-w-37.5",
+                        expense.is_paid ? "text-green-600" : "text-amber-500",
+                      )}
+                    >
+                      {expense.name}
+                    </p>
+                  </div>
+                  <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
+                    {allCurrencies.map((currency) => {
+                      const amountData = expense.amounts.find(
+                        (a) => a.currency === currency,
+                      );
+                      return (
+                        <div
+                          key={currency}
+                          className="flex justify-start items-center gap-1 w-1/2"
+                        >
+                          <span>{getCurrencySymbol(currency)}</span>
+                          <span className={!amountData ? "text-gray-400" : ""}>
+                            {amountData ? formatAmount(amountData.amount) : "-"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="w-20">
-              <div className="text-sm text-gray-900 w-20">
-                {format(parseISO(expense.due_date), "MM/dd")}
+              <div className="w-20">
+                <div className="text-sm text-gray-900 w-20">
+                  {format(parseISO(expense.due_date), "MM/dd")}
+                </div>
+              </div>
+              <div className="w-15 flex justify-end gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(expense);
+                  }}
+                  className="h-7 w-7 p-0"
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(expense);
+                  }}
+                  className="h-7 w-7 p-0"
+                >
+                  <Trash2 className="h-3 w-3 text-red-600" />
+                </Button>
               </div>
             </div>
-            <div className="w-15 flex justify-end gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(expense);
-                }}
-                className="h-7 w-7 p-0"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(expense);
-                }}
-                className="h-7 w-7 p-0"
-              >
-                <Trash2 className="h-3 w-3 text-red-600" />
-              </Button>
-            </div>
-          </div>
-        ))
+          );
+        })
       )}
     </>
   );

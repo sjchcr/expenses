@@ -19,10 +19,14 @@ import {
 import { useCreateExpense, useUpdateExpense } from "@/hooks/useExpenses";
 import { expensesService } from "@/services/expenses.service";
 import type { Expense, ExpenseAmount, PaymentPeriod } from "@/types";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ChevronDownIcon, Plus, Trash2 } from "lucide-react";
-import { Calendar } from "../ui/calendar";
-import { Checkbox } from "../ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AddExpenseDialogProps {
   open: boolean;

@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { authService } from "./services/auth.service";
 import { settingsService } from "./services/settings.service";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Expenses from "./pages/Expenses";
-import Layout from "./components/layout/Layout";
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import Expenses from "@/pages/Expenses";
+import Layout from "@/components/layout/Layout";
 
 // Create a client
 const queryClient = new QueryClient({

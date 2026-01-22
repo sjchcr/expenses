@@ -1,12 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import {
-  Plus,
-  CircleOff,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Plus, CircleOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import {
   useExpenses,
@@ -28,6 +22,14 @@ import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { ExpenseTable } from "@/components/expenses/ExpenseTable";
 import { DeleteExpenseDialog } from "@/components/expenses/DeleteExpenseDialog";
 import type { Expense } from "@/types";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Month names for the select
 const MONTHS = [
@@ -203,8 +205,8 @@ export default function Expenses() {
               setIsAddDialogOpen(true);
             }}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Expense
+            <Plus className="h-4 w-4" />
+            Add expense
           </Button>
         </div>
 
@@ -282,9 +284,9 @@ export default function Expenses() {
                 </label>
                 <div className="text-xs text-gray-600 rounded-md space-y-1">
                   {isLoadingRates ? (
-                    <div className="flex items-center gap-1">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Loading rates...
+                    <div className="flex flex-col gap-1">
+                      <Skeleton className="h-3.75 w-full" />
+                      <Skeleton className="h-3.75 w-full" />
                     </div>
                   ) : (
                     availableCurrencies.flatMap((from) =>
@@ -314,38 +316,61 @@ export default function Expenses() {
 
         {/* Tables by Payment Period */}
         {isLoading ? (
-          <div className="bg-white shadow rounded-lg p-8 text-center text-gray-500">
-            Loading...
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0">
+              <CardHeader className="p-2 grid-rows-1">
+                <Skeleton className="h-4 w-62.5" />
+                <CardAction>
+                  <Skeleton className="h-9 w-9" />
+                </CardAction>
+              </CardHeader>
+              <CardContent className="p-2 flex flex-col gap-2">
+                <div className="flex justify-start items-center gap-1">
+                  <Skeleton className="h-9 w-18" />
+                  <Skeleton className="h-9 w-18" />
+                  <Skeleton className="h-9 w-18" />
+                </div>
+                <Skeleton className="h-15.25 w-full" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-30.25 w-full" />
+                  <Skeleton className="h-30.25 w-full" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ) : expenses && expenses.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {sortedPeriods.map((period) => (
-              <div
+              <Card
                 key={period}
-                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden"
+                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0"
               >
-                <div className="flex justify-between items-center gap-2 px-2 py-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                <CardHeader className="p-2 grid-rows-1">
+                  <CardTitle className="flex items-center h-full">
                     {period}
-                  </h3>
-                  <Button
-                    size="icon"
-                    onClick={() => {
-                      setEditingExpense(null);
-                      setIsAddDialogOpen(true);
-                    }}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <ExpenseTable
-                  expenses={expensesByPeriod[period]}
-                  togglingExpenseId={togglingExpenseId}
-                  onTogglePaid={handleTogglePaid}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              </div>
+                  </CardTitle>
+                  <CardAction>
+                    <Button
+                      size="icon"
+                      onClick={() => {
+                        setEditingExpense(null);
+                        setIsAddDialogOpen(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </CardAction>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <ExpenseTable
+                    expenses={expensesByPeriod[period]}
+                    togglingExpenseId={togglingExpenseId}
+                    onTogglePaid={handleTogglePaid}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                </CardContent>
+              </Card>
             ))}
           </div>
         ) : (
@@ -355,8 +380,8 @@ export default function Expenses() {
               No expenses found
             </p>
             <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Expense
+              <Plus className="h-4 w-4" />
+              Add your first expense
             </Button>
           </div>
         )}
