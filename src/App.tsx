@@ -7,7 +7,9 @@ import { settingsService } from "./services/settings.service";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Expenses from "@/pages/Expenses";
+import Templates from "@/pages/Templates";
 import Layout from "@/components/layout/Layout";
+import { Spinner } from "./components/ui/spinner";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -64,7 +66,7 @@ function App() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Spinner className="size-12" />
       </div>
     );
   }
@@ -82,6 +84,7 @@ function App() {
           <Route element={user ? <Layout /> : <Navigate to="/login" />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/expenses" element={<Expenses />} />
+            <Route path="/templates" element={<Templates />} />
           </Route>
 
           <Route

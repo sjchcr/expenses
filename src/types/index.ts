@@ -8,6 +8,12 @@ export interface ExpenseAmount {
   exchange_rate_source?: "api" | "manual" | null;
 }
 
+// Template Amount interface (amount is optional for templates)
+export interface TemplateAmount {
+  currency: string;
+  amount?: number | null;
+}
+
 // Base database types
 type ExpenseRow = Database["public"]["Tables"]["expenses"]["Row"];
 type ExpenseInsertBase = Database["public"]["Tables"]["expenses"]["Insert"];
@@ -26,12 +32,28 @@ export interface ExpenseUpdate extends Omit<ExpenseUpdateBase, "amounts"> {
   amounts?: ExpenseAmount[];
 }
 
-export type ExpenseTemplate =
+// Base template types from database
+type ExpenseTemplateRow =
   Database["public"]["Tables"]["expense_templates"]["Row"];
-export type ExpenseTemplateInsert =
+type ExpenseTemplateInsertBase =
   Database["public"]["Tables"]["expense_templates"]["Insert"];
-export type ExpenseTemplateUpdate =
+type ExpenseTemplateUpdateBase =
   Database["public"]["Tables"]["expense_templates"]["Update"];
+
+// Override ExpenseTemplate to type amounts as TemplateAmount[] instead of Json
+export interface ExpenseTemplate extends Omit<ExpenseTemplateRow, "amounts"> {
+  amounts: TemplateAmount[];
+}
+
+export interface ExpenseTemplateInsert
+  extends Omit<ExpenseTemplateInsertBase, "amounts"> {
+  amounts: TemplateAmount[];
+}
+
+export interface ExpenseTemplateUpdate
+  extends Omit<ExpenseTemplateUpdateBase, "amounts"> {
+  amounts?: TemplateAmount[];
+}
 
 export type ExchangeRate =
   Database["public"]["Tables"]["exchange_rates"]["Row"];

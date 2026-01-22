@@ -46,8 +46,8 @@ export type Database = {
       }
       expense_templates: {
         Row: {
+          amounts: Json
           created_at: string | null
-          currency: string
           id: string
           is_recurring: boolean | null
           name: string
@@ -55,8 +55,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          amounts: Json
           created_at?: string | null
-          currency: string
           id?: string
           is_recurring?: boolean | null
           name: string
@@ -64,8 +64,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          amounts?: Json
           created_at?: string | null
-          currency?: string
           id?: string
           is_recurring?: boolean | null
           name?: string

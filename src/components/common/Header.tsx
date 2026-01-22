@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
-import { LayoutDashboard, LogOut, Receipt, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, Receipt, Settings, FileText } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import type { User } from "@supabase/supabase-js";
@@ -55,6 +55,7 @@ const Header = () => {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/expenses", label: "Expenses", icon: Receipt },
+    { path: "/templates", label: "Templates", icon: FileText },
     { path: "/settings", label: "Settings", icon: Settings },
   ];
   return (
@@ -64,7 +65,7 @@ const Header = () => {
           <div className="flex gap-4">
             <div className="shrink-0 flex items-center">
               <h1 className="text-xl font-bold text-gray-900">
-                Financial Tracker
+                {import.meta.env.VITE_SITE_TITLE}
               </h1>
             </div>
             <NavigationMenu>

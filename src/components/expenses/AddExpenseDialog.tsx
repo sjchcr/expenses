@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { format, parseISO } from "date-fns";
 import {
   Dialog,
@@ -24,9 +24,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronDownIcon, Plus, Trash2 } from "lucide-react";
+import { ChevronDownIcon, Plus, Trash2, FileText } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTemplates } from "@/hooks/useTemplates";
 
 interface AddExpenseDialogProps {
   open: boolean;
@@ -64,9 +65,64 @@ export function AddExpenseDialog({
     createEmptyAmount(),
   ]);
   const [openStartDate, setOpenStartDate] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const createMutation = useCreateExpense();
   const updateMutation = useUpdateExpense();
+  const { data: templates } = useTemplates();
+
+  // Filter templates that match the current name input for auto-suggest
+  const suggestedTemplates = useMemo(() => {
+    if (!templates || !name || name.length < 2 || expense) return [];
+    const lowerName = name.toLowerCase();
+    return templates.filter((t) =>
+      t.name.toLowerCase().includes(lowerName)
+    ).slice(0, 5);
+  }, [templates, name, expense]);
+
+  // Helper to apply template data to form
+  const applyTemplate = (templateId: string) => {
+    const template = templates?.find((t) => t.id === templateId);
+    if (template) {
+      setName(template.name);
+      // Map template amounts to form amounts
+      const templateAmounts = template.amounts.map((a) => ({
+        currency: a.currency,
+        amount: a.amount?.toString() || "",
+        exchange_rate: "",
+        exchange_rate_source: "api" as const,
+      }));
+      setAmounts(templateAmounts.length > 0 ? templateAmounts : [createEmptyAmount()]);
+      // If recurring, set due date to this month's recurrence day
+      if (template.is_recurring && template.recurrence_day) {
+        const today = new Date();
+        const recurrenceDate = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          template.recurrence_day
+        );
+        if (recurrenceDate < today) {
+          recurrenceDate.setMonth(recurrenceDate.getMonth() + 1);
+        }
+        setDueDate(format(recurrenceDate, "yyyy-MM-dd"));
+      }
+      setSelectedTemplateId(templateId);
+    }
+  };
+
+  const handleSuggestionSelect = (templateId: string) => {
+    applyTemplate(templateId);
+    setShowSuggestions(false);
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplateId(templateId);
+    if (templateId && templateId !== "none") {
+      applyTemplate(templateId);
+    }
+  };
 
   useEffect(() => {
     if (expense) {
@@ -81,11 +137,13 @@ export function AddExpenseDialog({
           exchange_rate_source: a.exchange_rate_source || "api",
         })),
       );
+      setSelectedTemplateId("");
     } else {
       setName("");
       setDueDate(format(new Date(), "yyyy-MM-dd"));
       setIsPaid(false);
       setAmounts([createEmptyAmount()]);
+      setSelectedTemplateId("");
     }
   }, [expense, open]);
 
@@ -171,15 +229,77 @@ export function AddExpenseDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          {!expense && templates && templates.length > 0 && (
+            <div className="pb-2 border-b">
+              <Label htmlFor="template" className="flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5" />
+                Create from template
+              </Label>
+              <Select
+                value={selectedTemplateId}
+                onValueChange={handleTemplateSelect}
+              >
+                <SelectTrigger id="template" className="mt-1">
+                  <SelectValue placeholder="Select a template..." />
+                </SelectTrigger>
+                <SelectContent position="popper" className="max-h-60">
+                  <SelectItem value="none">No template</SelectItem>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name} ({template.amounts.map((a) => a.currency).join(", ")})
+                      {template.is_recurring && " - Recurring"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="relative">
             <Label htmlFor="name">Name *</Label>
             <Input
+              ref={nameInputRef}
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setShowSuggestions(true);
+                setSelectedTemplateId("");
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => {
+                // Delay hiding to allow click on suggestion
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
               placeholder="e.g., Rent, Electricity, Groceries"
               required
+              autoComplete="off"
             />
+            {/* Auto-suggest dropdown */}
+            {showSuggestions && suggestedTemplates.length > 0 && !expense && (
+              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
+                  Suggestions from templates
+                </div>
+                {suggestedTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center justify-between"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSuggestionSelect(template.id);
+                    }}
+                  >
+                    <span className="font-medium">{template.name}</span>
+                    <span className="text-xs text-gray-500">
+                      {template.amounts.map((a) => a.currency).join(", ")}
+                      {template.is_recurring && " · Recurring"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -222,7 +342,7 @@ export function AddExpenseDialog({
                       <SelectTrigger>
                         <SelectValue placeholder="Currency" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" className="max-h-60">
                         {COMMON_CURRENCIES.map((curr) => (
                           <SelectItem key={curr} value={curr}>
                             {curr}
