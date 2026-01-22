@@ -50,6 +50,7 @@ interface ExpenseTableProps {
   onTogglePaid: (id: string, currentStatus: boolean) => void;
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
+  defaultTab?: "all" | "pending" | "paid";
 }
 
 export function ExpenseTable({
@@ -58,10 +59,11 @@ export function ExpenseTable({
   onTogglePaid,
   onEdit,
   onDelete,
+  defaultTab = "all",
 }: ExpenseTableProps) {
   const [sortColumn] = useState<string | null>("due_date");
   const [sortDirection] = useState<"asc" | "desc">("asc");
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "paid">(defaultTab);
 
   const filterExpenses = (items: Expense[]) => {
     switch (activeTab) {
@@ -306,7 +308,7 @@ export function ExpenseTable({
 
   return (
     <div className="w-full h-[calc(100%-52px)] flex flex-col justify-between">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")} className="w-full">
         <TabsList background={false} className="mx-2 gap-1">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />

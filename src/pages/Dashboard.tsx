@@ -1,17 +1,87 @@
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import {
+  PendingPaymentsCard,
+  MonthComparisonCard,
+  ExchangeRatesCard,
+  SpendingTrendsChart,
+  CurrencyBreakdownChart,
+  QuickStatsCards,
+} from "@/components/dashboard";
+
 export default function Dashboard() {
+  const { displayName } = useCurrentUser();
+  const {
+    pendingPayments,
+    monthComparison,
+    monthlyTrends,
+    yearTotals,
+    paidVsPending,
+    exchangeRatesDisplay,
+    currencies,
+    primaryCurrency,
+    currentYear,
+    currentMonthName,
+    previousMonthName,
+    isLoading,
+    totalExpensesCount,
+  } = useDashboardStats();
+
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Welcome to Expense Tracker! 🎉
-            </h2>
-            <p className="text-gray-600">
-              Your dashboard widgets will appear here soon.
-            </p>
-          </div>
-        </div>
+    <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] px-4 flex flex-col gap-6">
+      <div className="flex flex-col items-start justify-start gap-2">
+        <h1 className="text-2xl font-semibold text-foreground">
+          Welcome back{displayName ? ` ${displayName}` : ""}!
+        </h1>
+        <h3 className="text-sm text-muted-foreground">
+          Here's a summary of your financial insights for {currentYear}.
+        </h3>
+      </div>
+
+      {/* Quick Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <QuickStatsCards
+          yearTotals={yearTotals}
+          paidVsPending={paidVsPending}
+          totalExpensesCount={totalExpensesCount}
+          currentYear={currentYear}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Info Cards Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <PendingPaymentsCard
+          pendingPayments={pendingPayments}
+          currentMonthName={currentMonthName}
+          isLoading={isLoading}
+        />
+        <MonthComparisonCard
+          monthComparison={monthComparison}
+          currentMonthName={currentMonthName}
+          previousMonthName={previousMonthName}
+          isLoading={isLoading}
+        />
+        <ExchangeRatesCard
+          exchangeRates={exchangeRatesDisplay}
+          primaryCurrency={primaryCurrency}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <SpendingTrendsChart
+          monthlyTrends={monthlyTrends}
+          currencies={currencies}
+          currentYear={currentYear}
+          isLoading={isLoading}
+        />
+        <CurrencyBreakdownChart
+          yearTotals={yearTotals}
+          currentYear={currentYear}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );

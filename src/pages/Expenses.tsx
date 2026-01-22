@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { Plus, CircleOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -48,6 +49,11 @@ const MONTHS = [
 ];
 
 export default function Expenses() {
+  const [searchParams] = useSearchParams();
+  const filterParam = searchParams.get("filter");
+  const defaultTab: "all" | "pending" | "paid" =
+    filterParam === "pending" || filterParam === "paid" ? filterParam : "all";
+
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
@@ -368,6 +374,7 @@ export default function Expenses() {
                     onTogglePaid={handleTogglePaid}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    defaultTab={defaultTab}
                   />
                 </CardContent>
               </Card>

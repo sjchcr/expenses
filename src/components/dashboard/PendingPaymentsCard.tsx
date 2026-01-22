@@ -1,0 +1,103 @@
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Clock, ArrowRight } from "lucide-react";
+import type { CurrencyTotal } from "@/hooks/useDashboardStats";
+
+interface PendingPaymentsCardProps {
+  pendingPayments: CurrencyTotal[];
+  currentMonthName: string;
+  isLoading: boolean;
+}
+
+function formatCurrency(amount: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
+
+export function PendingPaymentsCard({
+  pendingPayments,
+  currentMonthName,
+  isLoading,
+}: PendingPaymentsCardProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-40" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const totalCount = pendingPayments.reduce((acc, p) => acc + p.count, 0);
+
+  return (
+    <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-warning" />
+          <CardTitle className="text-base">
+            Pending payments - {currentMonthName}
+          </CardTitle>
+        </div>
+        {pendingPayments.length > 0 && (
+          <CardAction>
+            <Button variant="default" size="sm" asChild>
+              <Link to="/expenses?filter=pending">
+                View all
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </Button>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent>
+        {pendingPayments.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            No pending payments this month
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {pendingPayments.map(({ currency, total, count }) => (
+              <div key={currency} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{currency}</Badge>
+                  <span className="text-muted-foreground text-sm">
+                    {count} {count === 1 ? "expense" : "expenses"}
+                  </span>
+                </div>
+                <span className="font-semibold text-warning">
+                  {formatCurrency(total, currency)}
+                </span>
+              </div>
+            ))}
+            <div className="border-t pt-3 mt-3">
+              <span className="text-muted-foreground text-sm">
+                {totalCount} total pending{" "}
+                {totalCount === 1 ? "expense" : "expenses"}
+              </span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
