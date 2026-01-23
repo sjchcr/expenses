@@ -497,7 +497,7 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
-                Export Data
+                Export data
               </CardTitle>
               <CardDescription>
                 Download your expenses and settings as CSV or JSON.
@@ -514,7 +514,7 @@ export default function Settings() {
               </div>
               <Button onClick={() => setIsExportDialogOpen(true)}>
                 <Download className="h-4 w-4 mr-2" />
-                Export Data
+                Export data
               </Button>
             </CardContent>
           </Card>
