@@ -51,6 +51,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -370,14 +371,24 @@ export default function Templates() {
           {/* Templates Section - Left side */}
           <div className="xl:col-span-2 space-y-6">
             {isLoading ? (
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-5 w-40" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-32 w-full" />
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-5 w-40" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-32 w-full" />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-5 w-40" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-32 w-full" />
+                  </CardContent>
+                </Card>
+              </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recurring Templates */}
@@ -410,7 +421,10 @@ export default function Templates() {
                         </TableHeader>
                         <TableBody>
                           {recurringTemplates.map((template) => (
-                            <TableRow key={template.id}>
+                            <TableRow
+                              key={template.id}
+                              className="hover:bg-primary/5"
+                            >
                               <TableCell className="font-medium">
                                 <p className="font-bold">{template.name}</p>
                               </TableCell>
@@ -427,22 +441,33 @@ export default function Templates() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="h-7 w-7"
                                     onClick={() => handleOpenDialog(template)}
                                   >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <Pencil className="h-3 w-3" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="h-7 w-7"
                                     onClick={() => handleDelete(template)}
                                   >
-                                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                    <Trash2 className="h-3 w-3 text-red-500" />
                                   </Button>
                                 </div>
                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
+                        <TableFooter>
+                          <TableRow>
+                            <TableCell colSpan={4}>
+                              <p className="text-xs text-gray-500">
+                                Total templates: {recurringTemplates.length}
+                              </p>
+                            </TableCell>
+                          </TableRow>
+                        </TableFooter>
                       </Table>
                     </CardContent>
                   </Card>
@@ -496,7 +521,10 @@ export default function Templates() {
                         </TableHeader>
                         <TableBody>
                           {regularTemplates.map((template) => (
-                            <TableRow key={template.id}>
+                            <TableRow
+                              key={template.id}
+                              className="hover:bg-primary/5"
+                            >
                               <TableCell className="font-medium">
                                 {template.name}
                               </TableCell>
@@ -508,22 +536,33 @@ export default function Templates() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="h-7 w-7"
                                     onClick={() => handleOpenDialog(template)}
                                   >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <Pencil className="h-3 w-3" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="h-7 w-7"
                                     onClick={() => handleDelete(template)}
                                   >
-                                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                    <Trash2 className="h-3 w-3 text-red-500" />
                                   </Button>
                                 </div>
                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
+                        <TableFooter>
+                          <TableRow>
+                            <TableCell colSpan={4}>
+                              <p className="text-xs text-gray-500">
+                                Total templates: {regularTemplates.length}
+                              </p>
+                            </TableCell>
+                          </TableRow>
+                        </TableFooter>
                       </Table>
                     </CardContent>
                   </Card>
