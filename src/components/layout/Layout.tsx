@@ -10,7 +10,7 @@ export default function Layout() {
       <Header />
 
       {/* Page Content */}
-      <main className="min-h-[calc(100vh-133px)]">
+      <main className="min-h-[calc(100vh-133px)] pb-24 md:pb-0">
         <Outlet />
       </main>
 
