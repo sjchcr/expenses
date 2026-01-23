@@ -397,7 +397,7 @@ export default function Templates() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4" />
-                        Recurring Bills
+                        Recurring bills
                       </CardTitle>
                       <CardDescription>
                         Templates for recurring expenses billed on a regular
@@ -498,7 +498,7 @@ export default function Templates() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
-                        Quick Templates
+                        Quick templates
                       </CardTitle>
                       <CardDescription>
                         Templates for one-time or non-recurring expenses. No set
@@ -596,7 +596,7 @@ export default function Templates() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Layers className="h-4 w-4" />
-                  Template Groups
+                  Template groups
                 </CardTitle>
                 <CardDescription>
                   Organize templates into groups for batch expense creation.

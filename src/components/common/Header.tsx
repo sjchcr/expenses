@@ -67,8 +67,8 @@ const Header = () => {
   return (
     <header className="bg-background/60 backdrop-blur-2xl py-2 shadow-sm sticky top-0 z-50">
       <div className="md:w-10/12 mx-auto sm:w-full px-4 md:px-0">
-        <div className="flex justify-between gap-2">
-          <div className="flex gap-4">
+        <div className="flex justify-between items-start sm:items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="shrink-0 flex items-center">
               <h1 className="flex items-center justify-start gap-2 text-xl font-bold text-gray-900">
                 <img
@@ -90,14 +90,14 @@ const Header = () => {
                         key={item.path}
                         asChild
                         className={cn(
-                          "flex flex-row justify-center items-center gap-2 rounded-full md:px-3 w-9 md:w-auto h-9",
+                          "flex flex-row justify-center items-center gap-2 rounded-full md:px-3 h-9",
                           isActive &&
                             "text-gray-900 bg-accent hover:text-accent-foreground",
                         )}
                       >
                         <Link to={item.path}>
                           <Icon className="h-4 w-4" />
-                          <p className="hidden md:block">{item.label}</p>
+                          <p>{item.label}</p>
                         </Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>

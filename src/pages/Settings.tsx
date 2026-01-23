@@ -42,7 +42,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import type { PaymentPeriod } from "@/types";
 
-const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF"];
+const COMMON_CURRENCIES = [
+  "USD",
+  "CRC",
+  "COP",
+  "MXN",
+  "EUR",
+  "GBP",
+  "JPY",
+  "CAD",
+  "AUD",
+  "CHF",
+];
 
 export default function Settings() {
   const { settings, isLoading } = useUserSettings();
@@ -134,7 +145,7 @@ export default function Settings() {
   const handlePeriodChange = (
     index: number,
     field: "start_day" | "end_day",
-    value: number
+    value: number,
   ) => {
     const newPeriods = [...paymentPeriods];
     newPeriods[index] = { ...newPeriods[index], [field]: value };
@@ -144,13 +155,15 @@ export default function Settings() {
   const handleSavePaymentPeriods = async () => {
     // Validate periods don't overlap and cover all days
     const sortedPeriods = [...paymentPeriods].sort(
-      (a, b) => a.start_day - b.start_day
+      (a, b) => a.start_day - b.start_day,
     );
 
     for (let i = 0; i < sortedPeriods.length; i++) {
       const period = sortedPeriods[i];
       if (period.start_day > period.end_day) {
-        toast.error(`Period ${period.period}: Start day must be before end day`);
+        toast.error(
+          `Period ${period.period}: Start day must be before end day`,
+        );
         return;
       }
       if (i > 0) {
@@ -201,9 +214,10 @@ export default function Settings() {
         e.created_at || "",
       ]);
 
-      content = [headers.join(","), ...rows.map((r) => r.map((c) => `"${c}"`).join(","))].join(
-        "\n"
-      );
+      content = [
+        headers.join(","),
+        ...rows.map((r) => r.map((c) => `"${c}"`).join(",")),
+      ].join("\n");
       filename = `expenses-export-${new Date().toISOString().split("T")[0]}.csv`;
       mimeType = "text/csv";
     } else {
@@ -230,7 +244,9 @@ export default function Settings() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast.success(`Exported ${expenses.length} expenses as ${exportFormat.toUpperCase()}`);
+    toast.success(
+      `Exported ${expenses.length} expenses as ${exportFormat.toUpperCase()}`,
+    );
     setIsExportDialogOpen(false);
   };
 
@@ -296,7 +312,7 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-4 w-4" />
-                Primary Currency
+                Primary currency
               </CardTitle>
               <CardDescription>
                 Your default currency for displaying totals and conversions.
@@ -328,7 +344,7 @@ export default function Settings() {
                   primaryCurrency === settings?.primary_currency
                 }
               >
-                {updateMutation.isPending ? "Saving..." : "Save Currency"}
+                {updateMutation.isPending ? "Saving..." : "Save currency"}
               </Button>
             </CardContent>
           </Card>
@@ -338,7 +354,7 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Payment Periods
+                Payment periods
               </CardTitle>
               <CardDescription>
                 Customize how expenses are grouped by payment period.
@@ -365,7 +381,7 @@ export default function Settings() {
                           handlePeriodChange(
                             index,
                             "start_day",
-                            parseInt(e.target.value) || 1
+                            parseInt(e.target.value) || 1,
                           )
                         }
                         className="w-16 h-8"
@@ -380,7 +396,7 @@ export default function Settings() {
                           handlePeriodChange(
                             index,
                             "end_day",
-                            parseInt(e.target.value) || 31
+                            parseInt(e.target.value) || 31,
                           )
                         }
                         className="w-16 h-8"
@@ -403,18 +419,16 @@ export default function Settings() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={handleAddPeriod}
                 >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Period
+                  <Plus className="h-3 w-3" />
+                  Add period
                 </Button>
                 <Button
                   onClick={handleSavePaymentPeriods}
                   disabled={updateMutation.isPending}
-                  size="sm"
                 >
-                  {updateMutation.isPending ? "Saving..." : "Save Periods"}
+                  {updateMutation.isPending ? "Saving..." : "Save periods"}
                 </Button>
               </div>
             </CardContent>
@@ -463,9 +477,8 @@ export default function Settings() {
               <Button
                 onClick={handleSaveProfile}
                 disabled={isSavingProfile || !hasProfileChanges}
-                size="sm"
               >
-                {isSavingProfile ? "Saving..." : "Save Profile"}
+                {isSavingProfile ? "Saving..." : "Save profile"}
               </Button>
               <Separator />
               <Button
@@ -474,7 +487,7 @@ export default function Settings() {
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                Sign out
               </Button>
             </CardContent>
           </Card>
@@ -531,9 +544,7 @@ export default function Settings() {
                   <SelectItem value="csv">
                     CSV (Spreadsheet compatible)
                   </SelectItem>
-                  <SelectItem value="json">
-                    JSON (Full data backup)
-                  </SelectItem>
+                  <SelectItem value="json">JSON (Full data backup)</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500 mt-1">

@@ -221,14 +221,14 @@ export default function Expenses() {
               payment status.
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {hasGroups && (
               <Button
                 variant="outline"
                 onClick={() => setIsGroupDialogOpen(true)}
               >
                 <Layers className="h-4 w-4" />
-                From Group
+                From group
               </Button>
             )}
             <Button
