@@ -23,7 +23,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useTemplateGroups } from "@/hooks/useTemplateGroups";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useCreateExpense } from "@/hooks/useExpenses";
@@ -54,7 +53,7 @@ export function CreateFromGroupDialog({
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [creationStatuses, setCreationStatuses] = useState<CreationStatus[]>(
-    []
+    [],
   );
 
   const { data: groups } = useTemplateGroups();
@@ -70,7 +69,7 @@ export function CreateFromGroupDialog({
 
   // Get only selected templates for creation
   const templatesToCreate = groupTemplates.filter((t) =>
-    selectedTemplateIds.includes(t.id)
+    selectedTemplateIds.includes(t.id),
   );
 
   // Reset state when dialog opens/closes
@@ -94,22 +93,6 @@ export function CreateFromGroupDialog({
     }
   };
 
-  const handleTemplateToggle = (templateId: string) => {
-    setSelectedTemplateIds((prev) =>
-      prev.includes(templateId)
-        ? prev.filter((id) => id !== templateId)
-        : [...prev, templateId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    setSelectedTemplateIds(groupTemplates.map((t) => t.id));
-  };
-
-  const handleSelectNone = () => {
-    setSelectedTemplateIds([]);
-  };
-
   const getDueDateForTemplate = (template: ExpenseTemplate): string => {
     if (template.is_recurring && template.recurrence_day) {
       const baseDateObj = parseISO(baseDate);
@@ -117,9 +100,9 @@ export function CreateFromGroupDialog({
         new Date(
           baseDateObj.getFullYear(),
           baseDateObj.getMonth(),
-          template.recurrence_day
+          template.recurrence_day,
         ),
-        "yyyy-MM-dd"
+        "yyyy-MM-dd",
       );
     }
     return baseDate;
@@ -146,9 +129,7 @@ export function CreateFromGroupDialog({
 
       // Update status to creating
       setCreationStatuses((prev) =>
-        prev.map((s, idx) =>
-          idx === i ? { ...s, status: "creating" } : s
-        )
+        prev.map((s, idx) => (idx === i ? { ...s, status: "creating" } : s)),
       );
 
       try {
@@ -156,7 +137,7 @@ export function CreateFromGroupDialog({
         const parsedDueDate = parseISO(dueDate);
         const paymentPeriod = expensesService.getPaymentPeriod(
           parsedDueDate,
-          paymentPeriods
+          paymentPeriods,
         );
 
         // Create expense from template
@@ -178,9 +159,7 @@ export function CreateFromGroupDialog({
 
         // Update status to success
         setCreationStatuses((prev) =>
-          prev.map((s, idx) =>
-            idx === i ? { ...s, status: "success" } : s
-          )
+          prev.map((s, idx) => (idx === i ? { ...s, status: "success" } : s)),
         );
         successCount++;
       } catch (error) {
@@ -192,12 +171,10 @@ export function CreateFromGroupDialog({
                   ...s,
                   status: "error",
                   error:
-                    error instanceof Error
-                      ? error.message
-                      : "Failed to create",
+                    error instanceof Error ? error.message : "Failed to create",
                 }
-              : s
-          )
+              : s,
+          ),
         );
         errorCount++;
       }
@@ -207,11 +184,13 @@ export function CreateFromGroupDialog({
 
     if (successCount > 0) {
       toast.success(
-        `Created ${successCount} expense${successCount > 1 ? "s" : ""}`
+        `Created ${successCount} expense${successCount > 1 ? "s" : ""}`,
       );
     }
     if (errorCount > 0) {
-      toast.error(`Failed to create ${errorCount} expense${errorCount > 1 ? "s" : ""}`);
+      toast.error(
+        `Failed to create ${errorCount} expense${errorCount > 1 ? "s" : ""}`,
+      );
     }
 
     // Close dialog after a short delay to show final statuses
@@ -325,7 +304,7 @@ export function CreateFromGroupDialog({
                                     .map((a) =>
                                       a.amount
                                         ? `${a.currency} ${a.amount.toLocaleString()}`
-                                        : a.currency
+                                        : a.currency,
                                     )
                                     .join(", ")}
                                 </div>
@@ -376,9 +355,7 @@ export function CreateFromGroupDialog({
                 <Button
                   onClick={handleCreate}
                   disabled={
-                    !selectedGroup ||
-                    groupTemplates.length === 0 ||
-                    isCreating
+                    !selectedGroup || groupTemplates.length === 0 || isCreating
                   }
                 >
                   {isCreating ? "Creating..." : "Create Expenses"}
