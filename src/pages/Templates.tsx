@@ -413,10 +413,10 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Name</TableHead>
+                            <TableHead className="pl-4">Name</TableHead>
                             <TableHead>Currencies / Amounts</TableHead>
                             <TableHead>Day</TableHead>
-                            <TableHead className="w-24">Actions</TableHead>
+                            <TableHead className="w-24 pr-4">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -425,7 +425,7 @@ export default function Templates() {
                               key={template.id}
                               className="hover:bg-primary/5"
                             >
-                              <TableCell className="font-medium">
+                              <TableCell className="font-medium pl-4">
                                 <p className="font-bold">{template.name}</p>
                               </TableCell>
                               <TableCell className="text-sm">
@@ -436,7 +436,7 @@ export default function Templates() {
                                   ? `Day ${template.recurrence_day}`
                                   : "-"}
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="pr-4">
                                 <div className="flex gap-1">
                                   <Button
                                     variant="ghost"
@@ -461,7 +461,7 @@ export default function Templates() {
                         </TableBody>
                         <TableFooter>
                           <TableRow>
-                            <TableCell colSpan={4}>
+                            <TableCell colSpan={4} className="px-4">
                               <p className="text-xs text-gray-500">
                                 Total templates: {recurringTemplates.length}
                               </p>
@@ -494,7 +494,7 @@ export default function Templates() {
 
                 {/* Regular Templates */}
                 {regularTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-2 py-2">
+                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
@@ -514,9 +514,9 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Name</TableHead>
+                            <TableHead className="pl-4">Name</TableHead>
                             <TableHead>Currencies / Amounts</TableHead>
-                            <TableHead className="w-24">Actions</TableHead>
+                            <TableHead className="w-24 pr-4">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -525,13 +525,13 @@ export default function Templates() {
                               key={template.id}
                               className="hover:bg-primary/5"
                             >
-                              <TableCell className="font-medium">
+                              <TableCell className="font-medium pl-4">
                                 {template.name}
                               </TableCell>
                               <TableCell className="text-sm">
                                 {formatAmountsDisplay(template.amounts)}
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="pr-4">
                                 <div className="flex gap-1">
                                   <Button
                                     variant="ghost"
@@ -556,7 +556,7 @@ export default function Templates() {
                         </TableBody>
                         <TableFooter>
                           <TableRow>
-                            <TableCell colSpan={4}>
+                            <TableCell colSpan={4} className="px-4">
                               <p className="text-xs text-gray-500">
                                 Total templates: {regularTemplates.length}
                               </p>
@@ -687,7 +687,7 @@ export default function Templates() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingTemplate ? "Edit Template" : "Create Template"}
+              {editingTemplate ? "Edit template" : "Create template"}
             </DialogTitle>
           </DialogHeader>
 
@@ -716,7 +716,7 @@ export default function Templates() {
                   className="h-7 text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  Add Currency
+                  Add currency
                 </Button>
               </div>
               <div className="space-y-3">
@@ -875,13 +875,13 @@ export default function Templates() {
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingGroup ? "Edit Group" : "Create Group"}
+              {editingGroup ? "Edit group" : "Create group"}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmitGroup} className="space-y-4">
             <div>
-              <Label htmlFor="group-name">Group Name *</Label>
+              <Label htmlFor="group-name">Group name *</Label>
               <Input
                 id="group-name"
                 value={groupFormData.name}
@@ -894,7 +894,7 @@ export default function Templates() {
             </div>
 
             <div>
-              <Label className="mb-2 block">Select Templates *</Label>
+              <Label className="mb-2 block">Select templates *</Label>
               <div className="border rounded-lg max-h-64 overflow-y-auto">
                 {templates && templates.length > 0 ? (
                   <div className="divide-y">

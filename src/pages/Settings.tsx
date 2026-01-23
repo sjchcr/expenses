@@ -486,7 +486,7 @@ export default function Settings() {
                 onClick={handleSignOut}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-4 w-4" />
                 Sign out
               </Button>
             </CardContent>
@@ -513,7 +513,7 @@ export default function Settings() {
                 </ul>
               </div>
               <Button onClick={() => setIsExportDialogOpen(true)}>
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4" />
                 Export data
               </Button>
             </CardContent>
@@ -561,7 +561,7 @@ export default function Settings() {
                 Cancel
               </Button>
               <Button onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4" />
                 Download
               </Button>
             </div>

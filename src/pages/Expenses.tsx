@@ -396,9 +396,9 @@ export default function Expenses() {
             {sortedPeriods.map((period) => (
               <Card
                 key={period}
-                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0"
+                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-0"
               >
-                <CardHeader className="p-2 grid-rows-1">
+                <CardHeader className="grid-rows-1">
                   <CardTitle className="flex items-center h-full">
                     {period}
                   </CardTitle>

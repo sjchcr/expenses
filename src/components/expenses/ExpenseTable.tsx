@@ -63,7 +63,9 @@ export function ExpenseTable({
 }: ExpenseTableProps) {
   const [sortColumn] = useState<string | null>("due_date");
   const [sortDirection] = useState<"asc" | "desc">("asc");
-  const [activeTab, setActiveTab] = useState<"all" | "pending" | "paid">(defaultTab);
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "paid">(
+    defaultTab,
+  );
 
   const filterExpenses = (items: Expense[]) => {
     switch (activeTab) {
@@ -216,7 +218,7 @@ export function ExpenseTable({
               key={expense.id}
               onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
               className={cn(
-                "w-full flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-primary/5",
+                "w-full flex items-center justify-center gap-2 px-4 py-2 cursor-pointer hover:bg-primary/5",
                 index !== sortedExpenses.length - 1 &&
                   "border-b border-gray-200",
               )}
@@ -308,8 +310,12 @@ export function ExpenseTable({
 
   return (
     <div className="w-full h-[calc(100%-52px)] flex flex-col justify-between">
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")} className="w-full">
-        <TabsList background={false} className="mx-2 gap-1">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")}
+        className="w-full"
+      >
+        <TabsList background={false} className="mx-4 gap-1">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />
             All
@@ -333,7 +339,7 @@ export function ExpenseTable({
         </TabsContent>
         <TabsContent value="paid">{renderExpenseList("paid")}</TabsContent>
       </Tabs>
-      <div className="border-t w-full flex gap-8 p-2">
+      <div className="border-t w-full flex gap-8 p-4 pb-0">
         {Object.entries(totals).map(([currency, values]) => (
           <div key={currency} className="flex flex-col text-sm w-full">
             <h4 className="font-semibold text-gray-800 mb-1">{currency}</h4>

@@ -208,7 +208,7 @@ export function CreateFromGroupDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Layers className="h-5 w-5" />
-            Create from Group
+            Create from group
           </DialogTitle>
         </DialogHeader>
 
@@ -222,7 +222,7 @@ export function CreateFromGroupDialog({
         ) : (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="group">Select Group *</Label>
+              <Label htmlFor="group">Select group *</Label>
               <Select
                 value={selectedGroupId}
                 onValueChange={handleGroupSelect}
@@ -244,7 +244,7 @@ export function CreateFromGroupDialog({
             {selectedGroup && (
               <>
                 <div>
-                  <Label htmlFor="base-date">Base Date</Label>
+                  <Label htmlFor="base-date">Base date</Label>
                   <p className="text-xs text-gray-500 mb-1">
                     For recurring templates, their recurrence day will be used
                     instead.
@@ -284,7 +284,7 @@ export function CreateFromGroupDialog({
                 </div>
 
                 <div>
-                  <Label>Templates to Create</Label>
+                  <Label>Templates to create</Label>
                   <div className="mt-1 border rounded-lg max-h-48 overflow-y-auto">
                     {groupTemplates.length > 0 ? (
                       <div className="divide-y">
@@ -358,7 +358,7 @@ export function CreateFromGroupDialog({
                     !selectedGroup || groupTemplates.length === 0 || isCreating
                   }
                 >
-                  {isCreating ? "Creating..." : "Create Expenses"}
+                  {isCreating ? "Creating..." : "Create expenses"}
                 </Button>
               )}
             </div>
