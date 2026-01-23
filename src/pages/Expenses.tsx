@@ -1,7 +1,14 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { Plus, CircleOff, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Plus,
+  CircleOff,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+  Receipt,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   useExpenses,
@@ -10,6 +17,7 @@ import {
 } from "@/hooks/useExpenses";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
+import { useTemplateGroups } from "@/hooks/useTemplateGroups";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
 import {
@@ -20,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
+import { CreateFromGroupDialog } from "@/components/expenses/CreateFromGroupDialog";
 import { ExpenseTable } from "@/components/expenses/ExpenseTable";
 import { DeleteExpenseDialog } from "@/components/expenses/DeleteExpenseDialog";
 import type { Expense } from "@/types";
@@ -118,6 +127,7 @@ export default function Expenses() {
   };
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [togglingExpenseId, setTogglingExpenseId] = useState<string | null>(
     null,
@@ -127,8 +137,11 @@ export default function Expenses() {
 
   const { data: expenses, isLoading } = useExpenses(filters);
   const { settings } = useUserSettings();
+  const { data: groups } = useTemplateGroups();
   const deleteMutation = useDeleteExpense();
   const togglePaidMutation = useTogglePaid();
+
+  const hasGroups = groups && groups.length > 0;
 
   // Get all unique currencies from expenses for exchange rate display
   const availableCurrencies = useMemo(() => {
@@ -199,21 +212,35 @@ export default function Expenses() {
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-gray-900">Expenses</h2>
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Receipt className="h-6 w-6" />
+              Expenses
+            </h2>
             <div className="text-sm text-gray-600">
               Manage your monthly expenses, view payment periods, and track your
               payment status.
             </div>
           </div>
-          <Button
-            onClick={() => {
-              setEditingExpense(null);
-              setIsAddDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add expense
-          </Button>
+          <div className="flex gap-2">
+            {hasGroups && (
+              <Button
+                variant="outline"
+                onClick={() => setIsGroupDialogOpen(true)}
+              >
+                <Layers className="h-4 w-4" />
+                From Group
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                setEditingExpense(null);
+                setIsAddDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add expense
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -433,6 +460,12 @@ export default function Expenses() {
         expense={expenseToDelete}
         onConfirm={handleConfirmDelete}
         isDeleting={deleteMutation.isPending}
+      />
+
+      <CreateFromGroupDialog
+        open={isGroupDialogOpen}
+        onOpenChange={setIsGroupDialogOpen}
+        paymentPeriods={settings?.payment_periods || []}
       />
     </div>
   );

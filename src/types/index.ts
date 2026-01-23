@@ -83,3 +83,25 @@ export type UserSettingsInsert = Omit<
 > & {
   payment_periods?: PaymentPeriod[];
 };
+
+// Template Group types
+type TemplateGroupRow =
+  Database["public"]["Tables"]["template_groups"]["Row"];
+type TemplateGroupInsertBase =
+  Database["public"]["Tables"]["template_groups"]["Insert"];
+type TemplateGroupUpdateBase =
+  Database["public"]["Tables"]["template_groups"]["Update"];
+
+export interface TemplateGroup extends Omit<TemplateGroupRow, "template_ids"> {
+  template_ids: string[];
+}
+
+export interface TemplateGroupInsert
+  extends Omit<TemplateGroupInsertBase, "template_ids"> {
+  template_ids: string[];
+}
+
+export interface TemplateGroupUpdate
+  extends Omit<TemplateGroupUpdateBase, "template_ids"> {
+  template_ids?: string[];
+}

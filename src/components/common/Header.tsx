@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
-import { LayoutDashboard, LogOut, Receipt, Settings, FileText } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  Receipt,
+  Settings,
+  FileText,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import type { User } from "@supabase/supabase-js";
@@ -64,7 +70,12 @@ const Header = () => {
         <div className="flex justify-between gap-2">
           <div className="flex gap-4">
             <div className="shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
+              <h1 className="flex items-center justify-start gap-2 text-xl font-bold text-gray-900">
+                <img
+                  src="/icon-1024x1024.png"
+                  alt={import.meta.env.VITE_SITE_TITLE}
+                  className="inline-block h-9"
+                />
                 {import.meta.env.VITE_SITE_TITLE}
               </h1>
             </div>

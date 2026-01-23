@@ -121,6 +121,30 @@ export type Database = {
           },
         ]
       }
+      template_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          template_ids: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          template_ids: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          template_ids?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           created_at: string | null
