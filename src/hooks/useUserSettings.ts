@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { settingsService } from "@/services/settings.service";
+import type { UserSettings } from "@/types";
 
 export function useUserSettings() {
   const {
@@ -20,4 +21,19 @@ export function useUserSettings() {
   }, [isLoading, settings]);
 
   return { settings, isLoading, error };
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (
+      settings: Partial<
+        Omit<UserSettings, "user_id" | "created_at" | "updated_at">
+      >
+    ) => settingsService.updateSettings(settings),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-settings"] });
+    },
+  });
 }

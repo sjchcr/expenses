@@ -53,6 +53,19 @@ export const authService = {
     return user;
   },
 
+  async updateProfile(data: { firstName?: string; lastName?: string }) {
+    const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
+    const { data: userData, error } = await supabase.auth.updateUser({
+      data: {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        full_name: fullName,
+      },
+    });
+    if (error) throw error;
+    return userData.user;
+  },
+
   onAuthStateChange(callback: (user: any) => void) {
     return supabase.auth.onAuthStateChange((_event, session) => {
       callback(session?.user ?? null);

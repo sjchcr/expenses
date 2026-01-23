@@ -343,6 +343,26 @@ export default function Expenses() {
                 </div>
               </CardContent>
             </Card>
+            <Card className="border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0">
+              <CardHeader className="p-2 grid-rows-1">
+                <Skeleton className="h-4 w-62.5" />
+                <CardAction>
+                  <Skeleton className="h-9 w-9" />
+                </CardAction>
+              </CardHeader>
+              <CardContent className="p-2 flex flex-col gap-2">
+                <div className="flex justify-start items-center gap-1">
+                  <Skeleton className="h-9 w-18" />
+                  <Skeleton className="h-9 w-18" />
+                  <Skeleton className="h-9 w-18" />
+                </div>
+                <Skeleton className="h-15.25 w-full" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-30.25 w-full" />
+                  <Skeleton className="h-30.25 w-full" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ) : expenses && expenses.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -381,7 +401,7 @@ export default function Expenses() {
             ))}
           </div>
         ) : (
-          <div className="bg-white border border-gray-200 shadow-md rounded-xl p-8 text-center">
+          <div className="text-center">
             <p className="flex flex-col justify-center items-center gap-2 text-gray-500 mb-4">
               <CircleOff className="h-6 w-6" />
               No expenses found
