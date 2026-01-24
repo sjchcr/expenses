@@ -53,7 +53,7 @@ export function PendingPaymentsCard({
     <Card className="col-span-1 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-warning" />
+          <Clock className="h-4 w-4 text-amber-600" />
           <CardTitle className="text-base">
             Pending payments - {currentMonthName}
           </CardTitle>
@@ -84,7 +84,7 @@ export function PendingPaymentsCard({
                     {count} {count === 1 ? "expense" : "expenses"}
                   </span>
                 </div>
-                <span className="font-semibold text-warning">
+                <span className="font-semibold text-amber-600">
                   {formatCurrency(total, currency)}
                 </span>
               </div>

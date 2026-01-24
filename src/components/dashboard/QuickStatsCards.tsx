@@ -121,7 +121,7 @@ export function QuickStatsCards({
       <Card className="bg-linear-180 from-background to-green-50 dark:to-green-950/50 hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CircleCheck className="h-4 w-4 text-success" />
+            <CircleCheck className="h-4 w-4 text-green-700" />
             <CardTitle className="text-base">Paid</CardTitle>
           </div>
         </CardHeader>
@@ -135,7 +135,7 @@ export function QuickStatsCards({
                   <Badge variant="outline" className="text-xs">
                     {currency}
                   </Badge>
-                  <span className="font-semibold text-success">
+                  <span className="font-semibold text-green-700">
                     {formatCurrency(total, currency)}
                   </span>
                 </div>
@@ -149,7 +149,7 @@ export function QuickStatsCards({
       <Card className="bg-linear-180 from-background to-amber-50 dark:to-amber-950/50 hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CircleDashed className="h-4 w-4 text-warning" />
+            <CircleDashed className="h-4 w-4 text-amber-600" />
             <CardTitle className="text-base">Pending</CardTitle>
           </div>
         </CardHeader>
@@ -163,7 +163,7 @@ export function QuickStatsCards({
                   <Badge variant="outline" className="text-xs">
                     {currency}
                   </Badge>
-                  <span className="font-semibold text-warning">
+                  <span className="font-semibold text-amber-600">
                     {formatCurrency(total, currency)}
                   </span>
                 </div>

@@ -80,7 +80,7 @@ export function MonthComparisonCard({
                           <TrendingUp className="h-4 w-4 text-destructive" />
                         )}
                         {isDecrease && (
-                          <TrendingDown className="h-4 w-4 text-success" />
+                          <TrendingDown className="h-4 w-4 text-green-700" />
                         )}
                         {isNoChange && (
                           <Minus className="h-4 w-4 text-muted-foreground" />
@@ -90,7 +90,7 @@ export function MonthComparisonCard({
                             isIncrease
                               ? "text-destructive"
                               : isDecrease
-                                ? "text-success"
+                                ? "text-green-700"
                                 : "text-muted-foreground"
                           }`}
                         >
