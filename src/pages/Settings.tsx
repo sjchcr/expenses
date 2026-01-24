@@ -418,13 +418,13 @@ export default function Settings() {
                     </div>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="ghostDestructive"
                       size="sm"
                       onClick={() => handleRemovePeriod(index)}
                       disabled={paymentPeriods.length === 1}
                       className="h-8 w-8 p-0 ml-auto"
                     >
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
@@ -493,11 +493,7 @@ export default function Settings() {
                 {isSavingProfile ? "Saving..." : "Save profile"}
               </Button>
               <Separator />
-              <Button
-                variant="outline"
-                onClick={handleSignOut}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
+              <Button variant="ghostDestructive" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
                 Sign out
               </Button>

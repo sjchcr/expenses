@@ -307,11 +307,11 @@ const Header = () => {
               <ThemeToggle />
               <Button
                 className="rounded-full"
-                variant="ghost"
+                variant="ghostDestructive"
                 size="icon"
                 onClick={handleSignOut}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 text-destructive" />
               </Button>
             </div>
           </div>

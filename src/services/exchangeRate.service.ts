@@ -1,8 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 
-const API_KEY = import.meta.env.VITE_EXCHANGE_RATE_API_KEY;
-
 export const exchangeRateService = {
   async getRate(fromCurrency: string, toCurrency: string, date?: Date) {
     if (fromCurrency === toCurrency) return 1;
@@ -24,20 +22,15 @@ export const exchangeRateService = {
       return cached.rate;
     }
 
-    // Fetch from API
-    if (!API_KEY) {
-      console.error("Exchange rate API key not configured");
-      return null;
-    }
-
+    // Fetch from serverless API
     try {
       const response = await fetch(
-        `https://v6.exchangerate-api.com/v6/${API_KEY}/pair/${fromCurrency}/${toCurrency}`
+        `/api/exchange-rate?from=${fromCurrency}&to=${toCurrency}`
       );
       const data = await response.json();
 
-      if (data.result === "success") {
-        const rate = data.conversion_rate;
+      if (response.ok && data.rate) {
+        const rate = data.rate;
 
         // Cache the rate
         const { error: insertError } = await supabase.from("exchange_rates").insert({
@@ -54,7 +47,7 @@ export const exchangeRateService = {
 
         return rate;
       } else {
-        console.error("Exchange rate API error:", data);
+        console.error("Exchange rate API error:", data.error);
       }
     } catch (error) {
       console.error("Failed to fetch exchange rate:", error);

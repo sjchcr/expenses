@@ -290,7 +290,7 @@ export function ExpenseTable({
                   <Edit className="h-3 w-3" />
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="ghostDestructive"
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -298,7 +298,7 @@ export function ExpenseTable({
                   }}
                   className="h-7 w-7 p-0"
                 >
-                  <Trash2 className="h-3 w-3 text-red-600" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
             </div>

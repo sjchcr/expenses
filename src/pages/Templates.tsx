@@ -451,12 +451,12 @@ export default function Templates() {
                                     <Pencil className="h-3 w-3" />
                                   </Button>
                                   <Button
-                                    variant="ghost"
+                                    variant="ghostDestructive"
                                     size="sm"
                                     className="h-7 w-7"
                                     onClick={() => handleDelete(template)}
                                   >
-                                    <Trash2 className="h-3 w-3 text-red-500" />
+                                    <Trash2 className="h-3 w-3" />
                                   </Button>
                                 </div>
                               </TableCell>
@@ -550,12 +550,12 @@ export default function Templates() {
                                     <Pencil className="h-3 w-3" />
                                   </Button>
                                   <Button
-                                    variant="ghost"
+                                    variant="ghostDestructive"
                                     size="sm"
                                     className="h-7 w-7"
                                     onClick={() => handleDelete(template)}
                                   >
-                                    <Trash2 className="h-3 w-3 text-red-500" />
+                                    <Trash2 className="h-3 w-3" />
                                   </Button>
                                 </div>
                               </TableCell>
@@ -664,12 +664,12 @@ export default function Templates() {
                               <Pencil className="h-3 w-3" />
                             </Button>
                             <Button
-                              variant="ghost"
+                              variant="ghostDestructive"
                               size="sm"
                               className="h-7 w-7 p-0"
                               onClick={() => handleDeleteGroup(group)}
                             >
-                              <Trash2 className="h-3 w-3 text-red-500" />
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
@@ -764,7 +764,7 @@ export default function Templates() {
                       <SelectTrigger>
                         <SelectValue placeholder="Currency" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="max-h-60">
+                      <SelectContent className="max-h-60">
                         {COMMON_CURRENCIES.map((curr) => (
                           <SelectItem key={curr} value={curr}>
                             {curr}
@@ -784,13 +784,13 @@ export default function Templates() {
                     />
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="ghostDestructive"
                       size="sm"
                       onClick={() => handleRemoveAmount(index)}
                       disabled={formData.amounts.length === 1}
                       className="h-9 w-9 p-0"
                     >
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
@@ -833,7 +833,7 @@ export default function Templates() {
                   <SelectTrigger id="recurrence_day">
                     <SelectValue placeholder="Select day" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="max-h-60">
+                  <SelectContent className="max-h-60">
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                       <SelectItem key={day} value={String(day)}>
                         Day {day}
@@ -931,7 +931,7 @@ export default function Templates() {
                     {templates.map((template) => (
                       <label
                         key={template.id}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
+                        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-accent cursor-pointer"
                       >
                         <Checkbox
                           checked={groupFormData.template_ids.includes(
