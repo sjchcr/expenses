@@ -9,6 +9,7 @@ import {
   Layers,
   FileText,
   Zap,
+  ArrowUpRightIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -59,6 +60,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ExpenseTemplate, TemplateAmount, TemplateGroup } from "@/types";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -352,7 +361,7 @@ export default function Templates() {
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <FileText className="h-6 w-6" />
               Templates
             </h2>
@@ -360,10 +369,6 @@ export default function Templates() {
               Create and manage expense templates for quick expense creation.
             </div>
           </div>
-          <Button onClick={() => handleOpenDialog()}>
-            <Plus className="h-4 w-4" />
-            Add template
-          </Button>
         </div>
 
         {/* Content */}
@@ -393,7 +398,7 @@ export default function Templates() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recurring Templates */}
                 {recurringTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-2">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4" />
@@ -472,29 +477,33 @@ export default function Templates() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
                     <CardContent className="px-2">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <p className="flex flex-col justify-center items-center gap-2 text-md text-gray-500">
-                          <CircleOff className="h-6 w-6" />
-                          No recurring templates found
-                        </p>
-                        <p className="flex flex-col text-center gap-2 text-sm text-gray-500 max-w-2/3">
-                          A recurring template is a template that repeats on a
-                          specific day of the month.
-                        </p>
-                        <Button onClick={() => handleOpenDialog()}>
-                          <Plus className="h-4 w-4" />
-                          Create a recurring template
-                        </Button>
-                      </div>
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon">
+                            <CircleOff />
+                          </EmptyMedia>
+                          <EmptyTitle>No recurring templates found</EmptyTitle>
+                          <EmptyDescription>
+                            A recurring template is a template that repeats on a
+                            specific day of the month.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                        <EmptyContent className="flex-row justify-center gap-2">
+                          <Button size="sm" onClick={() => handleOpenDialog()}>
+                            <Plus className="h-4 w-4" />
+                            Create a recurring template
+                          </Button>
+                        </EmptyContent>
+                      </Empty>
                     </CardContent>
                   </Card>
                 )}
 
                 {/* Regular Templates */}
                 {regularTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-2">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
@@ -567,22 +576,26 @@ export default function Templates() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
                     <CardContent className="px-2">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <p className="flex flex-col justify-center items-center gap-2 text-md text-gray-500">
-                          <CircleOff className="h-6 w-6" />
-                          No quick templates found
-                        </p>
-                        <p className="flex flex-col text-center gap-2 text-sm text-gray-500 max-w-2/3">
-                          A quick template is a one-time expense template
-                          without a set billing date.
-                        </p>
-                        <Button onClick={() => handleOpenDialog()}>
-                          <Plus className="h-4 w-4" />
-                          Create a quick template
-                        </Button>
-                      </div>
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon">
+                            <CircleOff />
+                          </EmptyMedia>
+                          <EmptyTitle>No quick templates found</EmptyTitle>
+                          <EmptyDescription>
+                            A quick template is a one-time expense template
+                            without a set billing date.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                        <EmptyContent className="flex-row justify-center gap-2">
+                          <Button size="sm" onClick={() => handleOpenDialog()}>
+                            <Plus className="h-4 w-4" />
+                            Create a quick template
+                          </Button>
+                        </EmptyContent>
+                      </Empty>
                     </CardContent>
                   </Card>
                 )}
@@ -592,34 +605,41 @@ export default function Templates() {
 
           {/* Groups Section - Right side */}
           <div className="xl:col-span-1">
-            <Card className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Layers className="h-4 w-4" />
-                  Template groups
-                </CardTitle>
-                <CardDescription>
-                  Organize templates into groups for batch expense creation.
-                </CardDescription>
-                <CardAction>
-                  <Button
-                    size="icon"
-                    onClick={() => handleOpenGroupDialog()}
-                    disabled={!templates || templates.length === 0}
-                  >
-                    <FolderPlus className="h-4 w-4" />
-                  </Button>
-                </CardAction>
-              </CardHeader>
-              <CardContent>
-                {isLoadingGroups ? (
-                  <Skeleton className="h-20 w-full" />
-                ) : groups && groups.length > 0 ? (
+            {isLoadingGroups ? (
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-5 w-40" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-32 w-full" />
+                </CardContent>
+              </Card>
+            ) : groups && groups.length > 0 ? (
+              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Template groups
+                  </CardTitle>
+                  <CardDescription>
+                    Organize templates into groups for batch expense creation.
+                  </CardDescription>
+                  <CardAction>
+                    <Button
+                      size="icon"
+                      onClick={() => handleOpenGroupDialog()}
+                      disabled={!templates || templates.length === 0}
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                    </Button>
+                  </CardAction>
+                </CardHeader>
+                <CardContent>
                   <div className="flex flex-col gap-2">
                     {groups.map((group) => (
                       <div
                         key={group.id}
-                        className="border border-gray-200 rounded-lg p-3 bg-white"
+                        className="border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -657,27 +677,38 @@ export default function Templates() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-gray-500 mb-3">
-                      {templates && templates.length > 0
-                        ? "Create groups to batch-create expenses"
-                        : "Create templates first to make groups"}
-                    </p>
-                    {templates && templates.length > 0 && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenGroupDialog()}
-                      >
-                        <FolderPlus className="h-4 w-4 mr-1" />
-                        New Group
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+                <CardContent className="px-2">
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <CircleOff />
+                      </EmptyMedia>
+                      <EmptyTitle>No groups found</EmptyTitle>
+                      <EmptyDescription>
+                        {templates && templates.length > 0
+                          ? "Create groups to batch-create expenses"
+                          : "Create templates first to make groups"}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent className="flex-row justify-center gap-2">
+                      {templates && templates.length > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenGroupDialog()}
+                        >
+                          <FolderPlus className="h-4 w-4" />
+                          New group
+                        </Button>
+                      )}
+                    </EmptyContent>
+                  </Empty>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

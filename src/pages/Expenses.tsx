@@ -212,7 +212,7 @@ export default function Expenses() {
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <Receipt className="h-6 w-6" />
               Expenses
             </h2>
@@ -350,7 +350,7 @@ export default function Expenses() {
         {/* Tables by Payment Period */}
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0">
+            <Card className="border border-gray-200 dark:border-accent shadow-md rounded-xl overflow-hidden p-0 gap-0">
               <CardHeader className="p-2 grid-rows-1">
                 <Skeleton className="h-4 w-62.5" />
                 <CardAction>
@@ -370,7 +370,7 @@ export default function Expenses() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border border-gray-200 shadow-md rounded-xl overflow-hidden p-0 gap-0">
+            <Card className="border border-gray-200 dark:border-accent shadow-md rounded-xl overflow-hidden p-0 gap-0">
               <CardHeader className="p-2 grid-rows-1">
                 <Skeleton className="h-4 w-62.5" />
                 <CardAction>
@@ -396,7 +396,7 @@ export default function Expenses() {
             {sortedPeriods.map((period) => (
               <Card
                 key={period}
-                className="bg-linear-to-b from-white to-gray-100 border border-gray-200 shadow-md rounded-xl overflow-hidden gap-0"
+                className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-0"
               >
                 <CardHeader className="grid-rows-1">
                   <CardTitle className="flex items-center h-full">

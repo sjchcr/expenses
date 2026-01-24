@@ -220,7 +220,7 @@ export function ExpenseTable({
               className={cn(
                 "w-full flex items-center justify-center gap-2 px-4 py-2 cursor-pointer hover:bg-primary/5",
                 index !== sortedExpenses.length - 1 &&
-                  "border-b border-gray-200",
+                  "border-b border-gray-200 dark:border-accent",
               )}
             >
               <div className="w-full flex items-center justify-start gap-1">
@@ -259,10 +259,10 @@ export function ExpenseTable({
                       return (
                         <div
                           key={currency}
-                          className="flex justify-start items-center gap-1 w-1/2"
+                          className="flex justify-start items-center text-accent-foreground gap-1 w-1/2"
                         >
                           <span>{getCurrencySymbol(currency)}</span>
-                          <span className={!amountData ? "text-gray-400" : ""}>
+                          <span>
                             {amountData ? formatAmount(amountData.amount) : "-"}
                           </span>
                         </div>
@@ -273,7 +273,7 @@ export function ExpenseTable({
               </div>
 
               <div className="w-20">
-                <div className="text-sm text-gray-900 w-20">
+                <div className="text-sm text-accent-foreground w-20">
                   {format(parseISO(expense.due_date), "MM/dd")}
                 </div>
               </div>
@@ -342,7 +342,9 @@ export function ExpenseTable({
       <div className="border-t w-full flex gap-8 p-4 pb-0">
         {Object.entries(totals).map(([currency, values]) => (
           <div key={currency} className="flex flex-col text-sm w-full">
-            <h4 className="font-semibold text-gray-800 mb-1">{currency}</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-accent-foreground/80 mb-1">
+              {currency}
+            </h4>
             <div className="flex flex-col w-full text-sm">
               <div className="flex justify-between gap-2 w-full">
                 <span className="flex items-center gap-1 font-medium">
@@ -376,10 +378,10 @@ export function ExpenseTable({
               </div>
               {grandTotals[currency] && allCurrencies.length > 1 && (
                 <div className="flex justify-between gap-2 w-full mt-2 pt-2 border-t border-dashed">
-                  <span className="flex items-center gap-1 font-medium text-blue-700">
+                  <span className="flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
                     Grand Total:
                   </span>
-                  <span className="text-blue-700">
+                  <span className="text-blue-700 dark:text-blue-400">
                     {isLoadingRates ? (
                       <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
                     ) : grandTotals[currency].hasAllRates ? (

@@ -77,9 +77,9 @@ export function AddExpenseDialog({
   const suggestedTemplates = useMemo(() => {
     if (!templates || !name || name.length < 2 || expense) return [];
     const lowerName = name.toLowerCase();
-    return templates.filter((t) =>
-      t.name.toLowerCase().includes(lowerName)
-    ).slice(0, 5);
+    return templates
+      .filter((t) => t.name.toLowerCase().includes(lowerName))
+      .slice(0, 5);
   }, [templates, name, expense]);
 
   // Helper to apply template data to form
@@ -94,14 +94,16 @@ export function AddExpenseDialog({
         exchange_rate: "",
         exchange_rate_source: "api" as const,
       }));
-      setAmounts(templateAmounts.length > 0 ? templateAmounts : [createEmptyAmount()]);
+      setAmounts(
+        templateAmounts.length > 0 ? templateAmounts : [createEmptyAmount()],
+      );
       // If recurring, set due date to this month's recurrence day
       if (template.is_recurring && template.recurrence_day) {
         const today = new Date();
         const recurrenceDate = new Date(
           today.getFullYear(),
           today.getMonth(),
-          template.recurrence_day
+          template.recurrence_day,
         );
         if (recurrenceDate < today) {
           recurrenceDate.setMonth(recurrenceDate.getMonth() + 1);
@@ -224,7 +226,7 @@ export function AddExpenseDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {expense ? "Edit Expense" : "Add New Expense"}
+            {expense ? "Edit expense" : "Add new expense"}
           </DialogTitle>
         </DialogHeader>
 
@@ -239,14 +241,15 @@ export function AddExpenseDialog({
                 value={selectedTemplateId}
                 onValueChange={handleTemplateSelect}
               >
-                <SelectTrigger id="template" className="mt-1">
+                <SelectTrigger id="template" className="mt-1 w-full">
                   <SelectValue placeholder="Select a template..." />
                 </SelectTrigger>
-                <SelectContent position="popper" className="max-h-60">
+                <SelectContent className="max-h-60">
                   <SelectItem value="none">No template</SelectItem>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
-                      {template.name} ({template.amounts.map((a) => a.currency).join(", ")})
+                      {template.name} (
+                      {template.amounts.map((a) => a.currency).join(", ")})
                       {template.is_recurring && " - Recurring"}
                     </SelectItem>
                   ))}
@@ -277,7 +280,7 @@ export function AddExpenseDialog({
             />
             {/* Auto-suggest dropdown */}
             {showSuggestions && suggestedTemplates.length > 0 && !expense && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+              <div className="absolute z-50 w-full mt-1 bg-background dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
                 <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
                   Suggestions from templates
                 </div>
@@ -285,7 +288,7 @@ export function AddExpenseDialog({
                   <button
                     key={template.id}
                     type="button"
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center justify-between"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-primary/10 flex items-center justify-between"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       handleSuggestionSelect(template.id);
@@ -339,10 +342,10 @@ export function AddExpenseDialog({
                         handleAmountChange(index, "currency", value)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Currency" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="max-h-60">
+                      <SelectContent className="max-h-60">
                         {COMMON_CURRENCIES.map((curr) => (
                           <SelectItem key={curr} value={curr}>
                             {curr}

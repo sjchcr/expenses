@@ -33,7 +33,7 @@ export function PendingPaymentsCard({
 }: PendingPaymentsCardProps) {
   if (isLoading) {
     return (
-      <Card>
+      <Card className="col-span-1">
         <CardHeader>
           <Skeleton className="h-5 w-40" />
         </CardHeader>
@@ -50,7 +50,7 @@ export function PendingPaymentsCard({
   const totalCount = pendingPayments.reduce((acc, p) => acc + p.count, 0);
 
   return (
-    <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+    <Card className="col-span-1 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-warning" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
 import {
@@ -7,6 +7,9 @@ import {
   Receipt,
   Settings,
   FileText,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -20,6 +23,7 @@ import {
 } from "../ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
+import { useTheme } from "@/hooks/useTheme";
 
 const NAV_ITEMS = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -101,11 +105,128 @@ const NavItem = ({
   );
 };
 
+interface IndicatorPosition {
+  left: number;
+  width: number;
+}
+
+const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const [indicator, setIndicator] = useState<IndicatorPosition>({
+    left: 0,
+    width: 0,
+  });
+
+  const activeIndex = NAV_ITEMS.findIndex((item) => item.path === currentPath);
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const activeItem = itemRefs.current[activeIndex];
+      const container = containerRef.current;
+
+      if (activeItem && container) {
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+
+        setIndicator({
+          left: itemRect.left - containerRect.left,
+          width: itemRect.width,
+        });
+      }
+    };
+
+    updateIndicator();
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [activeIndex]);
+
+  return (
+    <nav
+      ref={containerRef}
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-background/60 backdrop-blur-xl border border-border shadow-lg rounded-full px-2 py-2"
+    >
+      {/* Sliding indicator */}
+      <div
+        className="absolute top-2 bottom-2 bg-accent-foreground/10 shadow-md rounded-full transition-all duration-300 ease-out"
+        style={{
+          left: indicator.left,
+          width: indicator.width,
+        }}
+      />
+
+      {/* Nav items */}
+      <div className="relative flex items-center">
+        {NAV_ITEMS.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = item.path === currentPath;
+
+          return (
+            <Link
+              key={item.path}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
+              to={item.path}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-full transition-colors relative z-10",
+                isActive && "text-accent-foreground",
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="text-[10px]">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};
+
+const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    const themes: Array<"light" | "dark" | "system"> = [
+      "light",
+      "dark",
+      "system",
+    ];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+  };
+
+  const getIcon = () => {
+    switch (theme) {
+      case "light":
+        return <Sun className="h-4 w-4" />;
+      case "dark":
+        return <Moon className="h-4 w-4" />;
+      case "system":
+        return <Monitor className="h-4 w-4" />;
+    }
+  };
+
+  return (
+    <Button
+      className="rounded-full"
+      variant="ghost"
+      size="icon"
+      onClick={cycleTheme}
+      title={`Theme: ${theme}`}
+    >
+      {getIcon()}
+    </Button>
+  );
+};
+
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const isMobile = useMobile();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     authService.getCurrentUser().then(setUser);
@@ -133,11 +254,15 @@ const Header = () => {
         <div className="md:w-10/12 mx-auto sm:w-full px-4 md:px-0">
           <div className="flex justify-between items-center gap-2">
             {/* Left: App icon and title */}
-            <div className="flex flex-col items-start justify-start gap-4 md:flex-row md:items-center">
+            <div className="flex flex-col lg:flex-row items-start justify-start w-full gap-4">
               <div className="shrink-0 flex items-center">
-                <h1 className="flex items-center justify-start gap-2 text-xl font-bold text-gray-900">
+                <h1 className="flex items-center justify-start gap-2 text-xl font-bold text-foreground">
                   <img
-                    src="/icon-1024x1024.png"
+                    src={
+                      resolvedTheme === "dark"
+                        ? "/icon-1024x1024-dark.png"
+                        : "/icon-1024x1024.png"
+                    }
                     alt={import.meta.env.VITE_SITE_TITLE}
                     className="inline-block h-9"
                   />
@@ -154,7 +279,7 @@ const Header = () => {
             </div>
 
             {/* Right: User info and sign out */}
-            <div className="flex justify-center items-center gap-2">
+            <div className="flex justify-center items-center gap-2 absolute md:right-1/12 right-2 top-2">
               <div className="flex justify-end items-center gap-2">
                 <div className="flex flex-col justify-center items-end gap-0">
                   {user?.user_metadata?.full_name && (
@@ -179,6 +304,7 @@ const Header = () => {
                   <AvatarFallback>{getInitials(user)}</AvatarFallback>
                 </Avatar>
               </div>
+              <ThemeToggle />
               <Button
                 className="rounded-full"
                 variant="ghost"
@@ -193,13 +319,7 @@ const Header = () => {
       </header>
 
       {/* Mobile Bottom Navigation */}
-      {isMobile && (
-        <NavigationMenu className="fixed w-max-[calc(100%-2rem)] max-w-none! bottom-4 left-1/2 -translate-x-1/2 z-50 bg-background/60 backdrop-blur-xl border border-border shadow-lg rounded-full px-2 py-2">
-          <NavigationMenuList className="w-full justify-between">
-            {renderNavItems()}
-          </NavigationMenuList>
-        </NavigationMenu>
-      )}
+      {isMobile && <MobileNavigation currentPath={location.pathname} />}
     </>
   );
 };

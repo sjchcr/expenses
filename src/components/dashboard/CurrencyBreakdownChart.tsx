@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { Pie, PieChart, Label } from "recharts";
 import type { CurrencyTotal } from "@/hooks/useDashboardStats";
+import { useMemo } from "react";
 
 interface CurrencyBreakdownChartProps {
   yearTotals: CurrencyTotal[];
@@ -16,18 +16,10 @@ interface CurrencyBreakdownChartProps {
   isLoading: boolean;
 }
 
-const CHART_COLORS = [
-  "var(--color-chart-1)",
-  "var(--color-chart-2)",
-  "var(--color-chart-3)",
-  "var(--color-chart-4)",
-  "var(--color-chart-5)",
-];
-
 interface PieDataItem {
-  name: string;
-  value: number;
   currency: string;
+  total: number;
+  fill: string;
 }
 
 export function CurrencyBreakdownChart({
@@ -35,9 +27,38 @@ export function CurrencyBreakdownChart({
   currentYear,
   isLoading,
 }: CurrencyBreakdownChartProps) {
+  // Calculate total expenses across all currencies (for display only)
+  const totalExpenses = useMemo(() => {
+    return yearTotals.reduce((sum, { total }) => sum + total, 0);
+  }, [yearTotals]);
+
+  // Build chart config and pie data
+  const { chartConfig, pieData } = useMemo(() => {
+    const config: ChartConfig = {};
+    const data: PieDataItem[] = [];
+
+    yearTotals.forEach(({ currency, total }, index) => {
+      const colorIndex = (index % 5) + 1;
+      const color = `var(--chart-${colorIndex})`;
+
+      config[currency] = {
+        label: currency,
+        color,
+      };
+
+      data.push({
+        currency,
+        total,
+        fill: color,
+      });
+    });
+
+    return { chartConfig: config, pieData: data };
+  }, [yearTotals]);
+
   if (isLoading) {
     return (
-      <Card>
+      <Card className="col-span-1">
         <CardHeader>
           <Skeleton className="h-5 w-40" />
         </CardHeader>
@@ -48,16 +69,9 @@ export function CurrencyBreakdownChart({
     );
   }
 
-  // Transform data for pie chart
-  const pieData: PieDataItem[] = yearTotals.map(({ currency, total }) => ({
-    name: currency,
-    value: total,
-    currency,
-  }));
-
   return (
-    <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
-      <CardHeader>
+    <Card className="col-span-1 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow flex flex-col">
+      <CardHeader className="pb-0">
         <CardTitle className="text-base">
           Spending by currency - {currentYear}
         </CardTitle>
@@ -65,59 +79,114 @@ export function CurrencyBreakdownChart({
           Total distribution across currencies
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 pb-0">
         {pieData.length === 0 ? (
           <div className="h-62.5 flex items-center justify-center">
             <p className="text-muted-foreground text-sm">No expense data yet</p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={250}>
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-64"
+          >
             <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    hideLabel
+                    formatter={(value, _name, props) => {
+                      const payload = props.payload as PieDataItem;
+                      if (typeof value !== "number") return null;
+                      return (
+                        <div className="flex min-w-32 justify-between gap-4">
+                          <span className="text-muted-foreground">
+                            {payload.currency}
+                          </span>
+                          <span className="font-mono font-medium">
+                            {new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: payload.currency,
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(value)}
+                          </span>
+                        </div>
+                      );
+                    }}
+                  />
+                }
+              />
               <Pie
                 data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
+                dataKey="total"
+                nameKey="currency"
+                innerRadius={60}
+                strokeWidth={5}
               >
-                {pieData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={CHART_COLORS[index % CHART_COLORS.length]}
-                  />
-                ))}
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-2xl font-bold"
+                          >
+                            {yearTotals.length}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 20}
+                            className="fill-muted-foreground text-xs"
+                          >
+                            {yearTotals.length === 1
+                              ? "Currency"
+                              : "Currencies"}
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius)",
-                  fontSize: 12,
-                }}
-                itemStyle={{ fontSize: 12 }}
-                formatter={(value, _name, props) => {
-                  const payload = props.payload as PieDataItem;
-                  if (typeof value !== "number") {
-                    return [String(value), payload.currency];
-                  }
-                  return [
-                    new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: payload.currency,
-                      minimumFractionDigits: 2,
-                    }).format(value),
-                    payload.currency,
-                  ];
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
             </PieChart>
-          </ResponsiveContainer>
+          </ChartContainer>
+        )}
+        {/* Legend below chart */}
+        {pieData.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-4 py-4">
+            {yearTotals.map(({ currency, total }, index) => {
+              const colorIndex = (index % 5) + 1;
+              return (
+                <div key={currency} className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{
+                      backgroundColor: `var(--chart-${colorIndex})`,
+                    }}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {currency}:{" "}
+                    <span className="font-medium text-foreground">
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency,
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(total)}
+                    </span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         )}
       </CardContent>
     </Card>

@@ -72,7 +72,7 @@ export function QuickStatsCards({
   return (
     <>
       {/* Total Expenses Count */}
-      <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+      <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Receipt className="h-4 w-4 text-muted-foreground" />
@@ -88,7 +88,7 @@ export function QuickStatsCards({
       </Card>
 
       {/* Total Year Spend */}
-      <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+      <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
@@ -118,7 +118,7 @@ export function QuickStatsCards({
       </Card>
 
       {/* Paid Expenses */}
-      <Card className="bg-linear-180 from-background to-green-50 hover:shadow-lg transition-shadow">
+      <Card className="bg-linear-180 from-background to-green-50 dark:to-green-950/50 hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CircleCheck className="h-4 w-4 text-success" />
@@ -146,7 +146,7 @@ export function QuickStatsCards({
       </Card>
 
       {/* Pending Expenses */}
-      <Card className="bg-linear-180 from-background to-amber-50 hover:shadow-lg transition-shadow">
+      <Card className="bg-linear-180 from-background to-amber-50 dark:to-amber-950/50 hover:shadow-lg transition-shadow">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CircleDashed className="h-4 w-4 text-warning" />

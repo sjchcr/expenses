@@ -21,7 +21,7 @@ export function ExchangeRatesCard({
 }: ExchangeRatesCardProps) {
   if (isLoading) {
     return (
-      <Card>
+      <Card className="col-span-1">
         <CardHeader>
           <Skeleton className="h-5 w-40" />
         </CardHeader>
@@ -36,7 +36,7 @@ export function ExchangeRatesCard({
   }
 
   return (
-    <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+    <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow col-span-1">
       <CardHeader>
         <div className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4 text-muted-foreground" />

@@ -30,7 +30,7 @@ export default function Dashboard() {
   return (
     <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] px-4 flex flex-col gap-6">
       <div className="flex flex-col items-start justify-start gap-2">
-        <h1 className="text-2xl font-semibold text-foreground">
+        <h1 className="text-2xl font-semibold text-accent-foreground">
           Welcome back{displayName ? ` ${displayName}` : ""}!
         </h1>
         <h3 className="text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ export default function Dashboard() {
       </div>
 
       {/* Info Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <PendingPaymentsCard
           pendingPayments={pendingPayments}
           currentMonthName={currentMonthName}

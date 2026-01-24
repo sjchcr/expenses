@@ -20,7 +20,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -296,7 +298,7 @@ export default function Settings() {
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <SettingsIcon className="h-6 w-6" />
               Settings
             </h2>
@@ -308,7 +310,7 @@ export default function Settings() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Primary Currency */}
-          <Card>
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-4 w-4" />
@@ -328,7 +330,7 @@ export default function Settings() {
                   <SelectTrigger id="primary-currency" className="mt-1">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="max-h-60">
+                  <SelectContent className="max-h-60">
                     {COMMON_CURRENCIES.map((curr) => (
                       <SelectItem key={curr} value={curr}>
                         {curr}
@@ -350,7 +352,7 @@ export default function Settings() {
           </Card>
 
           {/* Payment Periods */}
-          <Card>
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -365,42 +367,56 @@ export default function Settings() {
                 {paymentPeriods.map((period, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 p-2 bg-gray-50 rounded-md"
+                    className="flex items-center gap-2 border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
                   >
                     <span className="text-sm font-medium w-20">
                       Period {period.period}
                     </span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <Label className="text-xs">Day</Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={31}
-                        value={period.start_day}
-                        onChange={(e) =>
+                      <Select
+                        value={`${period.start_day}`}
+                        onValueChange={(value) =>
                           handlePeriodChange(
                             index,
                             "start_day",
-                            parseInt(e.target.value) || 1,
+                            parseInt(value) || 1,
                           )
                         }
-                        className="w-16 h-8"
-                      />
+                      >
+                        <SelectTrigger className="w-full max-w-48">
+                          <SelectValue placeholder="Select a fruit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 31 }, (_, i) => (
+                            <SelectItem key={i + 1} value={`${i + 1}`}>
+                              {i + 1}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <span className="text-gray-500">to</span>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={31}
-                        value={period.end_day}
-                        onChange={(e) =>
+                      <Select
+                        value={`${period.end_day}`}
+                        onValueChange={(value) =>
                           handlePeriodChange(
                             index,
                             "end_day",
-                            parseInt(e.target.value) || 31,
+                            parseInt(value) || 31,
                           )
                         }
-                        className="w-16 h-8"
-                      />
+                      >
+                        <SelectTrigger className="w-full max-w-48">
+                          <SelectValue placeholder="Select a fruit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 31 }, (_, i) => (
+                            <SelectItem key={i + 1} value={`${i + 1}`}>
+                              {i + 1}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button
                       type="button"
@@ -435,7 +451,7 @@ export default function Settings() {
           </Card>
 
           {/* Account Settings */}
-          <Card>
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -447,24 +463,22 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="First name"
-                    className="mt-1"
                   />
                 </div>
-                <div>
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Last name"
-                    className="mt-1"
                   />
                 </div>
               </div>
@@ -493,7 +507,7 @@ export default function Settings() {
           </Card>
 
           {/* Export Data */}
-          <Card>
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-4 w-4" />

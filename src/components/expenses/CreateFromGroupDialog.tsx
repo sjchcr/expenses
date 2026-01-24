@@ -228,10 +228,10 @@ export function CreateFromGroupDialog({
                 onValueChange={handleGroupSelect}
                 disabled={isCreating}
               >
-                <SelectTrigger id="group" className="mt-1">
+                <SelectTrigger id="group" className="mt-1 w-full">
                   <SelectValue placeholder="Choose a group..." />
                 </SelectTrigger>
-                <SelectContent position="popper" className="max-h-60">
+                <SelectContent className="max-h-60">
                   {groups?.map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       {group.name} ({group.template_ids.length} templates)

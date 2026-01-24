@@ -32,7 +32,7 @@ export function MonthComparisonCard({
 }: MonthComparisonCardProps) {
   if (isLoading) {
     return (
-      <Card>
+      <Card className="col-span-1">
         <CardHeader>
           <Skeleton className="h-5 w-48" />
         </CardHeader>
@@ -47,7 +47,7 @@ export function MonthComparisonCard({
   }
 
   return (
-    <Card className="bg-linear-180 from-background to-gray-100 hover:shadow-lg transition-shadow">
+    <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow col-span-1">
       <CardHeader>
         <CardTitle className="text-base">Month-over-month comparison</CardTitle>
         <p className="text-muted-foreground text-sm">
