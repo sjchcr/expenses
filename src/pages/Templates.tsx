@@ -9,7 +9,6 @@ import {
   Layers,
   FileText,
   Zap,
-  ArrowUpRightIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {

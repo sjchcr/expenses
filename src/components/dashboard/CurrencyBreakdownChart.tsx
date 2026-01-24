@@ -27,11 +27,6 @@ export function CurrencyBreakdownChart({
   currentYear,
   isLoading,
 }: CurrencyBreakdownChartProps) {
-  // Calculate total expenses across all currencies (for display only)
-  const totalExpenses = useMemo(() => {
-    return yearTotals.reduce((sum, { total }) => sum + total, 0);
-  }, [yearTotals]);
-
   // Build chart config and pie data
   const { chartConfig, pieData } = useMemo(() => {
     const config: ChartConfig = {};
