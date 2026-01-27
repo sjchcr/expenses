@@ -66,7 +66,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen w-full bg-background">
         <Spinner className="size-12" />
       </div>
     );
