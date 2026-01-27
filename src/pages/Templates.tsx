@@ -465,7 +465,7 @@ export default function Templates() {
                         </TableBody>
                         <TableFooter>
                           <TableRow>
-                            <TableCell colSpan={4} className="px-4">
+                            <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
                                 Total templates: {recurringTemplates.length}
                               </p>
@@ -564,7 +564,7 @@ export default function Templates() {
                         </TableBody>
                         <TableFooter>
                           <TableRow>
-                            <TableCell colSpan={4} className="px-4">
+                            <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
                                 Total templates: {regularTemplates.length}
                               </p>

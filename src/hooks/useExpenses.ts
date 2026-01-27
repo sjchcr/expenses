@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { expensesService } from "@/services/expenses.service";
-import type { ExpenseInsert, ExpenseUpdate } from "@/types";
+import type { Expense, ExpenseInsert, ExpenseUpdate } from "@/types";
 
 export function useExpenses(filters?: {
   startDate?: string;
@@ -55,6 +55,25 @@ export function useTogglePaid() {
   return useMutation({
     mutationFn: ({ id, isPaid }: { id: string; isPaid: boolean }) =>
       expensesService.togglePaid(id, isPaid),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
+  });
+}
+
+export function useToggleAmountPaid() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      expense,
+      currency,
+      paid,
+    }: {
+      expense: Expense;
+      currency: string;
+      paid: boolean;
+    }) => expensesService.toggleAmountPaid(expense, currency, paid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
     },

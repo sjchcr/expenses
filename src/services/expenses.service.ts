@@ -75,6 +75,20 @@ export const expensesService = {
     return this.updateExpense(id, { is_paid: isPaid });
   },
 
+  async toggleAmountPaid(expense: Expense, currency: string, paid: boolean) {
+    const updatedAmounts = expense.amounts.map((a) =>
+      a.currency === currency ? { ...a, paid } : a
+    );
+
+    // Also update is_paid based on whether all amounts are paid
+    const allPaid = updatedAmounts.every((a) => a.paid);
+
+    return this.updateExpense(expense.id, {
+      amounts: updatedAmounts,
+      is_paid: allPaid,
+    });
+  },
+
   // Calculate payment period for a date
   getPaymentPeriod(date: Date, periods: any[]): string {
     const day = date.getDate();

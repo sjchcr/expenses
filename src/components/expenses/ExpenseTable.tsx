@@ -11,11 +11,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Expense } from "@/types";
+import type { Expense, ExpenseAmount } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -46,17 +47,31 @@ const getTotalAmount = (expense: Expense): number => {
 
 interface ExpenseTableProps {
   expenses: Expense[];
-  togglingExpenseId: string | null;
-  onTogglePaid: (id: string, currentStatus: boolean) => void;
+  togglingId: string | null;
+  onToggleAmountPaid: (
+    expense: Expense,
+    currency: string,
+    paid: boolean,
+  ) => void;
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
   defaultTab?: "all" | "pending" | "paid";
 }
 
+// Helper to check if all amounts in an expense are paid
+const isExpenseFullyPaid = (expense: Expense): boolean => {
+  return expense.amounts.every((a) => a.paid);
+};
+
+// Helper to check if any amount in an expense is paid
+const isExpensePartiallyPaid = (expense: Expense): boolean => {
+  return expense.amounts.some((a) => a.paid) && !isExpenseFullyPaid(expense);
+};
+
 export function ExpenseTable({
   expenses,
-  togglingExpenseId,
-  onTogglePaid,
+  togglingId,
+  onToggleAmountPaid,
   onEdit,
   onDelete,
   defaultTab = "all",
@@ -70,9 +85,9 @@ export function ExpenseTable({
   const filterExpenses = (items: Expense[]) => {
     switch (activeTab) {
       case "pending":
-        return items.filter((e) => !e.is_paid);
+        return items.filter((e) => !isExpenseFullyPaid(e));
       case "paid":
-        return items.filter((e) => e.is_paid);
+        return items.filter((e) => isExpenseFullyPaid(e));
       default:
         return items;
     }
@@ -127,12 +142,12 @@ export function ExpenseTable({
   // Calculate totals by currency (supports multiple amounts per expense)
   const totals = expenses.reduce(
     (acc, expense) => {
-      for (const { currency, amount } of expense.amounts) {
+      for (const { currency, amount, paid } of expense.amounts) {
         if (!acc[currency]) {
           acc[currency] = { total: 0, paid: 0, pending: 0 };
         }
         acc[currency].total += amount;
-        if (expense.is_paid) {
+        if (paid) {
           acc[currency].paid += amount;
         } else {
           acc[currency].pending += amount;
@@ -184,7 +199,7 @@ export function ExpenseTable({
             }
 
             acc[targetCurrency].total += convertedAmount;
-            if (expense.is_paid) {
+            if (amountData.paid) {
               acc[targetCurrency].paid += convertedAmount;
             } else {
               acc[targetCurrency].pending += convertedAmount;
@@ -213,12 +228,13 @@ export function ExpenseTable({
             (parseISO(expense.due_date).getTime() - new Date().getTime()) /
               (1000 * 60 * 60 * 24),
           );
+          const fullyPaid = isExpenseFullyPaid(expense);
+          const partiallyPaid = isExpensePartiallyPaid(expense);
           return (
             <div
               key={expense.id}
-              onClick={() => onTogglePaid(expense.id, expense.is_paid || false)}
               className={cn(
-                "w-full flex items-center justify-center gap-2 px-4 py-2 cursor-pointer hover:bg-primary/5",
+                "w-full flex items-center justify-center gap-2 px-4 py-2 hover:bg-primary/5",
                 index !== sortedExpenses.length - 1 &&
                   "border-b border-gray-200 dark:border-accent",
               )}
@@ -226,44 +242,102 @@ export function ExpenseTable({
               <div className="w-full flex items-center justify-start gap-1">
                 <div className="w-full flex flex-col justify-start items-center gap-1">
                   <div className="w-full flex justify-start items-center gap-1">
-                    {togglingExpenseId === expense.id ? (
-                      <Spinner className="h-3 w-3 text-gray-500" />
-                    ) : expense.is_paid ? (
+                    {fullyPaid ? (
                       <Badge variant="success" className="gap-1">
                         <CircleCheck className="h-3 w-3 shrink-0" />
                         Paid
                       </Badge>
+                    ) : partiallyPaid ? (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 border-amber-500 text-amber-600"
+                      >
+                        <CircleDashed className="h-3 w-3 shrink-0" />
+                        Partial
+                      </Badge>
                     ) : (
                       <Badge variant="warning" className="gap-1">
                         <CircleDashed className="h-3 w-3 shrink-0" />
-                        Pending{" "}
-                        {daysLeft >= 0
-                          ? `(${daysLeft} days left)`
-                          : `(overdue)`}
+                        {daysLeft >= 0 ? `${daysLeft}d` : `Overdue`}
                       </Badge>
                     )}
                     <p
                       className={cn(
                         "text-sm font-bold truncate max-w-37.5",
-                        expense.is_paid ? "text-green-600" : "text-amber-500",
+                        fullyPaid
+                          ? "text-green-600"
+                          : partiallyPaid
+                            ? "text-amber-600"
+                            : "text-amber-500",
                       )}
                     >
                       {expense.name}
                     </p>
                   </div>
-                  <div className="w-full flex justify-start items-center gap-4 text-sm text-gray-900">
+                  <div
+                    className={cn(
+                      "w-full grid items-center gap-4 text-sm text-gray-900",
+                      `grid-cols-${allCurrencies.length}`,
+                    )}
+                  >
                     {allCurrencies.map((currency) => {
                       const amountData = expense.amounts.find(
                         (a) => a.currency === currency,
                       );
+
+                      // Show simple format if currency not in this expense
+                      if (!amountData) {
+                        return (
+                          <span
+                            key={currency}
+                            className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1"
+                          >
+                            <Checkbox
+                              checked={false}
+                              disabled
+                              className="h-3.5 w-3.5"
+                            />
+                            {getCurrencySymbol(currency)}-
+                          </span>
+                        );
+                      }
+
+                      const isToggling =
+                        togglingId === `${expense.id}-${amountData.currency}`;
+
                       return (
                         <div
-                          key={currency}
-                          className="flex justify-start items-center text-accent-foreground gap-1 w-1/2"
+                          key={amountData.currency}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleAmountPaid(
+                              expense,
+                              amountData.currency,
+                              !amountData.paid,
+                            );
+                          }}
+                          className={cn(
+                            "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors  w-full",
+                            amountData.paid
+                              ? "text-green-600 bg-green-50 dark:bg-green-950/30"
+                              : "text-accent-foreground hover:bg-accent",
+                          )}
                         >
-                          <span>{getCurrencySymbol(currency)}</span>
-                          <span>
-                            {amountData ? formatAmount(amountData.amount) : "-"}
+                          {isToggling ? (
+                            <Spinner className="h-3.5 w-3.5" />
+                          ) : (
+                            <Checkbox
+                              checked={amountData.paid}
+                              className="h-3.5 w-3.5"
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              amountData.paid && "line-through opacity-70",
+                            )}
+                          >
+                            {getCurrencySymbol(amountData.currency)}
+                            {formatAmount(amountData.amount)}
                           </span>
                         </div>
                       );
@@ -351,7 +425,7 @@ export function ExpenseTable({
                   <Sigma className="w-3 h-3" />
                   Total:
                 </span>
-                <span className="text-gray-600">
+                <span className="text-accent-foreground/50">
                   {getCurrencySymbol(currency)}
                   {formatAmount(values.total)}
                 </span>

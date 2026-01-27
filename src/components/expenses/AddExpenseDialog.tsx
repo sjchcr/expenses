@@ -34,6 +34,8 @@ interface AddExpenseDialogProps {
   onOpenChange: (open: boolean) => void;
   expense?: Expense | null;
   paymentPeriods: PaymentPeriod[];
+  defaultMonth?: number;
+  defaultYear?: number;
 }
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
@@ -43,6 +45,7 @@ interface AmountFormData {
   amount: string;
   exchange_rate: string;
   exchange_rate_source: "api" | "manual";
+  paid: boolean;
 }
 
 const createEmptyAmount = (): AmountFormData => ({
@@ -50,6 +53,7 @@ const createEmptyAmount = (): AmountFormData => ({
   amount: "",
   exchange_rate: "",
   exchange_rate_source: "api",
+  paid: false,
 });
 
 export function AddExpenseDialog({
@@ -57,14 +61,23 @@ export function AddExpenseDialog({
   onOpenChange,
   expense,
   paymentPeriods,
+  defaultMonth,
+  defaultYear,
 }: AddExpenseDialogProps) {
+  const getDefaultDate = () => {
+    const now = new Date();
+    const year = defaultYear ?? now.getFullYear();
+    const month = defaultMonth ?? now.getMonth();
+    return format(new Date(year, month, now.getDate()), "yyyy-MM-dd");
+  };
+
   const [name, setName] = useState("");
-  const [dueDate, setDueDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [isPaid, setIsPaid] = useState(false);
+  const [dueDate, setDueDate] = useState(getDefaultDate);
   const [amounts, setAmounts] = useState<AmountFormData[]>([
     createEmptyAmount(),
   ]);
   const [openStartDate, setOpenStartDate] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(() => parseISO(getDefaultDate()));
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -93,6 +106,7 @@ export function AddExpenseDialog({
         amount: a.amount?.toString() || "",
         exchange_rate: "",
         exchange_rate_source: "api" as const,
+        paid: false,
       }));
       setAmounts(
         templateAmounts.length > 0 ? templateAmounts : [createEmptyAmount()],
@@ -130,24 +144,26 @@ export function AddExpenseDialog({
     if (expense) {
       setName(expense.name);
       setDueDate(expense.due_date);
-      setIsPaid(expense.is_paid || false);
+      setCalendarMonth(parseISO(expense.due_date));
       setAmounts(
         expense.amounts.map((a) => ({
           currency: a.currency,
           amount: a.amount.toString(),
           exchange_rate: a.exchange_rate?.toString() || "",
           exchange_rate_source: a.exchange_rate_source || "api",
+          paid: a.paid || false,
         })),
       );
       setSelectedTemplateId("");
     } else {
+      const defaultDate = getDefaultDate();
       setName("");
-      setDueDate(format(new Date(), "yyyy-MM-dd"));
-      setIsPaid(false);
+      setDueDate(defaultDate);
+      setCalendarMonth(parseISO(defaultDate));
       setAmounts([createEmptyAmount()]);
       setSelectedTemplateId("");
     }
-  }, [expense, open]);
+  }, [expense, open, defaultMonth, defaultYear]);
 
   const handleAddAmount = () => {
     setAmounts([...amounts, createEmptyAmount()]);
@@ -188,6 +204,7 @@ export function AddExpenseDialog({
         amount: parseFloat(a.amount),
         exchange_rate: a.exchange_rate ? parseFloat(a.exchange_rate) : null,
         exchange_rate_source: a.exchange_rate ? a.exchange_rate_source : null,
+        paid: a.paid,
       }));
 
     if (expenseAmounts.length === 0) {
@@ -195,10 +212,13 @@ export function AddExpenseDialog({
       return;
     }
 
+    // is_paid is true only if all amounts are paid
+    const allPaid = expenseAmounts.every((a) => a.paid);
+
     const expenseData = {
       name,
       due_date: dueDate,
-      is_paid: isPaid,
+      is_paid: allPaid,
       payment_period: paymentPeriod,
       amounts: expenseAmounts,
     };
@@ -315,13 +335,16 @@ export function AddExpenseDialog({
                 onClick={handleAddAmount}
                 className="h-7 text-xs"
               >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Currency
+                <Plus className="h-3 w-3" />
+                Add currency
               </Button>
             </div>
             <div className="space-y-3">
               {amounts.map((amountData, index) => (
-                <div key={index} className="space-y-2">
+                <div
+                  key={index}
+                  className="space-y-2 pb-3 border-b border-dashed last:border-0 last:pb-0"
+                >
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div>
                       <Input
@@ -364,7 +387,27 @@ export function AddExpenseDialog({
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Checkbox
+                        id={`paid-${index}`}
+                        checked={amountData.paid}
+                        onCheckedChange={(checked) => {
+                          const newAmounts = [...amounts];
+                          newAmounts[index] = {
+                            ...newAmounts[index],
+                            paid: checked as boolean,
+                          };
+                          setAmounts(newAmounts);
+                        }}
+                      />
+                      <Label
+                        htmlFor={`paid-${index}`}
+                        className="text-sm text-muted-foreground"
+                      >
+                        Paid
+                      </Label>
+                    </div>
                     <Input
                       type="number"
                       step="0.0001"
@@ -378,13 +421,13 @@ export function AddExpenseDialog({
                         )
                       }
                       placeholder="Exchange rate (optional)"
-                      className="text-sm"
+                      className="text-sm w-full"
                     />
-                    <span className="text-xs text-gray-500 mx-2">
-                      If provided, this exchange rate will be used instead of
-                      fetching from an external API.
-                    </span>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    If the exchange rate is left empty, the system will retrieve
+                    its value from an external API.
+                  </p>
                 </div>
               ))}
             </div>
@@ -415,23 +458,17 @@ export function AddExpenseDialog({
                 <Calendar
                   mode="single"
                   selected={parseISO(dueDate)}
+                  month={calendarMonth}
+                  onMonthChange={setCalendarMonth}
                   captionLayout="dropdown"
                   onSelect={(date) => {
                     setDueDate(format(date!, "yyyy-MM-dd"));
+                    setCalendarMonth(date!);
                     setOpenStartDate(false);
                   }}
                 />
               </PopoverContent>
             </Popover>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Checkbox
-              id="is_paid"
-              checked={isPaid}
-              onCheckedChange={(checked) => setIsPaid(checked as boolean)}
-            />
-            <Label htmlFor="is_paid">Already paid</Label>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

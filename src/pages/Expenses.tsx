@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   useExpenses,
   useDeleteExpense,
-  useTogglePaid,
+  useToggleAmountPaid,
 } from "@/hooks/useExpenses";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
@@ -129,9 +129,7 @@ export default function Expenses() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [togglingExpenseId, setTogglingExpenseId] = useState<string | null>(
-    null,
-  );
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
 
@@ -139,7 +137,7 @@ export default function Expenses() {
   const { settings } = useUserSettings();
   const { data: groups } = useTemplateGroups();
   const deleteMutation = useDeleteExpense();
-  const togglePaidMutation = useTogglePaid();
+  const toggleAmountPaidMutation = useToggleAmountPaid();
 
   const hasGroups = groups && groups.length > 0;
 
@@ -168,16 +166,20 @@ export default function Expenses() {
     }
   };
 
-  const handleTogglePaid = async (id: string, currentStatus: boolean) => {
-    const newStatus = !currentStatus;
-    setTogglingExpenseId(id);
+  const handleToggleAmountPaid = async (
+    expense: Expense,
+    currency: string,
+    paid: boolean,
+  ) => {
+    const toggleId = `${expense.id}-${currency}`;
+    setTogglingId(toggleId);
     try {
-      await togglePaidMutation.mutateAsync({ id, isPaid: newStatus });
-      toast.success(`Expense marked as ${newStatus ? "paid" : "pending"}`);
+      await toggleAmountPaidMutation.mutateAsync({ expense, currency, paid });
+      toast.success(`${currency} amount marked as ${paid ? "paid" : "pending"}`);
     } catch (error) {
-      toast.error("Failed to update expense status");
+      toast.error("Failed to update payment status");
     } finally {
-      setTogglingExpenseId(null);
+      setTogglingId(null);
     }
   };
 
@@ -417,8 +419,8 @@ export default function Expenses() {
                 <CardContent className="p-0">
                   <ExpenseTable
                     expenses={expensesByPeriod[period]}
-                    togglingExpenseId={togglingExpenseId}
-                    onTogglePaid={handleTogglePaid}
+                    togglingId={togglingId}
+                    onToggleAmountPaid={handleToggleAmountPaid}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     defaultTab={defaultTab}
@@ -449,6 +451,8 @@ export default function Expenses() {
         }}
         expense={editingExpense}
         paymentPeriods={settings?.payment_periods || []}
+        defaultMonth={selectedMonth}
+        defaultYear={selectedYear}
       />
 
       <DeleteExpenseDialog

@@ -6,6 +6,7 @@ export interface ExpenseAmount {
   amount: number;
   exchange_rate?: number | null;
   exchange_rate_source?: "api" | "manual" | null;
+  paid?: boolean;
 }
 
 // Template Amount interface (amount is optional for templates)
