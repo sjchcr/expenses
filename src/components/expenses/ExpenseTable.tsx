@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Expense, ExpenseAmount } from "@/types";
+import type { Expense } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
