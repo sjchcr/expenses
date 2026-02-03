@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { authService } from "./services/auth.service";
-import { settingsService } from "./services/settings.service";
+import { authService } from "@/services/auth.service";
+import { settingsService } from "@/services/settings.service";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Expenses from "@/pages/Expenses";
@@ -11,7 +11,8 @@ import Templates from "@/pages/Templates";
 import Aguinaldo from "@/pages/Aguinaldo";
 import Settings from "@/pages/Settings";
 import Layout from "@/components/layout/Layout";
-import { Spinner } from "./components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -81,6 +82,7 @@ function App() {
             path="/login"
             element={user ? <Navigate to="/expenses" /> : <Login />}
           />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
 
           {/* Protected routes with layout */}
           <Route element={user ? <Layout /> : <Navigate to="/login" />}>

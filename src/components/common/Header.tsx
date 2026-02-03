@@ -252,7 +252,7 @@ const Header = () => {
   return (
     <>
       {/* Top Header */}
-      <header className="bg-background/60 backdrop-blur-2xl py-2 shadow-sm sticky top-0 z-50">
+      <header className="bg-background/60 backdrop-blur-2xl shadow-sm sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
         <div className="md:w-10/12 mx-auto sm:w-full px-4 md:px-0">
           <div className="flex justify-between items-center gap-2">
             {/* Left: App icon and title */}
@@ -281,7 +281,7 @@ const Header = () => {
             </div>
 
             {/* Right: User info and sign out */}
-            <div className="flex justify-center items-center gap-2 absolute md:right-1/12 right-2 top-2">
+            <div className="flex justify-center items-center gap-2 absolute md:right-1/12 right-2 top-[calc(0.5rem+env(safe-area-inset-top))]">
               <div className="flex justify-end items-center gap-2">
                 <div className="flex flex-col justify-center items-end gap-0">
                   {user?.user_metadata?.full_name && (

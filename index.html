@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Finances Tracker</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/icon-1024x1024.png" />
@@ -46,11 +49,13 @@
   <body>
     <script>
       // Apply theme immediately to prevent flash of unstyled content
-      (function() {
-        const theme = localStorage.getItem('theme-preference') || 'system';
-        const isDark = theme === 'dark' ||
-          (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (isDark) document.documentElement.classList.add('dark');
+      (function () {
+        const theme = localStorage.getItem("theme-preference") || "system";
+        const isDark =
+          theme === "dark" ||
+          (theme === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (isDark) document.documentElement.classList.add("dark");
       })();
     </script>
     <div id="root"></div>

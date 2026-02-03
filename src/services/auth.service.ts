@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { Capacitor } from "@capacitor/core";
 
 export const authService = {
   async signInWithEmail(email: string, password: string) {
@@ -20,10 +21,14 @@ export const authService = {
   },
 
   async signInWithGoogle() {
+    const redirectTo = Capacitor.isNativePlatform()
+      ? "cr.steven.expensestracker://callback"
+      : `${window.location.origin}/dashboard`;
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo,
       },
     });
     if (error) throw error;
@@ -31,10 +36,14 @@ export const authService = {
   },
 
   async signInWithApple() {
+    const redirectTo = Capacitor.isNativePlatform()
+      ? "cr.steven.expensestracker://callback"
+      : `${window.location.origin}/dashboard`;
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo,
       },
     });
     if (error) throw error;
