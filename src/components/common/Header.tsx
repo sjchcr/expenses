@@ -171,7 +171,7 @@ const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
               }}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-full transition-colors relative z-10",
+                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-full transition-colors relative z-10",
                 isActive && "text-accent-foreground",
               )}
             >
