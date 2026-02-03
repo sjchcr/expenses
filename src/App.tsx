@@ -8,6 +8,7 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Expenses from "@/pages/Expenses";
 import Templates from "@/pages/Templates";
+import Aguinaldo from "@/pages/Aguinaldo";
 import Settings from "@/pages/Settings";
 import Layout from "@/components/layout/Layout";
 import { Spinner } from "./components/ui/spinner";
@@ -86,6 +87,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/templates" element={<Templates />} />
+            <Route path="/aguinaldo" element={<Aguinaldo />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
 

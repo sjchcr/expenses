@@ -319,8 +319,8 @@ export function ExpenseTable({
                           className={cn(
                             "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors  w-full",
                             amountData.paid
-                              ? "text-green-600 bg-green-50 dark:bg-green-950/30"
-                              : "text-accent-foreground hover:bg-accent",
+                              ? "text-green-600"
+                              : "text-accent-foreground",
                           )}
                         >
                           {isToggling ? (

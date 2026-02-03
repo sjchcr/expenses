@@ -7,6 +7,7 @@ import {
   Receipt,
   Settings,
   FileText,
+  Gift,
   Sun,
   Moon,
   Monitor,
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/expenses", label: "Expenses", icon: Receipt },
   { path: "/templates", label: "Templates", icon: FileText },
+  { path: "/aguinaldo", label: "Aguinaldo", icon: Gift },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 

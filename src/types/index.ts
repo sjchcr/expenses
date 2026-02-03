@@ -106,3 +106,8 @@ export interface TemplateGroupUpdate
   extends Omit<TemplateGroupUpdateBase, "template_ids"> {
   template_ids?: string[];
 }
+
+// Salary types
+export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
+export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];
+export type SalaryUpdate = Database["public"]["Tables"]["salaries"]["Update"];

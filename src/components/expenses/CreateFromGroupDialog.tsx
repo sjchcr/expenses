@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { Layers, Check, AlertCircle, ChevronDownIcon } from "lucide-react";
+import { Layers, Check, AlertCircle, ChevronDownIcon, CheckCheck } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTemplateGroups } from "@/hooks/useTemplateGroups";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useCreateExpense } from "@/hooks/useExpenses";
@@ -284,17 +285,64 @@ export function CreateFromGroupDialog({
                 </div>
 
                 <div>
-                  <Label>Templates to create</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Templates to create</Label>
+                    {groupTemplates.length > 0 && !hasCreationStarted && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          if (selectedTemplateIds.length === groupTemplates.length) {
+                            setSelectedTemplateIds([]);
+                          } else {
+                            setSelectedTemplateIds(groupTemplates.map((t) => t.id));
+                          }
+                        }}
+                      >
+                        <CheckCheck className="h-3 w-3" />
+                        {selectedTemplateIds.length === groupTemplates.length
+                          ? "Deselect all"
+                          : "Select all"}
+                      </Button>
+                    )}
+                  </div>
                   <div className="mt-1 border rounded-lg max-h-48 overflow-y-auto">
                     {groupTemplates.length > 0 ? (
                       <div className="divide-y">
-                        {groupTemplates.map((template, idx) => {
-                          const status = creationStatuses[idx];
+                        {groupTemplates.map((template) => {
+                          const isSelected = selectedTemplateIds.includes(template.id);
+                          const statusIndex = templatesToCreate.findIndex(
+                            (t) => t.id === template.id,
+                          );
+                          const status =
+                            statusIndex >= 0
+                              ? creationStatuses[statusIndex]
+                              : undefined;
                           return (
                             <div
                               key={template.id}
-                              className="flex items-center justify-between px-3 py-2"
+                              className="flex items-center gap-3 px-3 py-2"
                             >
+                              {!hasCreationStarted && (
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedTemplateIds((prev) => [
+                                        ...prev,
+                                        template.id,
+                                      ]);
+                                    } else {
+                                      setSelectedTemplateIds((prev) =>
+                                        prev.filter((id) => id !== template.id),
+                                      );
+                                    }
+                                  }}
+                                  disabled={isCreating}
+                                />
+                              )}
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium truncate">
                                   {template.name}
@@ -334,8 +382,8 @@ export function CreateFromGroupDialog({
                   </div>
                   {groupTemplates.length > 0 && (
                     <p className="text-xs text-gray-500 mt-1">
-                      {groupTemplates.length} expense
-                      {groupTemplates.length > 1 ? "s" : ""} will be created
+                      {selectedTemplateIds.length} of {groupTemplates.length} expense
+                      {selectedTemplateIds.length !== 1 ? "s" : ""} selected
                     </p>
                   )}
                 </div>
@@ -355,10 +403,12 @@ export function CreateFromGroupDialog({
                 <Button
                   onClick={handleCreate}
                   disabled={
-                    !selectedGroup || groupTemplates.length === 0 || isCreating
+                    !selectedGroup || selectedTemplateIds.length === 0 || isCreating
                   }
                 >
-                  {isCreating ? "Creating..." : "Create expenses"}
+                  {isCreating
+                    ? "Creating..."
+                    : `Create ${selectedTemplateIds.length} expense${selectedTemplateIds.length !== 1 ? "s" : ""}`}
                 </Button>
               )}
             </div>

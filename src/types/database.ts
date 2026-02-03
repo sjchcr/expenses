@@ -169,6 +169,42 @@ export type Database = {
         }
         Relationships: []
       }
+      salaries: {
+        Row: {
+          id: string
+          user_id: string
+          year: number
+          month: number
+          payment_number: number
+          gross_amount: number
+          currency: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          year: number
+          month: number
+          payment_number: number
+          gross_amount?: number
+          currency?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          year?: number
+          month?: number
+          payment_number?: number
+          gross_amount?: number
+          currency?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
