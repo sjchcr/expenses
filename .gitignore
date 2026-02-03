@@ -61,3 +61,13 @@ build
 .supabase
 .vercel
 .env*.local
+
+#Capacitor
+ios/App/Pods/
+ios/App/public/
+ios/App/Podfile.lock
+ios/App/*.xcworkspace
+ios/App/*.xcuserstate
+ios/App/DerivedData/
+android/app/build/
+android/.gradle/
