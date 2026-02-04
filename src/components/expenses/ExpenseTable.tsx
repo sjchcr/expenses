@@ -66,6 +66,7 @@ interface ExpenseTableProps {
   ) => void;
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
+  onCreateTemplate: (expense: Expense) => void;
   defaultTab?: "all" | "pending" | "paid";
 }
 
@@ -85,6 +86,7 @@ export function ExpenseTable({
   onToggleAmountPaid,
   onEdit,
   onDelete,
+  onCreateTemplate,
   defaultTab = "all",
 }: ExpenseTableProps) {
   const { t } = useTranslation();
@@ -268,7 +270,7 @@ export function ExpenseTable({
                     )}
                     <p
                       className={cn(
-                        "text-sm font-bold truncate max-w-37.5",
+                        "text-sm font-bold truncate",
                         fullyPaid
                           ? "text-green-600"
                           : partiallyPaid
@@ -371,16 +373,16 @@ export function ExpenseTable({
                         }}
                       >
                         <Edit />
-                        Edit expense
+                        {t("expenses.editExpense")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          onEdit(expense);
+                          onCreateTemplate(expense);
                         }}
                       >
                         <FilePlusCorner />
-                        Create template
+                        {t("templates.createTemplate")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
@@ -392,7 +394,8 @@ export function ExpenseTable({
                           onDelete(expense);
                         }}
                       >
-                        <Trash2 /> Delete expense
+                        <Trash2 />
+                        {t("expenses.deleteExpense")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>

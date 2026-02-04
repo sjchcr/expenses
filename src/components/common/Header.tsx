@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MobileNavigation } from "./MobileNavigation";
 
 const NAV_ITEMS = [
   { path: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
@@ -68,37 +69,25 @@ const getInitials = (user: User | null): string => {
   return "?";
 };
 
+const UserAvatar = ({ user }: { user: User | null }) => (
+  <Avatar className="w-9 h-9">
+    <AvatarImage
+      src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
+      alt={user?.email || "User"}
+    />
+    <AvatarFallback>{getInitials(user)}</AvatarFallback>
+  </Avatar>
+);
+
 interface NavItemProps {
   path: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
-  isMobile: boolean;
 }
 
-const NavItem = ({
-  path,
-  labelKey,
-  icon: Icon,
-  isActive,
-  isMobile,
-}: NavItemProps) => {
+const NavItem = ({ path, labelKey, icon: Icon, isActive }: NavItemProps) => {
   const { t } = useTranslation();
-  if (isMobile) {
-    return (
-      <Link
-        to={path}
-        className={cn(
-          "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-full transition-colors border border-transparent",
-          isActive &&
-            "bg-accent/50 text-accent-foreground border border-border shadow-md",
-        )}
-      >
-        <Icon className="h-5 w-5" />
-        <span className="text-[10px]">{t(labelKey)}</span>
-      </Link>
-    );
-  }
 
   return (
     <NavigationMenuItem>
@@ -119,86 +108,13 @@ const NavItem = ({
   );
 };
 
-interface IndicatorPosition {
-  left: number;
-  width: number;
-}
+const THEME_OPTIONS = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+] as const;
 
-const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
-  const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [indicator, setIndicator] = useState<IndicatorPosition>({
-    left: 0,
-    width: 0,
-  });
-
-  const activeIndex = NAV_ITEMS.findIndex((item) => item.path === currentPath);
-
-  useLayoutEffect(() => {
-    const updateIndicator = () => {
-      const activeItem = itemRefs.current[activeIndex];
-      const container = containerRef.current;
-
-      if (activeItem && container) {
-        const containerRect = container.getBoundingClientRect();
-        const itemRect = activeItem.getBoundingClientRect();
-
-        setIndicator({
-          left: itemRect.left - containerRect.left,
-          width: itemRect.width,
-        });
-      }
-    };
-
-    updateIndicator();
-    window.addEventListener("resize", updateIndicator);
-    return () => window.removeEventListener("resize", updateIndicator);
-  }, [activeIndex]);
-
-  return (
-    <nav
-      ref={containerRef}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-background/60 backdrop-blur-xl border border-border shadow-lg rounded-full px-2 py-2"
-    >
-      {/* Sliding indicator */}
-      <div
-        className="absolute top-2 bottom-2 bg-accent-foreground/10 rounded-full transition-all duration-300 ease-out"
-        style={{
-          left: indicator.left,
-          width: indicator.width,
-        }}
-      />
-
-      {/* Nav items */}
-      <div className="relative flex items-center">
-        {NAV_ITEMS.map((item, index) => {
-          const Icon = item.icon;
-          const isActive = item.path === currentPath;
-
-          return (
-            <Link
-              key={item.path}
-              ref={(el) => {
-                itemRefs.current[index] = el;
-              }}
-              to={item.path}
-              className={cn(
-                "flex flex-col items-center justify-center gap-0 px-4 py-2 rounded-full transition-colors relative z-10",
-                isActive && "text-primary font-bold",
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px]">{t(item.labelKey)}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
-  );
-};
-
-const ThemeToggle = ({ variant }: { variant?: string }) => {
+const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
 
   const cycleTheme = () => {
@@ -223,12 +139,7 @@ const ThemeToggle = ({ variant }: { variant?: string }) => {
     }
   };
 
-  return variant === "mobile" ? (
-    <DropdownMenuItem onClick={cycleTheme} className="capitalize">
-      {getIcon()}
-      {theme}
-    </DropdownMenuItem>
-  ) : (
+  return (
     <Button
       className="rounded-full"
       variant="ghost"
@@ -279,7 +190,6 @@ const Header = () => {
         key={item.path}
         {...item}
         isActive={location.pathname === item.path}
-        isMobile={isMobile}
       />
     ));
 
@@ -294,45 +204,23 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar className="w-9 h-9">
-                  <AvatarImage
-                    src={
-                      user?.user_metadata?.avatar_url ||
-                      user?.user_metadata?.picture
-                    }
-                    alt={user?.email || "User"}
-                  />
-                  <AvatarFallback>{getInitials(user)}</AvatarFallback>
-                </Avatar>
+                <UserAvatar user={user} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                <DropdownMenuCheckboxItem
-                  onClick={() => setTheme("light")}
-                  checked={theme === "light"}
-                  className="capitalize"
-                >
-                  <Sun className="h-4 w-4" />
-                  Light
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={theme === "dark"}
-                  onClick={() => setTheme("dark")}
-                  className="capitalize"
-                >
-                  <Moon className="h-4 w-4" />
-                  Dark
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={theme === "system"}
-                  onClick={() => setTheme("system")}
-                  className="capitalize"
-                >
-                  <Monitor className="h-4 w-4" />
-                  System
-                </DropdownMenuCheckboxItem>
+                {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+                  <DropdownMenuCheckboxItem
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    checked={theme === value}
+                    className="capitalize"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </DropdownMenuCheckboxItem>
+                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
                   <LogOut />
@@ -343,7 +231,7 @@ const Header = () => {
           </DropdownMenu>
         </div>
       </header>
-      <MobileNavigation currentPath={location.pathname} />
+      <MobileNavigation currentPath={location.pathname} items={NAV_ITEMS} />
     </>
   ) : (
     <header className="bg-background/60 backdrop-blur-2xl shadow-sm sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
@@ -367,11 +255,9 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation */}
-            {!isMobile && (
-              <NavigationMenu>
-                <NavigationMenuList>{renderNavItems()}</NavigationMenuList>
-              </NavigationMenu>
-            )}
+            <NavigationMenu>
+              <NavigationMenuList>{renderNavItems()}</NavigationMenuList>
+            </NavigationMenu>
           </div>
 
           {/* Right: User info and sign out */}
@@ -389,16 +275,7 @@ const Header = () => {
                   </p>
                 )}
               </div>
-              <Avatar className="w-9 h-9">
-                <AvatarImage
-                  src={
-                    user?.user_metadata?.avatar_url ||
-                    user?.user_metadata?.picture
-                  }
-                  alt={user?.email || "User"}
-                />
-                <AvatarFallback>{getInitials(user)}</AvatarFallback>
-              </Avatar>
+              <UserAvatar user={user} />
             </div>
             <ThemeToggle />
             <Button

@@ -322,46 +322,49 @@ export default function Settings() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Primary Currency */}
+          {/* Account Settings */}
           <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Coins className="h-4 w-4" />
-                {t("settings.primaryCurrency")}
+                <User className="h-4 w-4" />
+                {t("settings.account")}
               </CardTitle>
-              <CardDescription>
-                {t("settings.primaryCurrencyDesc")}
-              </CardDescription>
+              <CardDescription>{t("settings.accountDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="primary-currency">{t("common.currency")}</Label>
-                <Select
-                  value={primaryCurrency}
-                  onValueChange={setPrimaryCurrency}
-                >
-                  <SelectTrigger id="primary-currency" className="mt-1">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {COMMON_CURRENCIES.map((curr) => (
-                      <SelectItem key={curr} value={curr}>
-                        {curr}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="firstName">{t("settings.firstName")}</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="lastName">{t("settings.lastName")}</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name"
+                  />
+                </div>
               </div>
+              {userEmail && (
+                <div>
+                  <Label className="text-xs text-gray-500">Email</Label>
+                  <p className="font-medium text-sm">{userEmail}</p>
+                </div>
+              )}
               <Button
-                onClick={handleSavePrimaryCurrency}
-                disabled={
-                  updateMutation.isPending ||
-                  primaryCurrency === settings?.primary_currency
-                }
+                onClick={handleSaveProfile}
+                disabled={isSavingProfile || !hasProfileChanges}
               >
-                {updateMutation.isPending
+                {isSavingProfile
                   ? t("common.saving")
-                  : t("settings.saveCurrency")}
+                  : t("settings.saveProfile")}
               </Button>
             </CardContent>
           </Card>
@@ -463,54 +466,46 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Account Settings */}
+          {/* Primary Currency */}
           <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {t("settings.account")}
+                <Coins className="h-4 w-4" />
+                {t("settings.primaryCurrency")}
               </CardTitle>
-              <CardDescription>{t("settings.accountDesc")}</CardDescription>
+              <CardDescription>
+                {t("settings.primaryCurrencyDesc")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="firstName">{t("settings.firstName")}</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="First name"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="lastName">{t("settings.lastName")}</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Last name"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="primary-currency">{t("common.currency")}</Label>
+                <Select
+                  value={primaryCurrency}
+                  onValueChange={setPrimaryCurrency}
+                >
+                  <SelectTrigger id="primary-currency" className="mt-1">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {COMMON_CURRENCIES.map((curr) => (
+                      <SelectItem key={curr} value={curr}>
+                        {curr}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              {userEmail && (
-                <div>
-                  <Label className="text-xs text-gray-500">Email</Label>
-                  <p className="font-medium text-sm">{userEmail}</p>
-                </div>
-              )}
               <Button
-                onClick={handleSaveProfile}
-                disabled={isSavingProfile || !hasProfileChanges}
+                onClick={handleSavePrimaryCurrency}
+                disabled={
+                  updateMutation.isPending ||
+                  primaryCurrency === settings?.primary_currency
+                }
               >
-                {isSavingProfile
+                {updateMutation.isPending
                   ? t("common.saving")
-                  : t("settings.saveProfile")}
-              </Button>
-              <Separator />
-              <Button variant="ghostDestructive" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
-                {t("auth.signOut")}
+                  : t("settings.saveCurrency")}
               </Button>
             </CardContent>
           </Card>

@@ -15,6 +15,7 @@ import {
   useDeleteExpense,
   useToggleAmountPaid,
 } from "@/hooks/useExpenses";
+import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { useTemplateGroups } from "@/hooks/useTemplateGroups";
@@ -142,6 +143,12 @@ export default function Expenses() {
   const deleteMutation = useDeleteExpense();
   const toggleAmountPaidMutation = useToggleAmountPaid();
 
+  const [isCreateTemplateDialogOpen, setIsCreateTemplateDialogOpen] =
+    useState(false);
+  const [expenseForTemplate, setExpenseForTemplate] = useState<Expense | null>(
+    null,
+  );
+
   const hasGroups = groups && groups.length > 0;
 
   // Get all unique currencies from expenses for exchange rate display
@@ -195,6 +202,11 @@ export default function Expenses() {
     setIsAddDialogOpen(true);
   };
 
+  const handleCreateTemplate = (expense: Expense) => {
+    setExpenseForTemplate(expense);
+    setIsCreateTemplateDialogOpen(true);
+  };
+
   // Group expenses by payment period
   const expensesByPeriod = useMemo(() => {
     if (!expenses) return {};
@@ -219,7 +231,7 @@ export default function Expenses() {
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
-        <div className="flex justify-between items-center gap-2">
+        <div className="flex justify-between items-start sm:items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
             {!isMobile && (
               <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
@@ -430,6 +442,7 @@ export default function Expenses() {
                     onToggleAmountPaid={handleToggleAmountPaid}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onCreateTemplate={handleCreateTemplate}
                     defaultTab={defaultTab}
                   />
                 </CardContent>
@@ -477,6 +490,25 @@ export default function Expenses() {
         open={isGroupDialogOpen}
         onOpenChange={setIsGroupDialogOpen}
         paymentPeriods={settings?.payment_periods || []}
+      />
+
+      <CreateTemplateDialog
+        open={isCreateTemplateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateTemplateDialogOpen(open);
+          if (!open) setExpenseForTemplate(null);
+        }}
+        initialData={
+          expenseForTemplate
+            ? {
+                name: expenseForTemplate.name,
+                amounts: expenseForTemplate.amounts.map((a) => ({
+                  currency: a.currency,
+                  amount: a.amount,
+                })),
+              }
+            : null
+        }
       />
     </div>
   );
