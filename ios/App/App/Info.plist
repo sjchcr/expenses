@@ -32,7 +32,21 @@
 				<string>cr.steven.expensestracker</string>
 			</array>
 		</dict>
+		<!-- TODO: Replace YOUR_IOS_CLIENT_ID with your actual Google iOS Client ID -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.942284239751-b37vsj41hco20uhv17n01ob7idrleugo</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.942284239751-b37vsj41hco20uhv17n01ob7idrleugo</string>
+			</array>
+		</dict>
 	</array>
+	<!-- TODO: Replace with your actual Google iOS Client ID -->
+	<key>GIDClientID</key>
+	<string>942284239751-b37vsj41hco20uhv17n01ob7idrleugo.apps.googleusercontent.com</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
