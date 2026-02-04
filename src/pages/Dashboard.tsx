@@ -9,8 +9,10 @@ import {
   CurrencyBreakdownChart,
   QuickStatsCards,
 } from "@/components/dashboard";
+import { useMobile } from "@/hooks/useMobile";
 
 export default function Dashboard() {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const { displayName } = useCurrentUser();
   const {
@@ -30,11 +32,14 @@ export default function Dashboard() {
   } = useDashboardStats();
 
   return (
-    <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] px-4 flex flex-col gap-6">
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] px-4 flex flex-col gap-6">
       <div className="flex flex-col items-start justify-start gap-2">
-        <h1 className="text-2xl font-semibold text-accent-foreground">
-          {t("dashboard.welcomeBack")}{displayName ? ` ${displayName}` : ""}!
-        </h1>
+        {!isMobile && (
+          <h2 className="text-2xl font-semibold text-accent-foreground">
+            {t("dashboard.welcomeBack")}
+            {displayName ? ` ${displayName}` : ""}!
+          </h2>
+        )}
         <h3 className="text-sm text-muted-foreground">
           {t("dashboard.financialSummary", { year: currentYear })}
         </h3>

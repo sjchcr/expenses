@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import { ChevronLeft, ChevronRight, Gift, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSalaries, useUpsertSalary } from "@/hooks/useSalaries";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Salary } from "@/types";
 import { cn } from "@/lib/utils";
+import { useMobile } from "@/hooks/useMobile";
 
 const CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP"];
 
@@ -121,6 +122,7 @@ function SalaryInput({
 }
 
 export default function Aguinaldo() {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const [aguinaldoYear, setAguinaldoYear] = useState(currentYear);
@@ -201,15 +203,16 @@ export default function Aguinaldo() {
   const handleNextYear = () => setAguinaldoYear((y) => y + 1);
 
   return (
-    <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] sm:px-6">
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
-              <Gift className="h-6 w-6" />
-              {t("aguinaldo.title")} {aguinaldoYear}
-            </h2>
+            {!isMobile && (
+              <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
+                {t("aguinaldo.title")} {aguinaldoYear}
+              </h2>
+            )}
             <div className="text-sm text-gray-600">
               {t("aguinaldo.description")}{" "}
               <span className="font-mono bg-accent text-xs p-1 rounded-sm">

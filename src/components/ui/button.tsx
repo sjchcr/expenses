@@ -9,16 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        success: "bg-green-600 text-white shadow-sm hover:bg-green-700",
-        warning: "bg-amber-500 text-white shadow-sm hover:bg-amber-600",
+          "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+        success: "bg-green-600 text-white hover:bg-green-700",
+        warning: "bg-amber-500 text-white hover:bg-amber-600",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         ghostDestructive: "hover:bg-destructive/10 text-destructive",
         link: "text-primary underline-offset-4 hover:underline",
@@ -38,8 +37,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }

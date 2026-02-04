@@ -9,6 +9,8 @@ import {
   CircleCheck,
   CircleOff,
   Loader2,
+  EllipsisVertical,
+  FilePlusCorner,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +20,14 @@ import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -142,79 +152,70 @@ export function ExpenseTable({
     useExchangeRates(allCurrencies);
 
   // Calculate totals by currency (supports multiple amounts per expense)
-  const totals = expenses.reduce(
-    (acc, expense) => {
-      for (const { currency, amount, paid } of expense.amounts) {
-        if (!acc[currency]) {
-          acc[currency] = { total: 0, paid: 0, pending: 0 };
-        }
-        acc[currency].total += amount;
-        if (paid) {
-          acc[currency].paid += amount;
-        } else {
-          acc[currency].pending += amount;
-        }
+  const totals = expenses.reduce((acc, expense) => {
+    for (const { currency, amount, paid } of expense.amounts) {
+      if (!acc[currency]) {
+        acc[currency] = { total: 0, paid: 0, pending: 0 };
       }
-      return acc;
-    },
-    {} as Record<string, { total: number; paid: number; pending: number }>,
-  );
+      acc[currency].total += amount;
+      if (paid) {
+        acc[currency].paid += amount;
+      } else {
+        acc[currency].pending += amount;
+      }
+    }
+    return acc;
+  }, {} as Record<string, { total: number; paid: number; pending: number }>);
 
   // Calculate grand totals by converting all amounts to each target currency
   const grandTotals = useMemo(() => {
-    return expenses.reduce(
-      (acc, expense) => {
-        // For each target currency, sum up all amounts converted using exchange rates
-        for (const targetCurrency of allCurrencies) {
-          if (!acc[targetCurrency]) {
-            acc[targetCurrency] = {
-              total: 0,
-              paid: 0,
-              pending: 0,
-              hasAllRates: true,
-            };
+    return expenses.reduce((acc, expense) => {
+      // For each target currency, sum up all amounts converted using exchange rates
+      for (const targetCurrency of allCurrencies) {
+        if (!acc[targetCurrency]) {
+          acc[targetCurrency] = {
+            total: 0,
+            paid: 0,
+            pending: 0,
+            hasAllRates: true,
+          };
+        }
+
+        for (const amountData of expense.amounts) {
+          let convertedAmount: number;
+
+          if (amountData.currency === targetCurrency) {
+            // Same currency, no conversion needed
+            convertedAmount = amountData.amount;
+          } else if (amountData.exchange_rate) {
+            // Use manual exchange rate from the expense
+            convertedAmount = amountData.amount * amountData.exchange_rate;
+          } else {
+            // Try to get rate from API-fetched rates
+            const apiRate = getExchangeRate(
+              fetchedRates,
+              amountData.currency,
+              targetCurrency,
+            );
+            if (apiRate !== null) {
+              convertedAmount = amountData.amount * apiRate;
+            } else {
+              // No exchange rate available, mark as incomplete
+              acc[targetCurrency].hasAllRates = false;
+              continue;
+            }
           }
 
-          for (const amountData of expense.amounts) {
-            let convertedAmount: number;
-
-            if (amountData.currency === targetCurrency) {
-              // Same currency, no conversion needed
-              convertedAmount = amountData.amount;
-            } else if (amountData.exchange_rate) {
-              // Use manual exchange rate from the expense
-              convertedAmount = amountData.amount * amountData.exchange_rate;
-            } else {
-              // Try to get rate from API-fetched rates
-              const apiRate = getExchangeRate(
-                fetchedRates,
-                amountData.currency,
-                targetCurrency,
-              );
-              if (apiRate !== null) {
-                convertedAmount = amountData.amount * apiRate;
-              } else {
-                // No exchange rate available, mark as incomplete
-                acc[targetCurrency].hasAllRates = false;
-                continue;
-              }
-            }
-
-            acc[targetCurrency].total += convertedAmount;
-            if (amountData.paid) {
-              acc[targetCurrency].paid += convertedAmount;
-            } else {
-              acc[targetCurrency].pending += convertedAmount;
-            }
+          acc[targetCurrency].total += convertedAmount;
+          if (amountData.paid) {
+            acc[targetCurrency].paid += convertedAmount;
+          } else {
+            acc[targetCurrency].pending += convertedAmount;
           }
         }
-        return acc;
-      },
-      {} as Record<
-        string,
-        { total: number; paid: number; pending: number; hasAllRates: boolean }
-      >,
-    );
+      }
+      return acc;
+    }, {} as Record<string, { total: number; paid: number; pending: number; hasAllRates: boolean }>);
   }, [expenses, allCurrencies, fetchedRates]);
 
   const renderExpenseList = (tab: string) => (
@@ -222,7 +223,9 @@ export function ExpenseTable({
       {sortedExpenses.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center gap-2 p-6 text-sm text-gray-500">
           <CircleOff className="h-6 w-6" />
-          {tab === "all" ? t("expenses.noExpenses") : t("expenses.noExpensesTab", { tab: t(`common.${tab}`) })}
+          {tab === "all"
+            ? t("expenses.noExpenses")
+            : t("expenses.noExpensesTab", { tab: t(`common.${tab}`) })}
         </div>
       ) : (
         sortedExpenses.map((expense, index) => {
@@ -269,113 +272,131 @@ export function ExpenseTable({
                         fullyPaid
                           ? "text-green-600"
                           : partiallyPaid
-                            ? "text-amber-600"
-                            : "text-amber-500",
+                          ? "text-amber-600"
+                          : "text-amber-500",
                       )}
                     >
                       {expense.name}
                     </p>
                   </div>
-                  <div
-                    className={cn(
-                      "w-full grid items-center gap-4 text-sm text-gray-900",
-                      `grid-cols-${allCurrencies.length}`,
-                    )}
-                  >
-                    {allCurrencies.map((currency) => {
-                      const amountData = expense.amounts.find(
-                        (a) => a.currency === currency,
-                      );
-
-                      // Show simple format if currency not in this expense
-                      if (!amountData) {
-                        return (
-                          <span
-                            key={currency}
-                            className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1"
-                          >
-                            <Checkbox
-                              checked={false}
-                              disabled
-                              className="h-3.5 w-3.5"
-                            />
-                            {getCurrencySymbol(currency)}-
-                          </span>
+                  <div className="w-full flex justify-between items-center gap-2">
+                    <div
+                      className={cn(
+                        "w-full grid items-center gap-4 text-sm text-gray-900",
+                        `grid-cols-${allCurrencies.length}`,
+                      )}
+                    >
+                      {allCurrencies.map((currency) => {
+                        const amountData = expense.amounts.find(
+                          (a) => a.currency === currency,
                         );
-                      }
 
-                      const isToggling =
-                        togglingId === `${expense.id}-${amountData.currency}`;
+                        // Show simple format if currency not in this expense
+                        if (!amountData) {
+                          return (
+                            <span
+                              key={currency}
+                              className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1"
+                            >
+                              <Checkbox
+                                checked={false}
+                                disabled
+                                className="h-3.5 w-3.5"
+                              />
+                              {getCurrencySymbol(currency)}-
+                            </span>
+                          );
+                        }
 
-                      return (
-                        <div
-                          key={amountData.currency}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleAmountPaid(
-                              expense,
-                              amountData.currency,
-                              !amountData.paid,
-                            );
-                          }}
-                          className={cn(
-                            "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors  w-full",
-                            amountData.paid
-                              ? "text-green-600"
-                              : "text-accent-foreground",
-                          )}
-                        >
-                          {isToggling ? (
-                            <Spinner className="h-3.5 w-3.5" />
-                          ) : (
-                            <Checkbox
-                              checked={amountData.paid}
-                              className="h-3.5 w-3.5"
-                            />
-                          )}
-                          <span
+                        const isToggling =
+                          togglingId === `${expense.id}-${amountData.currency}`;
+
+                        return (
+                          <div
+                            key={amountData.currency}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onToggleAmountPaid(
+                                expense,
+                                amountData.currency,
+                                !amountData.paid,
+                              );
+                            }}
                             className={cn(
-                              amountData.paid && "line-through opacity-70",
+                              "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors  w-full",
+                              amountData.paid
+                                ? "text-green-600"
+                                : "text-accent-foreground",
                             )}
                           >
-                            {getCurrencySymbol(amountData.currency)}
-                            {formatAmount(amountData.amount)}
-                          </span>
-                        </div>
-                      );
-                    })}
+                            {isToggling ? (
+                              <Spinner className="h-3.5 w-3.5" />
+                            ) : (
+                              <Checkbox
+                                checked={amountData.paid}
+                                className="h-3.5 w-3.5"
+                              />
+                            )}
+                            <span
+                              className={cn(
+                                amountData.paid && "line-through opacity-70",
+                              )}
+                            >
+                              {getCurrencySymbol(amountData.currency)}
+                              {formatAmount(amountData.amount)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="text-sm text-accent-foreground w-20">
+                      {format(parseISO(expense.due_date), "MM/dd")}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="w-20">
-                <div className="text-sm text-accent-foreground w-20">
-                  {format(parseISO(expense.due_date), "MM/dd")}
-                </div>
-              </div>
               <div className="w-15 flex justify-end gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(expense);
-                  }}
-                  className="h-7 w-7 p-0"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghostDestructive"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(expense);
-                  }}
-                  className="h-7 w-7 p-0"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <EllipsisVertical />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(expense);
+                        }}
+                      >
+                        <Edit />
+                        Edit expense
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(expense);
+                        }}
+                      >
+                        <FilePlusCorner />
+                        Create template
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(expense);
+                        }}
+                      >
+                        <Trash2 /> Delete expense
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           );

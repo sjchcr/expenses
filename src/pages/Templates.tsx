@@ -8,7 +8,6 @@ import {
   CalendarDays,
   FolderPlus,
   Layers,
-  FileText,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -68,6 +67,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useMobile } from "@/hooks/useMobile";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -123,6 +123,7 @@ const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
 };
 
 export default function Templates() {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] =
@@ -357,15 +358,16 @@ export default function Templates() {
   const regularTemplates = templates?.filter((t) => !t.is_recurring) || [];
 
   return (
-    <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] sm:px-6">
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
-              <FileText className="h-6 w-6" />
-              {t("templates.title")}
-            </h2>
+            {!isMobile && (
+              <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
+                {t("templates.title")}
+              </h2>
+            )}
             <div className="text-sm text-gray-600">
               {t("templates.description")}
             </div>
@@ -418,10 +420,16 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="pl-4">{t("templates.templateName")}</TableHead>
-                            <TableHead>{t("templates.currenciesAmounts")}</TableHead>
+                            <TableHead className="pl-4">
+                              {t("templates.templateName")}
+                            </TableHead>
+                            <TableHead>
+                              {t("templates.currenciesAmounts")}
+                            </TableHead>
                             <TableHead>{t("common.day")}</TableHead>
-                            <TableHead className="w-24 pr-4">{t("common.actions")}</TableHead>
+                            <TableHead className="w-24 pr-4">
+                              {t("common.actions")}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -468,7 +476,8 @@ export default function Templates() {
                           <TableRow>
                             <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
-                                {t("templates.totalTemplates")}: {recurringTemplates.length}
+                                {t("templates.totalTemplates")}:{" "}
+                                {recurringTemplates.length}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -484,7 +493,9 @@ export default function Templates() {
                           <EmptyMedia variant="icon">
                             <CircleOff />
                           </EmptyMedia>
-                          <EmptyTitle>{t("templates.noRecurringTemplates")}</EmptyTitle>
+                          <EmptyTitle>
+                            {t("templates.noRecurringTemplates")}
+                          </EmptyTitle>
                           <EmptyDescription>
                             {t("templates.noRecurringTemplatesDesc")}
                           </EmptyDescription>
@@ -521,9 +532,15 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="pl-4">{t("templates.templateName")}</TableHead>
-                            <TableHead>{t("templates.currenciesAmounts")}</TableHead>
-                            <TableHead className="w-24 pr-4">{t("common.actions")}</TableHead>
+                            <TableHead className="pl-4">
+                              {t("templates.templateName")}
+                            </TableHead>
+                            <TableHead>
+                              {t("templates.currenciesAmounts")}
+                            </TableHead>
+                            <TableHead className="w-24 pr-4">
+                              {t("common.actions")}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -565,7 +582,8 @@ export default function Templates() {
                           <TableRow>
                             <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
-                                {t("templates.totalTemplates")}: {regularTemplates.length}
+                                {t("templates.totalTemplates")}:{" "}
+                                {regularTemplates.length}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -581,7 +599,9 @@ export default function Templates() {
                           <EmptyMedia variant="icon">
                             <CircleOff />
                           </EmptyMedia>
-                          <EmptyTitle>{t("templates.noQuickTemplates")}</EmptyTitle>
+                          <EmptyTitle>
+                            {t("templates.noQuickTemplates")}
+                          </EmptyTitle>
                           <EmptyDescription>
                             {t("templates.noQuickTemplatesDesc")}
                           </EmptyDescription>
@@ -618,9 +638,7 @@ export default function Templates() {
                     <Layers className="h-4 w-4" />
                     {t("groups.title")}
                   </CardTitle>
-                  <CardDescription>
-                    {t("groups.description")}
-                  </CardDescription>
+                  <CardDescription>{t("groups.description")}</CardDescription>
                   <CardAction>
                     <Button
                       size="icon"
@@ -715,7 +733,9 @@ export default function Templates() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingTemplate ? t("templates.editTemplate") : t("templates.createTemplate")}
+              {editingTemplate
+                ? t("templates.editTemplate")
+                : t("templates.createTemplate")}
             </DialogTitle>
           </DialogHeader>
 
@@ -817,7 +837,9 @@ export default function Templates() {
 
             {formData.is_recurring && (
               <div>
-                <Label htmlFor="recurrence_day">{t("templates.recurrenceDay")} *</Label>
+                <Label htmlFor="recurrence_day">
+                  {t("templates.recurrenceDay")} *
+                </Label>
                 <Select
                   value={String(formData.recurrence_day || 1)}
                   onValueChange={(value) =>
@@ -857,8 +879,8 @@ export default function Templates() {
                 {isFormLoading
                   ? t("common.saving")
                   : editingTemplate
-                    ? t("common.update")
-                    : t("common.create")}
+                  ? t("common.update")
+                  : t("common.create")}
               </Button>
             </div>
           </form>
@@ -890,7 +912,9 @@ export default function Templates() {
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? t("common.deleting") : t("common.delete")}
+              {deleteMutation.isPending
+                ? t("common.deleting")
+                : t("common.delete")}
             </Button>
           </div>
         </DialogContent>
@@ -920,7 +944,9 @@ export default function Templates() {
             </div>
 
             <div>
-              <Label className="mb-2 block">{t("groups.selectTemplates")} *</Label>
+              <Label className="mb-2 block">
+                {t("groups.selectTemplates")} *
+              </Label>
               <div className="border rounded-lg max-h-64 overflow-y-auto">
                 {templates && templates.length > 0 ? (
                   <div className="divide-y">
@@ -959,8 +985,12 @@ export default function Templates() {
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 {groupFormData.template_ids.length === 1
-                  ? t("groups.templatesSelected", { count: groupFormData.template_ids.length })
-                  : t("groups.templatesSelectedPlural", { count: groupFormData.template_ids.length })}
+                  ? t("groups.templatesSelected", {
+                      count: groupFormData.template_ids.length,
+                    })
+                  : t("groups.templatesSelectedPlural", {
+                      count: groupFormData.template_ids.length,
+                    })}
               </p>
             </div>
 
@@ -977,8 +1007,8 @@ export default function Templates() {
                 {isGroupFormLoading
                   ? t("common.saving")
                   : editingGroup
-                    ? t("common.update")
-                    : t("common.create")}
+                  ? t("common.update")
+                  : t("common.create")}
               </Button>
             </div>
           </form>
@@ -1013,7 +1043,9 @@ export default function Templates() {
               onClick={handleConfirmDeleteGroup}
               disabled={deleteGroupMutation.isPending}
             >
-              {deleteGroupMutation.isPending ? t("common.deleting") : t("common.delete")}
+              {deleteGroupMutation.isPending
+                ? t("common.deleting")
+                : t("common.delete")}
             </Button>
           </div>
         </DialogContent>

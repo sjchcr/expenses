@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  Receipt,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -41,6 +40,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMobile } from "@/hooks/useMobile";
 
 // Month names for the select - using translation keys
 const MONTH_KEYS = [
@@ -59,6 +59,7 @@ const MONTH_KEYS = [
 ];
 
 export default function Expenses() {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
@@ -177,7 +178,11 @@ export default function Expenses() {
     setTogglingId(toggleId);
     try {
       await toggleAmountPaidMutation.mutateAsync({ expense, currency, paid });
-      toast.success(t(paid ? "expenses.markedAsPaid" : "expenses.markedAsPending", { currency }));
+      toast.success(
+        t(paid ? "expenses.markedAsPaid" : "expenses.markedAsPending", {
+          currency,
+        }),
+      );
     } catch (error) {
       toast.error(t("expenses.failedToUpdate"));
     } finally {
@@ -211,15 +216,16 @@ export default function Expenses() {
   const sortedPeriods = Object.keys(expensesByPeriod).sort();
 
   return (
-    <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] sm:px-6">
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
-            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
-              <Receipt className="h-6 w-6" />
-              {t("expenses.title")}
-            </h2>
+            {!isMobile && (
+              <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
+                {t("expenses.title")}
+              </h2>
+            )}
             <div className="text-sm text-gray-600">
               {t("expenses.description")}
             </div>
