@@ -8,7 +8,6 @@ import {
   User,
   Plus,
   Trash2,
-  LogOut,
   Languages,
 } from "lucide-react";
 import { useUserSettings, useUpdateSettings } from "@/hooks/useUserSettings";
@@ -41,7 +40,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import type { PaymentPeriod } from "@/types";
 import { useMobile } from "@/hooks/useMobile";
 
@@ -284,11 +282,6 @@ export default function Settings() {
   const hasProfileChanges =
     firstName.trim() !== originalFirstName ||
     lastName.trim() !== originalLastName;
-
-  const handleSignOut = async () => {
-    await authService.signOut();
-    window.location.href = "/login";
-  };
 
   if (isLoading) {
     return (
