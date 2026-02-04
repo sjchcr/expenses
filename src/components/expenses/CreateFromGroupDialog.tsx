@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Layers, Check, AlertCircle, ChevronDownIcon, CheckCheck } from "lucide-react";
@@ -48,6 +49,7 @@ export function CreateFromGroupDialog({
   onOpenChange,
   paymentPeriods,
 }: CreateFromGroupDialogProps) {
+  const { t } = useTranslation();
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([]);
   const [baseDate, setBaseDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -185,12 +187,16 @@ export function CreateFromGroupDialog({
 
     if (successCount > 0) {
       toast.success(
-        `Created ${successCount} expense${successCount > 1 ? "s" : ""}`,
+        successCount === 1
+          ? t("groups.createdExpense", { count: successCount })
+          : t("groups.createdExpenses", { count: successCount }),
       );
     }
     if (errorCount > 0) {
       toast.error(
-        `Failed to create ${errorCount} expense${errorCount > 1 ? "s" : ""}`,
+        errorCount === 1
+          ? t("groups.failedToCreateExpense", { count: errorCount })
+          : t("groups.failedToCreateExpenses", { count: errorCount }),
       );
     }
 
@@ -209,28 +215,28 @@ export function CreateFromGroupDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Layers className="h-5 w-5" />
-            Create from group
+            {t("expenses.fromGroup")}
           </DialogTitle>
         </DialogHeader>
 
         {hasNoGroups ? (
           <div className="text-center py-6">
-            <p className="text-gray-500 mb-2">No template groups available.</p>
+            <p className="text-gray-500 mb-2">{t("groups.noGroups")}</p>
             <p className="text-sm text-gray-400">
-              Create groups in the Templates page first.
+              {t("groups.noTemplatesForGroups")}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="group">Select group *</Label>
+              <Label htmlFor="group">{t("groups.selectGroup")} *</Label>
               <Select
                 value={selectedGroupId}
                 onValueChange={handleGroupSelect}
                 disabled={isCreating}
               >
                 <SelectTrigger id="group" className="mt-1 w-full">
-                  <SelectValue placeholder="Choose a group..." />
+                  <SelectValue placeholder={t("groups.chooseGroup")} />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
                   {groups?.map((group) => (
@@ -245,10 +251,9 @@ export function CreateFromGroupDialog({
             {selectedGroup && (
               <>
                 <div>
-                  <Label htmlFor="base-date">Base date</Label>
+                  <Label htmlFor="base-date">{t("groups.baseDate")}</Label>
                   <p className="text-xs text-gray-500 mb-1">
-                    For recurring templates, their recurrence day will be used
-                    instead.
+                    {t("groups.baseDateHint")}
                   </p>
                   <Popover
                     open={openDatePicker}
@@ -286,7 +291,7 @@ export function CreateFromGroupDialog({
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <Label>Templates to create</Label>
+                    <Label>{t("groups.templatesToCreate")}</Label>
                     {groupTemplates.length > 0 && !hasCreationStarted && (
                       <Button
                         type="button"
@@ -303,8 +308,8 @@ export function CreateFromGroupDialog({
                       >
                         <CheckCheck className="h-3 w-3" />
                         {selectedTemplateIds.length === groupTemplates.length
-                          ? "Deselect all"
-                          : "Select all"}
+                          ? t("common.deselectAll")
+                          : t("common.selectAll")}
                       </Button>
                     )}
                   </div>
@@ -376,14 +381,15 @@ export function CreateFromGroupDialog({
                       </div>
                     ) : (
                       <p className="px-3 py-4 text-sm text-gray-500 text-center">
-                        No templates found in this group
+                        {t("groups.noTemplatesInGroup")}
                       </p>
                     )}
                   </div>
                   {groupTemplates.length > 0 && (
                     <p className="text-xs text-gray-500 mt-1">
-                      {selectedTemplateIds.length} of {groupTemplates.length} expense
-                      {selectedTemplateIds.length !== 1 ? "s" : ""} selected
+                      {selectedTemplateIds.length === 1
+                        ? t("groups.expensesSelected", { count: selectedTemplateIds.length, total: groupTemplates.length })
+                        : t("groups.expensesSelectedPlural", { count: selectedTemplateIds.length, total: groupTemplates.length })}
                     </p>
                   )}
                 </div>
@@ -397,7 +403,7 @@ export function CreateFromGroupDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isCreating}
               >
-                {hasCreationStarted ? "Close" : "Cancel"}
+                {hasCreationStarted ? t("common.close") : t("common.cancel")}
               </Button>
               {!hasCreationStarted && (
                 <Button
@@ -407,8 +413,10 @@ export function CreateFromGroupDialog({
                   }
                 >
                   {isCreating
-                    ? "Creating..."
-                    : `Create ${selectedTemplateIds.length} expense${selectedTemplateIds.length !== 1 ? "s" : ""}`}
+                    ? t("common.creating")
+                    : selectedTemplateIds.length === 1
+                      ? t("groups.createExpenses", { count: selectedTemplateIds.length })
+                      : t("groups.createExpensesPlural", { count: selectedTemplateIds.length })}
                 </Button>
               )}
             </div>

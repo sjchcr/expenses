@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import {
   Dialog,
@@ -64,6 +65,7 @@ export function AddExpenseDialog({
   defaultMonth,
   defaultYear,
 }: AddExpenseDialogProps) {
+  const { t } = useTranslation();
   const getDefaultDate = () => {
     const now = new Date();
     const year = defaultYear ?? now.getFullYear();
@@ -208,7 +210,7 @@ export function AddExpenseDialog({
       }));
 
     if (expenseAmounts.length === 0) {
-      alert("Please add at least one amount.");
+      alert(t("expenses.addAtLeastOneAmount"));
       return;
     }
 
@@ -235,7 +237,7 @@ export function AddExpenseDialog({
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to save expense:", error);
-      alert("Failed to save expense. Please try again.");
+      alert(t("expenses.failedToSave"));
     }
   };
 
@@ -246,7 +248,7 @@ export function AddExpenseDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {expense ? "Edit expense" : "Add new expense"}
+            {expense ? t("expenses.editExpense") : t("expenses.addNewExpense")}
           </DialogTitle>
         </DialogHeader>
 
@@ -255,17 +257,17 @@ export function AddExpenseDialog({
             <div className="pb-2 border-b">
               <Label htmlFor="template" className="flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5" />
-                Create from template
+                {t("expenses.createFromTemplate")}
               </Label>
               <Select
                 value={selectedTemplateId}
                 onValueChange={handleTemplateSelect}
               >
                 <SelectTrigger id="template" className="mt-1 w-full">
-                  <SelectValue placeholder="Select a template..." />
+                  <SelectValue placeholder={t("expenses.selectTemplate")} />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="none">No template</SelectItem>
+                  <SelectItem value="none">{t("expenses.noTemplate")}</SelectItem>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name} (
@@ -279,7 +281,7 @@ export function AddExpenseDialog({
           )}
 
           <div className="relative">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{t("common.name")} *</Label>
             <Input
               ref={nameInputRef}
               id="name"
@@ -294,7 +296,7 @@ export function AddExpenseDialog({
                 // Delay hiding to allow click on suggestion
                 setTimeout(() => setShowSuggestions(false), 150);
               }}
-              placeholder="e.g., Rent, Electricity, Groceries"
+              placeholder={t("expenses.namePlaceholder")}
               required
               autoComplete="off"
             />
@@ -302,7 +304,7 @@ export function AddExpenseDialog({
             {showSuggestions && suggestedTemplates.length > 0 && !expense && (
               <div className="absolute z-50 w-full mt-1 bg-background dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
                 <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
-                  Suggestions from templates
+                  {t("expenses.suggestionsFromTemplates")}
                 </div>
                 {suggestedTemplates.map((template) => (
                   <button
@@ -327,7 +329,7 @@ export function AddExpenseDialog({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label>Amounts *</Label>
+              <Label>{t("expenses.amounts")} *</Label>
               <Button
                 type="button"
                 variant="ghost"
@@ -336,7 +338,7 @@ export function AddExpenseDialog({
                 className="h-7 text-xs"
               >
                 <Plus className="h-3 w-3" />
-                Add currency
+                {t("expenses.addCurrency")}
               </Button>
             </div>
             <div className="space-y-3">
@@ -405,7 +407,7 @@ export function AddExpenseDialog({
                         htmlFor={`paid-${index}`}
                         className="text-sm text-muted-foreground"
                       >
-                        Paid
+                        {t("common.paid")}
                       </Label>
                     </div>
                     <Input
@@ -420,13 +422,12 @@ export function AddExpenseDialog({
                           e.target.value,
                         )
                       }
-                      placeholder="Exchange rate (optional)"
+                      placeholder={t("expenses.exchangeRateOptional")}
                       className="text-sm w-full"
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    If the exchange rate is left empty, the system will retrieve
-                    its value from an external API.
+                    {t("expenses.exchangeRateHint")}
                   </p>
                 </div>
               ))}
@@ -438,7 +439,7 @@ export function AddExpenseDialog({
               htmlFor="due_date"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Due date
+              {t("expenses.dueDate")}
             </label>
             <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
               <PopoverTrigger asChild>
@@ -447,7 +448,7 @@ export function AddExpenseDialog({
                   id="date"
                   className="w-full justify-between font-normal"
                 >
-                  {dueDate ? dueDate : "Select date"}
+                  {dueDate ? dueDate : t("expenses.selectDate")}
                   <ChevronDownIcon />
                 </Button>
               </PopoverTrigger>
@@ -478,10 +479,10 @@ export function AddExpenseDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : expense ? "Update" : "Add"} Expense
+              {isLoading ? t("common.saving") : expense ? t("common.update") : t("common.add")}
             </Button>
           </div>
         </form>

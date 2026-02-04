@@ -9,14 +9,16 @@ export function useCurrentUser() {
   useEffect(() => {
     authService.getCurrentUser().then((u) => {
       setUser(u);
+      console.log("Current user:", u);
       setIsLoading(false);
     });
   }, []);
 
   const displayName =
-    user?.user_metadata?.full_name ||
+    user?.user_metadata?.first_name ||
     user?.user_metadata?.name ||
     user?.user_metadata?.display_name ||
+    user?.user_metadata?.full_name ||
     user?.email?.split("@")[0] ||
     null;
 

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { ChevronLeft, ChevronRight, Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSalaries, useUpsertSalary } from "@/hooks/useSalaries";
@@ -21,23 +23,23 @@ const CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP"];
 
 // For aguinaldo year X, we need Dec of X-1 and Jan-Nov of X
 // Display order: Dec (prev year), Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov
-const getAguinaldoMonths = (aguinaldoYear: number) => [
+const getAguinaldoMonths = (aguinaldoYear: number, t: TFunction) => [
   {
     year: aguinaldoYear - 1,
     month: 12,
-    label: `December ${aguinaldoYear - 1}`,
+    label: `${t("months.december")} ${aguinaldoYear - 1}`,
   },
-  { year: aguinaldoYear, month: 1, label: "January" },
-  { year: aguinaldoYear, month: 2, label: "February" },
-  { year: aguinaldoYear, month: 3, label: "March" },
-  { year: aguinaldoYear, month: 4, label: "April" },
-  { year: aguinaldoYear, month: 5, label: "May" },
-  { year: aguinaldoYear, month: 6, label: "June" },
-  { year: aguinaldoYear, month: 7, label: "July" },
-  { year: aguinaldoYear, month: 8, label: "August" },
-  { year: aguinaldoYear, month: 9, label: "September" },
-  { year: aguinaldoYear, month: 10, label: "October" },
-  { year: aguinaldoYear, month: 11, label: "November" },
+  { year: aguinaldoYear, month: 1, label: t("months.january") },
+  { year: aguinaldoYear, month: 2, label: t("months.february") },
+  { year: aguinaldoYear, month: 3, label: t("months.march") },
+  { year: aguinaldoYear, month: 4, label: t("months.april") },
+  { year: aguinaldoYear, month: 5, label: t("months.may") },
+  { year: aguinaldoYear, month: 6, label: t("months.june") },
+  { year: aguinaldoYear, month: 7, label: t("months.july") },
+  { year: aguinaldoYear, month: 8, label: t("months.august") },
+  { year: aguinaldoYear, month: 9, label: t("months.september") },
+  { year: aguinaldoYear, month: 10, label: t("months.october") },
+  { year: aguinaldoYear, month: 11, label: t("months.november") },
 ];
 
 const formatCurrency = (amount: number, currency: string): string => {
@@ -119,6 +121,7 @@ function SalaryInput({
 }
 
 export default function Aguinaldo() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const [aguinaldoYear, setAguinaldoYear] = useState(currentYear);
   const [currency, setCurrency] = useState("CRC");
@@ -128,8 +131,8 @@ export default function Aguinaldo() {
   const upsertMutation = useUpsertSalary();
 
   const aguinaldoMonths = useMemo(
-    () => getAguinaldoMonths(aguinaldoYear),
-    [aguinaldoYear],
+    () => getAguinaldoMonths(aguinaldoYear, t),
+    [aguinaldoYear, t],
   );
 
   // Create a lookup map for salaries
@@ -163,9 +166,9 @@ export default function Aguinaldo() {
           gross_amount: amount,
           currency,
         });
-        toast.success("Salary saved");
+        toast.success(t("aguinaldo.salarySaved"));
       } catch {
-        toast.error("Failed to save salary");
+        toast.error(t("aguinaldo.salaryFailed"));
       } finally {
         setSavingKey(null);
       }
@@ -205,14 +208,12 @@ export default function Aguinaldo() {
           <div className="flex flex-col justify-start items-start gap-1">
             <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <Gift className="h-6 w-6" />
-              Aguinaldo {aguinaldoYear}
+              {t("aguinaldo.title")} {aguinaldoYear}
             </h2>
             <div className="text-sm text-gray-600">
-              The 13th salary (Aguinaldo) is calculated based on your gross
-              salaries from December of the previous year through November of
-              the current year. The formula is:{" "}
+              {t("aguinaldo.description")}{" "}
               <span className="font-mono bg-accent text-xs p-1 rounded-sm">
-                Total annual salary / 12
+                {t("aguinaldo.formula")}
               </span>
               .
             </div>
@@ -223,7 +224,7 @@ export default function Aguinaldo() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b">
           <div className="flex flex-col gap-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Aguinaldo year
+              {t("aguinaldo.aguinaldoYear")}
             </label>
             <ButtonGroup className="w-full">
               <Button
@@ -249,7 +250,7 @@ export default function Aguinaldo() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Currency
+              {t("common.currency")}
             </label>
             <Select value={currency} onValueChange={setCurrency}>
               <SelectTrigger className="w-full">
@@ -282,7 +283,7 @@ export default function Aguinaldo() {
           <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden pb-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Salaries for Aguinaldo {aguinaldoYear}
+                {t("aguinaldo.salariesFor", { year: aguinaldoYear })}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -336,9 +337,9 @@ export default function Aguinaldo() {
                             salary1 && salary2
                               ? "text-green-600 dark:text-green-400"
                               : (!salary1 || salary1.gross_amount == 0) &&
-                                  (!salary2 || salary2.gross_amount == 0)
-                                ? "text-red-600 dark:text-red-400"
-                                : "text-yellow-600 dark:text-yellow-400",
+                                (!salary2 || salary2.gross_amount == 0)
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-yellow-600 dark:text-yellow-400",
                           )}
                         >
                           {formatCurrency(monthTotal, currency)}
@@ -349,7 +350,7 @@ export default function Aguinaldo() {
                 })}
                 <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-gray-200 dark:border-accent bg-blue-800/10 dark:bg-blue-800/20 px-4 py-2 text-blue-800 dark:text-blue-300">
                   <p className="col-span-1 md:col-span-3 text-right">
-                    Total annual salary
+                    {t("aguinaldo.totalAnnualSalary")}
                   </p>
                   <p className="col-span-1 text-right font-bold">
                     {formatCurrency(grandTotal, currency)}
@@ -357,7 +358,7 @@ export default function Aguinaldo() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 px-4 py-2 text-xl bg-green-500/10 dark:bg-green-600/20 text-green-600 dark:text-green-400">
                   <p className="col-span-1 md:col-span-3 text-right">
-                    Aguinaldo
+                    {t("aguinaldo.title")}
                   </p>
                   <p className="col-span-1 text-right font-bold">
                     {formatCurrency(aguinaldo, currency)}

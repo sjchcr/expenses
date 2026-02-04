@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,8 @@ export function QuickStatsCards({
   currentYear,
   isLoading,
 }: QuickStatsCardsProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <>
@@ -76,13 +79,13 @@ export function QuickStatsCards({
         <CardHeader>
           <div className="flex items-center gap-2">
             <Receipt className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Total expenses</CardTitle>
+            <CardTitle className="text-base">{t("dashboard.totalExpenses")}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold">{totalExpensesCount}</p>
           <p className="text-muted-foreground text-sm mt-1">
-            Tracked in {currentYear}
+            {t("dashboard.trackedIn", { year: currentYear })}
           </p>
         </CardContent>
       </Card>
@@ -93,13 +96,13 @@ export function QuickStatsCards({
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
             <CardTitle className="text-base">
-              Total spend {currentYear}
+              {t("dashboard.totalSpend", { year: currentYear })}
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {yearTotals.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No expenses yet</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.noExpensesYet")}</p>
           ) : (
             <div className="space-y-2">
               {yearTotals.map(({ currency, total }) => (
@@ -122,12 +125,12 @@ export function QuickStatsCards({
         <CardHeader>
           <div className="flex items-center gap-2">
             <CircleCheck className="h-4 w-4 text-green-700" />
-            <CardTitle className="text-base">Paid</CardTitle>
+            <CardTitle className="text-base">{t("common.paid")}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {paidVsPending.paid.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No paid expenses</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.noPaidExpenses")}</p>
           ) : (
             <div className="space-y-2">
               {paidVsPending.paid.map(({ currency, total }) => (
@@ -150,12 +153,12 @@ export function QuickStatsCards({
         <CardHeader>
           <div className="flex items-center gap-2">
             <CircleDashed className="h-4 w-4 text-amber-600" />
-            <CardTitle className="text-base">Pending</CardTitle>
+            <CardTitle className="text-base">{t("common.pending")}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {paidVsPending.pending.length === 0 ? (
-            <p className="text-muted-foreground text-sm">All paid up!</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.allPaidUp")}</p>
           ) : (
             <div className="space-y-2">
               {paidVsPending.pending.map(({ currency, total }) => (

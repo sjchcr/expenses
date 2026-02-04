@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import {
   Trash2,
@@ -76,6 +77,7 @@ export function ExpenseTable({
   onDelete,
   defaultTab = "all",
 }: ExpenseTableProps) {
+  const { t } = useTranslation();
   const [sortColumn] = useState<string | null>("due_date");
   const [sortDirection] = useState<"asc" | "desc">("asc");
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "paid">(
@@ -220,7 +222,7 @@ export function ExpenseTable({
       {sortedExpenses.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center gap-2 p-6 text-sm text-gray-500">
           <CircleOff className="h-6 w-6" />
-          No {tab !== "all" && tab} expenses found
+          {tab === "all" ? t("expenses.noExpenses") : t("expenses.noExpensesTab", { tab: t(`common.${tab}`) })}
         </div>
       ) : (
         sortedExpenses.map((expense, index) => {
@@ -245,7 +247,7 @@ export function ExpenseTable({
                     {fullyPaid ? (
                       <Badge variant="success" className="gap-1">
                         <CircleCheck className="h-3 w-3 shrink-0" />
-                        Paid
+                        {t("common.paid")}
                       </Badge>
                     ) : partiallyPaid ? (
                       <Badge
@@ -253,12 +255,12 @@ export function ExpenseTable({
                         className="gap-1 border-amber-500 text-amber-600"
                       >
                         <CircleDashed className="h-3 w-3 shrink-0" />
-                        Partial
+                        {t("expenses.partial")}
                       </Badge>
                     ) : (
                       <Badge variant="warning" className="gap-1">
                         <CircleDashed className="h-3 w-3 shrink-0" />
-                        {daysLeft >= 0 ? `${daysLeft}d` : `Overdue`}
+                        {daysLeft >= 0 ? `${daysLeft}d` : t("expenses.overdue")}
                       </Badge>
                     )}
                     <p
@@ -392,7 +394,7 @@ export function ExpenseTable({
         <TabsList background={false} className="mx-4 gap-1">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />
-            All
+            {t("common.all")}
           </TabsTrigger>
           <TabsTrigger
             variant="warning"
@@ -400,11 +402,11 @@ export function ExpenseTable({
             className="flex-1 gap-1"
           >
             <CircleDashed className="w-3 h-3" />
-            Pending
+            {t("common.pending")}
           </TabsTrigger>
           <TabsTrigger variant="success" value="paid" className="flex-1 gap-1">
             <CircleCheck className="w-3 h-3" />
-            Paid
+            {t("common.paid")}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="all">{renderExpenseList("all")}</TabsContent>
@@ -423,7 +425,7 @@ export function ExpenseTable({
               <div className="flex justify-between gap-2 w-full">
                 <span className="flex items-center gap-1 font-medium">
                   <Sigma className="w-3 h-3" />
-                  Total:
+                  {t("common.total")}:
                 </span>
                 <span className="text-accent-foreground/50">
                   {getCurrencySymbol(currency)}
@@ -433,7 +435,7 @@ export function ExpenseTable({
               <div className="flex justify-between gap-2 w-full">
                 <span className="flex items-center gap-1 font-medium">
                   <CircleCheck className="w-3 h-3" />
-                  Paid:
+                  {t("common.paid")}:
                 </span>
                 <span className="text-green-600">
                   {getCurrencySymbol(currency)}
@@ -443,7 +445,7 @@ export function ExpenseTable({
               <div className="flex justify-between gap-2 w-full">
                 <span className="flex items-center gap-1 font-medium">
                   <CircleDashed className="w-3 h-3" />
-                  Pending:
+                  {t("common.pending")}:
                 </span>
                 <span className="text-yellow-600">
                   {getCurrencySymbol(currency)}
@@ -453,7 +455,7 @@ export function ExpenseTable({
               {grandTotals[currency] && allCurrencies.length > 1 && (
                 <div className="flex justify-between gap-2 w-full mt-2 pt-2 border-t border-dashed">
                   <span className="flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
-                    Grand Total:
+                    {t("expenses.grandTotal")}:
                   </span>
                   <span className="text-blue-700 dark:text-blue-400">
                     {isLoadingRates ? (
@@ -465,7 +467,7 @@ export function ExpenseTable({
                       </>
                     ) : (
                       <span className="text-gray-400 text-xs">
-                        Missing rates
+                        {t("expenses.missingRates")}
                       </span>
                     )}
                   </span>

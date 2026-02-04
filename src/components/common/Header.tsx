@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
 import {
@@ -21,17 +22,17 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "../ui/navigation-menu";
+} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/hooks/useTheme";
 
 const NAV_ITEMS = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/expenses", label: "Expenses", icon: Receipt },
-  { path: "/templates", label: "Templates", icon: FileText },
-  { path: "/aguinaldo", label: "Aguinaldo", icon: Gift },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { path: "/expenses", labelKey: "nav.expenses", icon: Receipt },
+  { path: "/templates", labelKey: "nav.templates", icon: FileText },
+  { path: "/aguinaldo", labelKey: "nav.aguinaldo", icon: Gift },
+  { path: "/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 const getInitials = (user: User | null): string => {
@@ -59,7 +60,7 @@ const getInitials = (user: User | null): string => {
 
 interface NavItemProps {
   path: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
   isMobile: boolean;
@@ -67,11 +68,12 @@ interface NavItemProps {
 
 const NavItem = ({
   path,
-  label,
+  labelKey,
   icon: Icon,
   isActive,
   isMobile,
 }: NavItemProps) => {
+  const { t } = useTranslation();
   if (isMobile) {
     return (
       <Link
@@ -83,7 +85,7 @@ const NavItem = ({
         )}
       >
         <Icon className="h-5 w-5" />
-        <span className="text-[10px]">{label}</span>
+        <span className="text-[10px]">{t(labelKey)}</span>
       </Link>
     );
   }
@@ -100,7 +102,7 @@ const NavItem = ({
       >
         <Link to={path}>
           <Icon className="h-4 w-4" />
-          <p>{label}</p>
+          <p>{t(labelKey)}</p>
         </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
@@ -113,6 +115,7 @@ interface IndicatorPosition {
 }
 
 const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [indicator, setIndicator] = useState<IndicatorPosition>({
@@ -150,7 +153,7 @@ const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
     >
       {/* Sliding indicator */}
       <div
-        className="absolute top-2 bottom-2 bg-accent-foreground/10 shadow-md rounded-full transition-all duration-300 ease-out"
+        className="absolute top-2 bottom-2 bg-accent-foreground/10 rounded-full transition-all duration-300 ease-out"
         style={{
           left: indicator.left,
           width: indicator.width,
@@ -171,12 +174,12 @@ const MobileNavigation = ({ currentPath }: { currentPath: string }) => {
               }}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-full transition-colors relative z-10",
-                isActive && "text-accent-foreground",
+                "flex flex-col items-center justify-center gap-0 px-4 py-2 rounded-full transition-colors relative z-10",
+                isActive && "text-primary font-bold",
               )}
             >
               <Icon className="h-5 w-5" />
-              <span className="text-[10px]">{item.label}</span>
+              <span className="text-[10px]">{t(item.labelKey)}</span>
             </Link>
           );
         })}
@@ -229,6 +232,10 @@ const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const isMobile = useMobile();
   const { resolvedTheme } = useTheme();
+  const { t } = useTranslation();
+  const siteTitle = t("siteTitle", {
+    defaultValue: import.meta.env.VITE_SITE_TITLE,
+  });
 
   useEffect(() => {
     authService.getCurrentUser().then(setUser);
@@ -265,10 +272,10 @@ const Header = () => {
                         ? "/icon-1024x1024-dark.png"
                         : "/icon-1024x1024.png"
                     }
-                    alt={import.meta.env.VITE_SITE_TITLE}
+                    alt={siteTitle}
                     className="inline-block h-9"
                   />
-                  {import.meta.env.VITE_SITE_TITLE}
+                  {siteTitle}
                 </h1>
               </div>
 

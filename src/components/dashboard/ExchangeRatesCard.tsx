@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,8 @@ export function ExchangeRatesCard({
   primaryCurrency,
   isLoading,
 }: ExchangeRatesCardProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <Card className="col-span-1">
@@ -40,16 +43,16 @@ export function ExchangeRatesCard({
       <CardHeader>
         <div className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
-          <CardTitle className="text-base">Today's exchange rates</CardTitle>
+          <CardTitle className="text-base">{t("dashboard.todaysExchangeRates")}</CardTitle>
         </div>
         <p className="text-muted-foreground text-sm">
-          Rates to {primaryCurrency}
+          {t("dashboard.ratesTo", { currency: primaryCurrency })}
         </p>
       </CardHeader>
       <CardContent>
         {exchangeRates.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            No exchange rates needed (single currency)
+            {t("dashboard.noExchangeRatesNeeded")}
           </p>
         ) : (
           <div className="space-y-3">

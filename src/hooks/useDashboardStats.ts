@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useExpenses } from "./useExpenses";
 import { useExchangeRates } from "./useExchangeRates";
 import { useUserSettings } from "./useUserSettings";
@@ -13,6 +14,21 @@ import {
   parseISO,
 } from "date-fns";
 import type { Expense, ExpenseAmount } from "@/types";
+
+const MONTH_TRANSLATION_KEYS = [
+  "months.january",
+  "months.february",
+  "months.march",
+  "months.april",
+  "months.may",
+  "months.june",
+  "months.july",
+  "months.august",
+  "months.september",
+  "months.october",
+  "months.november",
+  "months.december",
+] as const;
 
 export interface CurrencyTotal {
   currency: string;
@@ -41,11 +57,13 @@ export interface ExchangeRateDisplay {
 }
 
 export function useDashboardStats() {
+  const { t } = useTranslation();
   const now = new Date();
   const currentMonthStart = startOfMonth(now);
   const currentMonthEnd = endOfMonth(now);
-  const previousMonthStart = startOfMonth(subMonths(now, 1));
-  const previousMonthEnd = endOfMonth(subMonths(now, 1));
+  const previousMonthDate = subMonths(now, 1);
+  const previousMonthStart = startOfMonth(previousMonthDate);
+  const previousMonthEnd = endOfMonth(previousMonthDate);
   const yearStart = startOfYear(now);
   const yearEnd = endOfYear(now);
 
@@ -318,8 +336,10 @@ export function useDashboardStats() {
     currencies,
     primaryCurrency: settings?.primary_currency || "USD",
     currentYear: now.getFullYear(),
-    currentMonthName: format(now, "MMMM"),
-    previousMonthName: format(subMonths(now, 1), "MMMM"),
+    currentMonthName: t(MONTH_TRANSLATION_KEYS[now.getMonth()]),
+    previousMonthName: t(
+      MONTH_TRANSLATION_KEYS[previousMonthDate.getMonth()],
+    ),
     isLoading,
     totalExpensesCount: yearExpenses?.length || 0,
   };

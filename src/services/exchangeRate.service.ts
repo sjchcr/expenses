@@ -27,6 +27,16 @@ export const exchangeRateService = {
       const response = await fetch(
         `/api/exchange-rate?from=${fromCurrency}&to=${toCurrency}`
       );
+
+      // Check if response is JSON (API might not be available on localhost)
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.warn(
+          "Exchange rate API not available (likely running on localhost without Vercel dev)"
+        );
+        return null;
+      }
+
       const data = await response.json();
 
       if (response.ok && data.rate) {

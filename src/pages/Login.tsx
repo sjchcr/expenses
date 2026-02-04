@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { authService } from "@/services/auth.service";
 import {
   Card,
@@ -13,6 +14,10 @@ import { Input } from "@/components/ui/input";
 const isDev = import.meta.env.DEV;
 
 export default function Login() {
+  const { t } = useTranslation();
+  const siteTitle = t("siteTitle", {
+    defaultValue: import.meta.env.VITE_SITE_TITLE,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -59,10 +64,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background to-indigo-100 dark:to-accent px-4">
       <Card className="w-full max-w-md p-6">
         <CardHeader>
-          <CardTitle className="text-2xl">
-            {import.meta.env.VITE_SITE_TITLE}
-          </CardTitle>
-          <CardDescription>Manage your finances with ease</CardDescription>
+          <CardTitle className="text-2xl">{siteTitle}</CardTitle>
+          <CardDescription>{t("auth.manageFinances")}</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -71,6 +74,18 @@ export default function Login() {
             </div>
           )}
           <div className="flex flex-col gap-4">
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={handleAppleSignIn}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 hover:text-white transition-colors disabled:opacity-50"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+              {t("auth.signInWithApple")}
+            </Button>
             <Button
               variant="ghost"
               size="lg"
@@ -96,20 +111,7 @@ export default function Login() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Continue with Google
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={handleAppleSignIn}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 hover:text-white transition-colors disabled:opacity-50"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-              </svg>
-              Continue with Apple
+              {t("auth.signInWithGoogle")}
             </Button>
 
             {isDev && (
@@ -120,21 +122,21 @@ export default function Login() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white px-2 text-gray-500">
-                      Dev Login
+                      {t("auth.devLogin")}
                     </span>
                   </div>
                 </div>
                 <form onSubmit={handleEmailSignIn} className="space-y-3">
                   <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder={t("auth.email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                   <Input
                     type="password"
-                    placeholder="Password"
+                    placeholder={t("auth.password")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -144,7 +146,7 @@ export default function Login() {
                     disabled={loading}
                     className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    Sign in with email
+                    {t("auth.signInWithEmail")}
                   </Button>
                 </form>
               </>

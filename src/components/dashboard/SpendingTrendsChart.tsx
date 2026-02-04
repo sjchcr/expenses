@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -29,6 +30,8 @@ export function SpendingTrendsChart({
   currentYear,
   isLoading,
 }: SpendingTrendsChartProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <Card className="col-span-1 lg:col-span-2">
@@ -90,17 +93,17 @@ export function SpendingTrendsChart({
     <Card className="col-span-1 lg:col-span-2 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="text-base">
-          Spending trends - {currentYear}
+          {t("dashboard.spendingTrends")} - {currentYear}
         </CardTitle>
         <p className="text-muted-foreground text-sm">
-          Monthly spending by currency
+          {t("dashboard.monthlySpendingByCurrency")}
           {hasLeftAxis && hasRightAxis && " (CRC left, USD right)"}
         </p>
       </CardHeader>
       <CardContent>
         {activeCurrencies.length === 0 ? (
           <div className="h-75 flex items-center justify-center">
-            <p className="text-muted-foreground text-sm">No expense data yet</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.noExpenseDataYet")}</p>
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-75 w-full">

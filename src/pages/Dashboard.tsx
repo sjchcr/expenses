@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/dashboard";
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { displayName } = useCurrentUser();
   const {
     pendingPayments,
@@ -31,10 +33,10 @@ export default function Dashboard() {
     <div className="w-full mx-auto py-6 md:px-[calc(100%/12)] px-4 flex flex-col gap-6">
       <div className="flex flex-col items-start justify-start gap-2">
         <h1 className="text-2xl font-semibold text-accent-foreground">
-          Welcome back{displayName ? ` ${displayName}` : ""}!
+          {t("dashboard.welcomeBack")}{displayName ? ` ${displayName}` : ""}!
         </h1>
         <h3 className="text-sm text-muted-foreground">
-          Here's a summary of your financial insights for {currentYear}.
+          {t("dashboard.financialSummary", { year: currentYear })}
         </h3>
       </div>
 

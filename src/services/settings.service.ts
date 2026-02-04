@@ -24,6 +24,7 @@ export const settingsService = {
             { period: 1, start_day: 1, end_day: 15 },
             { period: 2, start_day: 16, end_day: 31 },
           ],
+          language: "en",
         } as UserSettings;
       }
       throw error;
@@ -58,6 +59,7 @@ export const settingsService = {
           user_id: user.id,
           primary_currency: "USD",
           payment_periods: defaultPeriods as any,
+          language: "en",
         })
         .select()
         .single();
@@ -89,6 +91,10 @@ export const settingsService = {
 
     if (settings.payment_periods) {
       updateData.payment_periods = settings.payment_periods;
+    }
+
+    if (settings.language) {
+      updateData.language = settings.language;
     }
 
     const { data, error } = await supabase

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Plus,
   Pencil,
@@ -122,6 +123,7 @@ const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
 };
 
 export default function Templates() {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] =
     useState<ExpenseTemplate | null>(null);
@@ -214,7 +216,7 @@ export default function Templates() {
       }));
 
     if (templateAmounts.length === 0) {
-      toast.error("Please add at least one currency.");
+      toast.error(t("templates.addAtLeastOneCurrency"));
       return;
     }
 
@@ -231,15 +233,15 @@ export default function Templates() {
           id: editingTemplate.id,
           updates: templateData,
         });
-        toast.success("Template updated successfully");
+        toast.success(t("templates.templateUpdated"));
       } else {
         await createMutation.mutateAsync(templateData);
-        toast.success("Template created successfully");
+        toast.success(t("templates.templateCreated"));
       }
       handleCloseDialog();
     } catch (error) {
       console.error("Failed to save template:", error);
-      toast.error("Failed to save template. Please try again.");
+      toast.error(t("common.saving"));
     }
   };
 
@@ -252,12 +254,12 @@ export default function Templates() {
     if (templateToDelete) {
       try {
         await deleteMutation.mutateAsync(templateToDelete.id);
-        toast.success("Template deleted successfully");
+        toast.success(t("templates.templateDeleted"));
         setIsDeleteDialogOpen(false);
         setTemplateToDelete(null);
       } catch (error) {
         console.error("Failed to delete template:", error);
-        toast.error("Failed to delete template. Please try again.");
+        toast.error(t("common.deleting"));
       }
     }
   };
@@ -298,7 +300,7 @@ export default function Templates() {
     e.preventDefault();
 
     if (groupFormData.template_ids.length === 0) {
-      toast.error("Please select at least one template for the group.");
+      toast.error(t("groups.selectAtLeastOne"));
       return;
     }
 
@@ -308,15 +310,15 @@ export default function Templates() {
           id: editingGroup.id,
           updates: groupFormData,
         });
-        toast.success("Group updated successfully");
+        toast.success(t("groups.groupUpdated"));
       } else {
         await createGroupMutation.mutateAsync(groupFormData);
-        toast.success("Group created successfully");
+        toast.success(t("groups.groupCreated"));
       }
       handleCloseGroupDialog();
     } catch (error) {
       console.error("Failed to save group:", error);
-      toast.error("Failed to save group. Please try again.");
+      toast.error(t("common.saving"));
     }
   };
 
@@ -329,12 +331,12 @@ export default function Templates() {
     if (groupToDelete) {
       try {
         await deleteGroupMutation.mutateAsync(groupToDelete.id);
-        toast.success("Group deleted successfully");
+        toast.success(t("groups.groupDeleted"));
         setIsDeleteGroupDialogOpen(false);
         setGroupToDelete(null);
       } catch (error) {
         console.error("Failed to delete group:", error);
-        toast.error("Failed to delete group. Please try again.");
+        toast.error(t("common.deleting"));
       }
     }
   };
@@ -362,10 +364,10 @@ export default function Templates() {
           <div className="flex flex-col justify-start items-start gap-1">
             <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <FileText className="h-6 w-6" />
-              Templates
+              {t("templates.title")}
             </h2>
             <div className="text-sm text-gray-600">
-              Create and manage expense templates for quick expense creation.
+              {t("templates.description")}
             </div>
           </div>
         </div>
@@ -401,11 +403,10 @@ export default function Templates() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4" />
-                        Recurring bills
+                        {t("templates.recurringBills")}
                       </CardTitle>
                       <CardDescription>
-                        Templates for recurring expenses billed on a regular
-                        basis.
+                        {t("templates.recurringBillsDesc")}
                       </CardDescription>
                       <CardAction>
                         <Button size="icon" onClick={() => handleOpenDialog()}>
@@ -417,10 +418,10 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="pl-4">Name</TableHead>
-                            <TableHead>Currencies / Amounts</TableHead>
-                            <TableHead>Day</TableHead>
-                            <TableHead className="w-24 pr-4">Actions</TableHead>
+                            <TableHead className="pl-4">{t("templates.templateName")}</TableHead>
+                            <TableHead>{t("templates.currenciesAmounts")}</TableHead>
+                            <TableHead>{t("common.day")}</TableHead>
+                            <TableHead className="w-24 pr-4">{t("common.actions")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -467,7 +468,7 @@ export default function Templates() {
                           <TableRow>
                             <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
-                                Total templates: {recurringTemplates.length}
+                                {t("templates.totalTemplates")}: {recurringTemplates.length}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -483,16 +484,15 @@ export default function Templates() {
                           <EmptyMedia variant="icon">
                             <CircleOff />
                           </EmptyMedia>
-                          <EmptyTitle>No recurring templates found</EmptyTitle>
+                          <EmptyTitle>{t("templates.noRecurringTemplates")}</EmptyTitle>
                           <EmptyDescription>
-                            A recurring template is a template that repeats on a
-                            specific day of the month.
+                            {t("templates.noRecurringTemplatesDesc")}
                           </EmptyDescription>
                         </EmptyHeader>
                         <EmptyContent className="flex-row justify-center gap-2">
                           <Button size="sm" onClick={() => handleOpenDialog()}>
                             <Plus className="h-4 w-4" />
-                            Create a recurring template
+                            {t("templates.createRecurringTemplate")}
                           </Button>
                         </EmptyContent>
                       </Empty>
@@ -506,11 +506,10 @@ export default function Templates() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
-                        Quick templates
+                        {t("templates.quickTemplates")}
                       </CardTitle>
                       <CardDescription>
-                        Templates for one-time or non-recurring expenses. No set
-                        billing date.
+                        {t("templates.quickTemplatesDesc")}
                       </CardDescription>
                       <CardAction>
                         <Button size="icon" onClick={() => handleOpenDialog()}>
@@ -522,9 +521,9 @@ export default function Templates() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="pl-4">Name</TableHead>
-                            <TableHead>Currencies / Amounts</TableHead>
-                            <TableHead className="w-24 pr-4">Actions</TableHead>
+                            <TableHead className="pl-4">{t("templates.templateName")}</TableHead>
+                            <TableHead>{t("templates.currenciesAmounts")}</TableHead>
+                            <TableHead className="w-24 pr-4">{t("common.actions")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -566,7 +565,7 @@ export default function Templates() {
                           <TableRow>
                             <TableCell colSpan={4} className="px-4 pt-2 pb-0">
                               <p className="text-xs text-gray-500">
-                                Total templates: {regularTemplates.length}
+                                {t("templates.totalTemplates")}: {regularTemplates.length}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -582,16 +581,15 @@ export default function Templates() {
                           <EmptyMedia variant="icon">
                             <CircleOff />
                           </EmptyMedia>
-                          <EmptyTitle>No quick templates found</EmptyTitle>
+                          <EmptyTitle>{t("templates.noQuickTemplates")}</EmptyTitle>
                           <EmptyDescription>
-                            A quick template is a one-time expense template
-                            without a set billing date.
+                            {t("templates.noQuickTemplatesDesc")}
                           </EmptyDescription>
                         </EmptyHeader>
                         <EmptyContent className="flex-row justify-center gap-2">
                           <Button size="sm" onClick={() => handleOpenDialog()}>
                             <Plus className="h-4 w-4" />
-                            Create a quick template
+                            {t("templates.createQuickTemplate")}
                           </Button>
                         </EmptyContent>
                       </Empty>
@@ -618,10 +616,10 @@ export default function Templates() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Layers className="h-4 w-4" />
-                    Template groups
+                    {t("groups.title")}
                   </CardTitle>
                   <CardDescription>
-                    Organize templates into groups for batch expense creation.
+                    {t("groups.description")}
                   </CardDescription>
                   <CardAction>
                     <Button
@@ -686,11 +684,11 @@ export default function Templates() {
                       <EmptyMedia variant="icon">
                         <CircleOff />
                       </EmptyMedia>
-                      <EmptyTitle>No groups found</EmptyTitle>
+                      <EmptyTitle>{t("groups.noGroups")}</EmptyTitle>
                       <EmptyDescription>
                         {templates && templates.length > 0
-                          ? "Create groups to batch-create expenses"
-                          : "Create templates first to make groups"}
+                          ? t("groups.noGroupsDesc")
+                          : t("groups.noTemplatesForGroups")}
                       </EmptyDescription>
                     </EmptyHeader>
                     <EmptyContent className="flex-row justify-center gap-2">
@@ -700,7 +698,7 @@ export default function Templates() {
                           onClick={() => handleOpenGroupDialog()}
                         >
                           <FolderPlus className="h-4 w-4" />
-                          New group
+                          {t("groups.newGroup")}
                         </Button>
                       )}
                     </EmptyContent>
@@ -717,27 +715,27 @@ export default function Templates() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingTemplate ? "Edit template" : "Create template"}
+              {editingTemplate ? t("templates.editTemplate") : t("templates.createTemplate")}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t("templates.templateName")} *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="e.g., Rent, Netflix, Electricity"
+                placeholder={t("templates.templateNamePlaceholder")}
                 required
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label>Currencies / Amounts</Label>
+                <Label>{t("templates.currenciesAmounts")}</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -746,7 +744,7 @@ export default function Templates() {
                   className="h-7 text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  Add currency
+                  {t("templates.addCurrency")}
                 </Button>
               </div>
               <div className="space-y-3">
@@ -780,7 +778,7 @@ export default function Templates() {
                       onChange={(e) =>
                         handleAmountChange(index, "amount", e.target.value)
                       }
-                      placeholder="Amount (optional)"
+                      placeholder={t("templates.amountOptional")}
                     />
                     <Button
                       type="button"
@@ -796,8 +794,7 @@ export default function Templates() {
                 ))}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Amount is optional. If provided, it will be pre-filled when
-                creating expenses from this template.
+                {t("templates.amountOptionalHint")}
               </p>
             </div>
 
@@ -815,12 +812,12 @@ export default function Templates() {
                   })
                 }
               />
-              <Label htmlFor="is_recurring">This is a recurring bill</Label>
+              <Label htmlFor="is_recurring">{t("templates.isRecurring")}</Label>
             </div>
 
             {formData.is_recurring && (
               <div>
-                <Label htmlFor="recurrence_day">Recurrence Day *</Label>
+                <Label htmlFor="recurrence_day">{t("templates.recurrenceDay")} *</Label>
                 <Select
                   value={String(formData.recurrence_day || 1)}
                   onValueChange={(value) =>
@@ -842,7 +839,7 @@ export default function Templates() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-1">
-                  The day of the month when this bill is due
+                  {t("templates.recurrenceDayHint")}
                 </p>
               </div>
             )}
@@ -854,14 +851,14 @@ export default function Templates() {
                 onClick={handleCloseDialog}
                 disabled={isFormLoading}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={isFormLoading}>
                 {isFormLoading
-                  ? "Saving..."
+                  ? t("common.saving")
                   : editingTemplate
-                    ? "Update"
-                    : "Create"}
+                    ? t("common.update")
+                    : t("common.create")}
               </Button>
             </div>
           </form>
@@ -872,11 +869,10 @@ export default function Templates() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Template</DialogTitle>
+            <DialogTitle>{t("templates.deleteTemplate")}</DialogTitle>
           </DialogHeader>
           <p className="text-gray-600">
-            Are you sure you want to delete "{templateToDelete?.name}"? This
-            action cannot be undone.
+            {t("templates.deleteConfirm", { name: templateToDelete?.name })}
           </p>
           <div className="flex justify-end gap-2 pt-4">
             <Button
@@ -887,14 +883,14 @@ export default function Templates() {
               }}
               disabled={deleteMutation.isPending}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? t("common.deleting") : t("common.delete")}
             </Button>
           </div>
         </DialogContent>
@@ -905,26 +901,26 @@ export default function Templates() {
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingGroup ? "Edit group" : "Create group"}
+              {editingGroup ? t("groups.editGroup") : t("groups.createGroup")}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmitGroup} className="space-y-4">
             <div>
-              <Label htmlFor="group-name">Group name *</Label>
+              <Label htmlFor="group-name">{t("groups.groupName")} *</Label>
               <Input
                 id="group-name"
                 value={groupFormData.name}
                 onChange={(e) =>
                   setGroupFormData({ ...groupFormData, name: e.target.value })
                 }
-                placeholder="e.g., Monthly Bills, Subscriptions"
+                placeholder={t("groups.groupNamePlaceholder")}
                 required
               />
             </div>
 
             <div>
-              <Label className="mb-2 block">Select templates *</Label>
+              <Label className="mb-2 block">{t("groups.selectTemplates")} *</Label>
               <div className="border rounded-lg max-h-64 overflow-y-auto">
                 {templates && templates.length > 0 ? (
                   <div className="divide-y">
@@ -957,13 +953,14 @@ export default function Templates() {
                   </div>
                 ) : (
                   <p className="p-4 text-sm text-gray-500 text-center">
-                    No templates available
+                    {t("groups.noTemplatesAvailable")}
                   </p>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Selected: {groupFormData.template_ids.length} template
-                {groupFormData.template_ids.length !== 1 ? "s" : ""}
+                {groupFormData.template_ids.length === 1
+                  ? t("groups.templatesSelected", { count: groupFormData.template_ids.length })
+                  : t("groups.templatesSelectedPlural", { count: groupFormData.template_ids.length })}
               </p>
             </div>
 
@@ -974,14 +971,14 @@ export default function Templates() {
                 onClick={handleCloseGroupDialog}
                 disabled={isGroupFormLoading}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={isGroupFormLoading}>
                 {isGroupFormLoading
-                  ? "Saving..."
+                  ? t("common.saving")
                   : editingGroup
-                    ? "Update"
-                    : "Create"}
+                    ? t("common.update")
+                    : t("common.create")}
               </Button>
             </div>
           </form>
@@ -995,11 +992,10 @@ export default function Templates() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Group</DialogTitle>
+            <DialogTitle>{t("groups.deleteGroup")}</DialogTitle>
           </DialogHeader>
           <p className="text-gray-600">
-            Are you sure you want to delete "{groupToDelete?.name}"? This action
-            cannot be undone. The templates in this group will not be deleted.
+            {t("groups.deleteConfirm", { name: groupToDelete?.name })}
           </p>
           <div className="flex justify-end gap-2 pt-4">
             <Button
@@ -1010,14 +1006,14 @@ export default function Templates() {
               }}
               disabled={deleteGroupMutation.isPending}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDeleteGroup}
               disabled={deleteGroupMutation.isPending}
             >
-              {deleteGroupMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteGroupMutation.isPending ? t("common.deleting") : t("common.delete")}
             </Button>
           </div>
         </DialogContent>

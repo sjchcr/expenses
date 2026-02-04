@@ -73,6 +73,7 @@ export interface UserSettings {
   user_id: string;
   primary_currency: string;
   payment_periods: PaymentPeriod[];
+  language: string;
   created_at: string | null;
   updated_at: string | null;
 }

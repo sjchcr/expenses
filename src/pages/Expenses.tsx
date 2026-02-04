@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import {
@@ -41,23 +42,24 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Month names for the select
-const MONTHS = [
-  { value: "0", label: "January" },
-  { value: "1", label: "February" },
-  { value: "2", label: "March" },
-  { value: "3", label: "April" },
-  { value: "4", label: "May" },
-  { value: "5", label: "June" },
-  { value: "6", label: "July" },
-  { value: "7", label: "August" },
-  { value: "8", label: "September" },
-  { value: "9", label: "October" },
-  { value: "10", label: "November" },
-  { value: "11", label: "December" },
+// Month names for the select - using translation keys
+const MONTH_KEYS = [
+  { value: "0", labelKey: "months.january" },
+  { value: "1", labelKey: "months.february" },
+  { value: "2", labelKey: "months.march" },
+  { value: "3", labelKey: "months.april" },
+  { value: "4", labelKey: "months.may" },
+  { value: "5", labelKey: "months.june" },
+  { value: "6", labelKey: "months.july" },
+  { value: "7", labelKey: "months.august" },
+  { value: "8", labelKey: "months.september" },
+  { value: "9", labelKey: "months.october" },
+  { value: "10", labelKey: "months.november" },
+  { value: "11", labelKey: "months.december" },
 ];
 
 export default function Expenses() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
   const defaultTab: "all" | "pending" | "paid" =
@@ -175,9 +177,9 @@ export default function Expenses() {
     setTogglingId(toggleId);
     try {
       await toggleAmountPaidMutation.mutateAsync({ expense, currency, paid });
-      toast.success(`${currency} amount marked as ${paid ? "paid" : "pending"}`);
+      toast.success(t(paid ? "expenses.markedAsPaid" : "expenses.markedAsPending", { currency }));
     } catch (error) {
-      toast.error("Failed to update payment status");
+      toast.error(t("expenses.failedToUpdate"));
     } finally {
       setTogglingId(null);
     }
@@ -216,11 +218,10 @@ export default function Expenses() {
           <div className="flex flex-col justify-start items-start gap-1">
             <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <Receipt className="h-6 w-6" />
-              Expenses
+              {t("expenses.title")}
             </h2>
             <div className="text-sm text-gray-600">
-              Manage your monthly expenses, view payment periods, and track your
-              payment status.
+              {t("expenses.description")}
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -230,7 +231,7 @@ export default function Expenses() {
                 onClick={() => setIsGroupDialogOpen(true)}
               >
                 <Layers className="h-4 w-4" />
-                From group
+                {t("expenses.fromGroup")}
               </Button>
             )}
             <Button
@@ -240,7 +241,7 @@ export default function Expenses() {
               }}
             >
               <Plus className="h-4 w-4" />
-              Add expense
+              {t("expenses.addExpense")}
             </Button>
           </div>
         </div>
@@ -249,7 +250,7 @@ export default function Expenses() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b">
           <div className="flex flex-col gap-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Month
+              {t("common.month")}
             </label>
             <ButtonGroup className="w-full">
               <Button
@@ -268,9 +269,9 @@ export default function Expenses() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {MONTHS.map((option) => (
+                  {MONTH_KEYS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {t(option.labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -287,7 +288,7 @@ export default function Expenses() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Year
+              {t("common.year")}
             </label>
             <ButtonGroup className="w-full">
               <Button
@@ -315,7 +316,7 @@ export default function Expenses() {
             <div className="md:col-span-2 lg:col-span-2 grid grid-cols-subgrid gap-4">
               <div className="flex flex-col gap-1 md:col-start-2 lg:col-start-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Exchange Rates
+                  {t("expenses.exchangeRates")}
                 </label>
                 <div className="text-xs text-gray-600 rounded-md space-y-1">
                   {isLoadingRates ? (
@@ -433,11 +434,11 @@ export default function Expenses() {
           <div className="text-center">
             <p className="flex flex-col justify-center items-center gap-2 text-gray-500 mb-4">
               <CircleOff className="h-6 w-6" />
-              No expenses found
+              {t("expenses.noExpenses")}
             </p>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="h-4 w-4" />
-              Add your first expense
+              {t("expenses.addFirstExpense")}
             </Button>
           </div>
         )}

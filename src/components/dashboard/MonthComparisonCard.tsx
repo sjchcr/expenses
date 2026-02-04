@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,8 @@ export function MonthComparisonCard({
   previousMonthName,
   isLoading,
 }: MonthComparisonCardProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <Card className="col-span-1">
@@ -49,14 +52,14 @@ export function MonthComparisonCard({
   return (
     <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow col-span-1">
       <CardHeader>
-        <CardTitle className="text-base">Month-over-month comparison</CardTitle>
+        <CardTitle className="text-base">{t("dashboard.monthComparison")}</CardTitle>
         <p className="text-muted-foreground text-sm">
           {previousMonthName} vs {currentMonthName}
         </p>
       </CardHeader>
       <CardContent>
         {monthComparison.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No data available</p>
+          <p className="text-muted-foreground text-sm">{t("dashboard.noDataAvailable")}</p>
         ) : (
           <div className="space-y-4">
             {monthComparison.map(

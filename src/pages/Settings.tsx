@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Settings as SettingsIcon,
@@ -9,8 +10,10 @@ import {
   Plus,
   Trash2,
   LogOut,
+  Languages,
 } from "lucide-react";
 import { useUserSettings, useUpdateSettings } from "@/hooks/useUserSettings";
+import i18n, { changeLanguage } from "@/lib/i18n";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useTemplates } from "@/hooks/useTemplates";
 import { authService } from "@/services/auth.service";
@@ -56,6 +59,7 @@ const COMMON_CURRENCIES = [
 ];
 
 export default function Settings() {
+  const { t } = useTranslation();
   const { settings, isLoading } = useUserSettings();
   const updateMutation = useUpdateSettings();
   const { data: expenses } = useExpenses({});
@@ -87,6 +91,10 @@ export default function Settings() {
     if (settings) {
       setPrimaryCurrency(settings.primary_currency);
       setPaymentPeriods(settings.payment_periods);
+      // Sync language from database if different from current
+      if (settings.language && settings.language !== i18n.language) {
+        changeLanguage(settings.language);
+      }
     }
   }, [settings]);
 
@@ -161,15 +169,13 @@ export default function Settings() {
     for (let i = 0; i < sortedPeriods.length; i++) {
       const period = sortedPeriods[i];
       if (period.start_day > period.end_day) {
-        toast.error(
-          `Period ${period.period}: Start day must be before end day`,
-        );
+        toast.error(t("settings.startBeforeEnd", { period: period.period }));
         return;
       }
       if (i > 0) {
         const prevPeriod = sortedPeriods[i - 1];
         if (period.start_day <= prevPeriod.end_day) {
-          toast.error("Payment periods cannot overlap");
+          toast.error(t("settings.periodsCannotOverlap"));
           return;
         }
       }
@@ -185,7 +191,7 @@ export default function Settings() {
 
   const handleExport = () => {
     if (!expenses || expenses.length === 0) {
-      toast.error("No expenses to export");
+      toast.error(t("settings.noExpensesToExport"));
       return;
     }
 
@@ -218,7 +224,9 @@ export default function Settings() {
         headers.join(","),
         ...rows.map((r) => r.map((c) => `"${c}"`).join(",")),
       ].join("\n");
-      filename = `expenses-export-${new Date().toISOString().split("T")[0]}.csv`;
+      filename = `expenses-export-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
       mimeType = "text/csv";
     } else {
       // Create JSON
@@ -229,7 +237,9 @@ export default function Settings() {
         templates: templates || [],
       };
       content = JSON.stringify(exportData, null, 2);
-      filename = `expenses-export-${new Date().toISOString().split("T")[0]}.json`;
+      filename = `expenses-export-${
+        new Date().toISOString().split("T")[0]
+      }.json`;
       mimeType = "application/json";
     }
 
@@ -245,7 +255,10 @@ export default function Settings() {
     URL.revokeObjectURL(url);
 
     toast.success(
-      `Exported ${expenses.length} expenses as ${exportFormat.toUpperCase()}`,
+      t("settings.exported", {
+        count: expenses.length,
+        format: exportFormat.toUpperCase(),
+      }),
     );
     setIsExportDialogOpen(false);
   };
@@ -259,7 +272,7 @@ export default function Settings() {
       });
       setOriginalFirstName(firstName.trim());
       setOriginalLastName(lastName.trim());
-      toast.success("Profile updated successfully");
+      toast.success(t("settings.profileUpdated"));
     } catch (error) {
       toast.error("Failed to update profile");
     } finally {
@@ -298,10 +311,10 @@ export default function Settings() {
           <div className="flex flex-col justify-start items-start gap-1">
             <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
               <SettingsIcon className="h-6 w-6" />
-              Settings
+              {t("settings.title")}
             </h2>
             <div className="text-sm text-gray-600">
-              Manage your account preferences and application settings.
+              {t("settings.description")}
             </div>
           </div>
         </div>
@@ -312,15 +325,15 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-4 w-4" />
-                Primary currency
+                {t("settings.primaryCurrency")}
               </CardTitle>
               <CardDescription>
-                Your default currency for displaying totals and conversions.
+                {t("settings.primaryCurrencyDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="primary-currency">Currency</Label>
+                <Label htmlFor="primary-currency">{t("common.currency")}</Label>
                 <Select
                   value={primaryCurrency}
                   onValueChange={setPrimaryCurrency}
@@ -344,7 +357,9 @@ export default function Settings() {
                   primaryCurrency === settings?.primary_currency
                 }
               >
-                {updateMutation.isPending ? "Saving..." : "Save currency"}
+                {updateMutation.isPending
+                  ? t("common.saving")
+                  : t("settings.saveCurrency")}
               </Button>
             </CardContent>
           </Card>
@@ -354,10 +369,10 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Payment periods
+                {t("settings.paymentPeriods")}
               </CardTitle>
               <CardDescription>
-                Customize how expenses are grouped by payment period.
+                {t("settings.paymentPeriodsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -368,10 +383,10 @@ export default function Settings() {
                     className="flex items-center gap-2 border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
                   >
                     <span className="text-sm font-medium w-20">
-                      Period {period.period}
+                      {t("settings.period")} {period.period}
                     </span>
                     <div className="flex items-center gap-2">
-                      <Label className="text-xs">Day</Label>
+                      <Label className="text-xs">{t("common.day")}</Label>
                       <Select
                         value={`${period.start_day}`}
                         onValueChange={(value) =>
@@ -393,7 +408,7 @@ export default function Settings() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <span className="text-gray-500">to</span>
+                      <span className="text-xs">{t("common.to")}</span>
                       <Select
                         value={`${period.end_day}`}
                         onValueChange={(value) =>
@@ -429,20 +444,18 @@ export default function Settings() {
                   </div>
                 ))}
               </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddPeriod}
-                >
+              <div className="flex justify-between gap-2 w-full">
+                <Button type="button" variant="ghost" onClick={handleAddPeriod}>
                   <Plus className="h-3 w-3" />
-                  Add period
+                  {t("settings.addPeriod")}
                 </Button>
                 <Button
                   onClick={handleSavePaymentPeriods}
                   disabled={updateMutation.isPending}
                 >
-                  {updateMutation.isPending ? "Saving..." : "Save periods"}
+                  {updateMutation.isPending
+                    ? t("common.saving")
+                    : t("settings.savePeriods")}
                 </Button>
               </div>
             </CardContent>
@@ -453,16 +466,14 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Account
+                {t("settings.account")}
               </CardTitle>
-              <CardDescription>
-                Your account information and profile settings.
-              </CardDescription>
+              <CardDescription>{t("settings.accountDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t("settings.firstName")}</Label>
                   <Input
                     id="firstName"
                     value={firstName}
@@ -471,7 +482,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t("settings.lastName")}</Label>
                   <Input
                     id="lastName"
                     value={lastName}
@@ -490,12 +501,14 @@ export default function Settings() {
                 onClick={handleSaveProfile}
                 disabled={isSavingProfile || !hasProfileChanges}
               >
-                {isSavingProfile ? "Saving..." : "Save profile"}
+                {isSavingProfile
+                  ? t("common.saving")
+                  : t("settings.saveProfile")}
               </Button>
               <Separator />
               <Button variant="ghostDestructive" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
-                Sign out
+                {t("auth.signOut")}
               </Button>
             </CardContent>
           </Card>
@@ -505,25 +518,63 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
-                Export data
+                {t("settings.exportData")}
               </CardTitle>
-              <CardDescription>
-                Download your expenses and settings as CSV or JSON.
-              </CardDescription>
+              <CardDescription>{t("settings.exportDataDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-gray-600">
-                <p>Your data includes:</p>
+                <p>{t("settings.yourDataIncludes")}</p>
                 <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>{expenses?.length || 0} expenses</li>
-                  <li>{templates?.length || 0} templates</li>
-                  <li>Your settings and preferences</li>
+                  <li>
+                    {t("settings.expensesCount", {
+                      count: expenses?.length || 0,
+                    })}
+                  </li>
+                  <li>
+                    {t("settings.templatesCount", {
+                      count: templates?.length || 0,
+                    })}
+                  </li>
+                  <li>{t("settings.yourSettings")}</li>
                 </ul>
               </div>
               <Button onClick={() => setIsExportDialogOpen(true)}>
                 <Download className="h-4 w-4" />
-                Export data
+                {t("settings.exportData")}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Language */}
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Languages className="h-4 w-4" />
+                {t("settings.language")}
+              </CardTitle>
+              <CardDescription>{t("settings.languageDesc")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="language">{t("settings.language")}</Label>
+                <Select
+                  value={i18n.language}
+                  onValueChange={async (lng) => {
+                    await changeLanguage(lng);
+                    // Save to database
+                    updateMutation.mutate({ language: lng });
+                  }}
+                >
+                  <SelectTrigger id="language" className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">{t("settings.english")}</SelectItem>
+                    <SelectItem value="es">{t("settings.spanish")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -533,14 +584,14 @@ export default function Settings() {
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Export Data</DialogTitle>
+            <DialogTitle>{t("settings.exportData")}</DialogTitle>
             <DialogDescription>
-              Choose a format for your data export.
+              {t("settings.exportDataDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Export Format</Label>
+              <Label>{t("settings.exportFormat")}</Label>
               <Select
                 value={exportFormat}
                 onValueChange={(v) => setExportFormat(v as "csv" | "json")}
@@ -549,16 +600,16 @@ export default function Settings() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="csv">
-                    CSV (Spreadsheet compatible)
+                  <SelectItem value="csv">{t("settings.csvFormat")}</SelectItem>
+                  <SelectItem value="json">
+                    {t("settings.jsonFormat")}
                   </SelectItem>
-                  <SelectItem value="json">JSON (Full data backup)</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500 mt-1">
                 {exportFormat === "csv"
-                  ? "Best for importing into Excel or Google Sheets."
-                  : "Includes all data including templates and settings."}
+                  ? t("settings.csvHint")
+                  : t("settings.jsonHint")}
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -566,11 +617,11 @@ export default function Settings() {
                 variant="outline"
                 onClick={() => setIsExportDialogOpen(false)}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleExport}>
                 <Download className="h-4 w-4" />
-                Download
+                {t("settings.download")}
               </Button>
             </div>
           </div>

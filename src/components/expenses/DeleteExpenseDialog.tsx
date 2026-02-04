@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,14 +25,15 @@ export function DeleteExpenseDialog({
   onConfirm,
   isDeleting,
 }: DeleteExpenseDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Expense</DialogTitle>
+          <DialogTitle>{t("expenses.deleteExpense")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this expense? This action cannot be
-            undone.
+            {t("expenses.deleteConfirmGeneric")}
           </DialogDescription>
         </DialogHeader>
 
@@ -39,11 +41,11 @@ export function DeleteExpenseDialog({
           <div className="bg-gray-50 rounded-lg p-4 my-4">
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">Name:</span>
+                <span className="text-sm font-medium text-gray-600">{t("common.name")}:</span>
                 <span className="text-sm text-gray-900">{expense.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">Amount:</span>
+                <span className="text-sm font-medium text-gray-600">{t("common.amount")}:</span>
                 <span className="text-sm text-gray-900">
                   {expense.amounts.map((a) => `${a.currency} ${a.amount.toFixed(2)}`).join(", ")}
                 </span>
@@ -59,7 +61,7 @@ export function DeleteExpenseDialog({
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -67,7 +69,7 @@ export function DeleteExpenseDialog({
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? t("common.deleting") : t("common.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

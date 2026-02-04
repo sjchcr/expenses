@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   Card,
@@ -31,6 +32,8 @@ export function PendingPaymentsCard({
   currentMonthName,
   isLoading,
 }: PendingPaymentsCardProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <Card className="col-span-1">
@@ -55,14 +58,14 @@ export function PendingPaymentsCard({
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-amber-600" />
           <CardTitle className="text-base">
-            Pending payments - {currentMonthName}
+            {t("dashboard.pendingPayments")} - {currentMonthName}
           </CardTitle>
         </div>
         {pendingPayments.length > 0 && (
           <CardAction>
             <Button variant="default" size="sm" asChild>
               <Link to="/expenses?filter=pending">
-                View all
+                {t("dashboard.viewAll")}
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </Button>
@@ -72,7 +75,7 @@ export function PendingPaymentsCard({
       <CardContent>
         {pendingPayments.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            No pending payments this month
+            {t("dashboard.noPendingPayments")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -81,7 +84,7 @@ export function PendingPaymentsCard({
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{currency}</Badge>
                   <span className="text-muted-foreground text-sm">
-                    {count} {count === 1 ? "expense" : "expenses"}
+                    {count === 1 ? t("dashboard.expenseSingular", { count }) : t("dashboard.expensePlural", { count })}
                   </span>
                 </div>
                 <span className="font-semibold text-amber-600">
@@ -91,8 +94,9 @@ export function PendingPaymentsCard({
             ))}
             <div className="border-t pt-3 mt-3">
               <span className="text-muted-foreground text-sm">
-                {totalCount} total pending{" "}
-                {totalCount === 1 ? "expense" : "expenses"}
+                {totalCount === 1
+                  ? t("dashboard.totalPendingSingular", { count: totalCount })
+                  : t("dashboard.totalPendingPlural", { count: totalCount })}
               </span>
             </div>
           </div>

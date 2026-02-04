@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -27,6 +28,8 @@ export function CurrencyBreakdownChart({
   currentYear,
   isLoading,
 }: CurrencyBreakdownChartProps) {
+  const { t } = useTranslation();
+
   // Build chart config and pie data
   const { chartConfig, pieData } = useMemo(() => {
     const config: ChartConfig = {};
@@ -68,16 +71,16 @@ export function CurrencyBreakdownChart({
     <Card className="col-span-1 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow flex flex-col">
       <CardHeader className="pb-0">
         <CardTitle className="text-base">
-          Spending by currency - {currentYear}
+          {t("dashboard.currencyBreakdown")} - {currentYear}
         </CardTitle>
         <p className="text-muted-foreground text-sm">
-          Total distribution across currencies
+          {t("dashboard.totalDistribution")}
         </p>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         {pieData.length === 0 ? (
           <div className="h-62.5 flex items-center justify-center">
-            <p className="text-muted-foreground text-sm">No expense data yet</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.noExpenseDataYet")}</p>
           </div>
         ) : (
           <ChartContainer
@@ -142,8 +145,8 @@ export function CurrencyBreakdownChart({
                             className="fill-muted-foreground text-xs"
                           >
                             {yearTotals.length === 1
-                              ? "Currency"
-                              : "Currencies"}
+                              ? t("dashboard.currencySingular")
+                              : t("dashboard.currencyPlural")}
                           </tspan>
                         </text>
                       );
