@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { supabase } from "@/lib/supabase";
 import { authService } from "@/services/auth.service";
 import { settingsService } from "@/services/settings.service";
-import Login from "@/pages/Login";
-import Dashboard from "@/pages/Dashboard";
-import Expenses from "@/pages/Expenses";
-import Templates from "@/pages/Templates";
-import Aguinaldo from "@/pages/Aguinaldo";
-import Settings from "@/pages/Settings";
 import Layout from "@/components/layout/Layout";
 import { Spinner } from "@/components/ui/spinner";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
+
+// Lazy load pages for code splitting
+const Login = lazy(() => import("@/pages/Login"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Expenses = lazy(() => import("@/pages/Expenses"));
+const Templates = lazy(() => import("@/pages/Templates"));
+const Aguinaldo = lazy(() => import("@/pages/Aguinaldo"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -30,10 +33,16 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current user
-    authService
-      .getCurrentUser()
-      .then(async (currentUser) => {
+    // First, let Supabase process any OAuth callback tokens from the URL
+    // This is important for web OAuth redirects (Apple/Google sign-in)
+    const initAuth = async () => {
+      try {
+        // getSession() will automatically process OAuth callback tokens in the URL
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        const currentUser = session?.user ?? null;
         setUser(currentUser);
 
         // Initialize settings for new users
@@ -44,8 +53,12 @@ function App() {
             console.error("Failed to initialize settings:", error);
           }
         }
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
 
     // Listen for auth changes
     const {
@@ -77,7 +90,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-screen w-full bg-background">
+              <Spinner className="size-12" />
+            </div>
+          }
+        >
+          <Routes>
           <Route
             path="/login"
             element={user ? <Navigate to="/expenses" /> : <Login />}
@@ -97,7 +117,8 @@ function App() {
             path="/"
             element={<Navigate to={user ? "/expenses" : "/login"} />}
           />
-        </Routes>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

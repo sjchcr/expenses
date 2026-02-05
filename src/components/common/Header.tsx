@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
 import {
-  LayoutDashboard,
   LogOut,
   Receipt,
   Settings,
@@ -12,6 +11,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  Home,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -39,7 +39,7 @@ import {
 import { MobileNavigation } from "./MobileNavigation";
 
 const NAV_ITEMS = [
-  { path: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { path: "/dashboard", labelKey: "nav.dashboard", icon: Home },
   { path: "/expenses", labelKey: "nav.expenses", icon: Receipt },
   { path: "/templates", labelKey: "nav.templates", icon: FileText },
   { path: "/aguinaldo", labelKey: "nav.aguinaldo", icon: Gift },
