@@ -42,6 +42,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMobile } from "@/hooks/useMobile";
+import CustomHeader, {
+  type HeaderActionsGroups,
+} from "@/components/common/CustomHeader";
 
 // Month names for the select - using translation keys
 const MONTH_KEYS = [
@@ -227,8 +230,32 @@ export default function Expenses() {
   // Get sorted period keys
   const sortedPeriods = Object.keys(expensesByPeriod).sort();
 
+  const buttons: HeaderActionsGroups[] = [
+    {
+      group: "expenses",
+      actions: [
+        {
+          label: t("expenses.addExpense"),
+          icon: Plus,
+          onClick: () => {
+            setEditingExpense(null);
+            setIsAddDialogOpen(true);
+          },
+        },
+        {
+          label: t("expenses.fromGroup"),
+          icon: Layers,
+          onClick: () => setIsGroupDialogOpen(true),
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && (
+        <CustomHeader actions={buttons} title={t("expenses.title")} />
+      )}
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-start sm:items-center gap-2">
@@ -242,26 +269,28 @@ export default function Expenses() {
               {t("expenses.description")}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            {hasGroups && (
+          {!isMobile && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              {hasGroups && (
+                <Button
+                  variant="outline"
+                  onClick={() => setIsGroupDialogOpen(true)}
+                >
+                  <Layers className="h-4 w-4" />
+                  {t("expenses.fromGroup")}
+                </Button>
+              )}
               <Button
-                variant="outline"
-                onClick={() => setIsGroupDialogOpen(true)}
+                onClick={() => {
+                  setEditingExpense(null);
+                  setIsAddDialogOpen(true);
+                }}
               >
-                <Layers className="h-4 w-4" />
-                {t("expenses.fromGroup")}
+                <Plus className="h-4 w-4" />
+                {t("expenses.addExpense")}
               </Button>
-            )}
-            <Button
-              onClick={() => {
-                setEditingExpense(null);
-                setIsAddDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              {t("expenses.addExpense")}
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Filters */}

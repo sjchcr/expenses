@@ -57,7 +57,7 @@ export const MobileNavigation = ({
   return (
     <nav
       ref={containerRef}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-background/60 backdrop-blur-xl border border-border shadow-lg rounded-full px-2 py-2"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-background/20 backdrop-blur-lg border border-border shadow-lg rounded-full px-2 py-2"
     >
       {/* Sliding indicator */}
       <div

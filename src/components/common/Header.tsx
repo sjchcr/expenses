@@ -10,8 +10,8 @@ import {
   Gift,
   Sun,
   Moon,
-  Monitor,
   Home,
+  MonitorSmartphone,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -111,7 +111,7 @@ const NavItem = ({ path, labelKey, icon: Icon, isActive }: NavItemProps) => {
 const THEME_OPTIONS = [
   { value: "light", label: "Light", icon: Sun },
   { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
+  { value: "system", label: "System", icon: MonitorSmartphone },
 ] as const;
 
 const ThemeToggle = () => {
@@ -135,7 +135,7 @@ const ThemeToggle = () => {
       case "dark":
         return <Moon className="h-4 w-4" />;
       case "system":
-        return <Monitor className="h-4 w-4" />;
+        return <MonitorSmartphone className="h-4 w-4" />;
     }
   };
 
