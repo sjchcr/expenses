@@ -16,6 +16,7 @@ import {
   useDeleteExpense,
   useToggleAmountPaid,
 } from "@/hooks/useExpenses";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
@@ -142,7 +143,7 @@ export default function Expenses() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
 
-  const { data: expenses, isLoading } = useExpenses(filters);
+  const { data: expenses, isLoading, refetch } = useExpenses(filters);
   const { settings } = useUserSettings();
   const { data: groups } = useTemplateGroups();
   const deleteMutation = useDeleteExpense();
@@ -255,12 +256,8 @@ export default function Expenses() {
     },
   ];
 
-  return (
-    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
-      {isMobile && (
-        <CustomHeader actions={buttons} title={t("expenses.title")} />
-      )}
-      <div className="px-4 sm:px-0 flex flex-col gap-6">
+  const content = (
+    <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-start sm:items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
@@ -499,7 +496,19 @@ export default function Expenses() {
             </Button>
           </div>
         )}
-      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && (
+        <CustomHeader actions={buttons} title={t("expenses.title")} />
+      )}
+      {isMobile ? (
+        <PullToRefresh onRefresh={async () => { await refetch(); }}>{content}</PullToRefresh>
+      ) : (
+        content
+      )}
 
       <AddExpenseDialog
         open={isAddDialogOpen}

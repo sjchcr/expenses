@@ -71,6 +71,7 @@ import { useMobile } from "@/hooks/useMobile";
 import CustomHeader, {
   type HeaderActionsGroups,
 } from "@/components/common/CustomHeader";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -149,8 +150,8 @@ export default function Templates() {
     null,
   );
 
-  const { data: templates, isLoading } = useTemplates();
-  const { data: groups, isLoading: isLoadingGroups } = useTemplateGroups();
+  const { data: templates, isLoading, refetch: refetchTemplates } = useTemplates();
+  const { data: groups, isLoading: isLoadingGroups, refetch: refetchGroups } = useTemplateGroups();
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const deleteMutation = useDeleteTemplate();
@@ -382,12 +383,12 @@ export default function Templates() {
     },
   ];
 
-  return (
-    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
-      {isMobile && (
-        <CustomHeader actions={buttons} title={t("templates.title")} />
-      )}
-      <div className="px-4 sm:px-0 flex flex-col gap-6">
+  const handleRefresh = async () => {
+    await Promise.all([refetchTemplates(), refetchGroups()]);
+  };
+
+  const content = (
+    <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
@@ -766,7 +767,19 @@ export default function Templates() {
             )}
           </div>
         </div>
-      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && (
+        <CustomHeader actions={buttons} title={t("templates.title")} />
+      )}
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>{content}</PullToRefresh>
+      ) : (
+        content
+      )}
 
       {/* Add/Edit Template Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

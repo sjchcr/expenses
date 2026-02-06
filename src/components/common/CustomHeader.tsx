@@ -159,7 +159,7 @@ const CustomHeader = ({
                 </DropdownMenu>
               ),
             )}
-          {hasAvatar && (
+          {(hasAvatar || !actions) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="iconLg" className="rounded-full">

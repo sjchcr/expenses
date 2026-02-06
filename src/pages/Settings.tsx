@@ -43,6 +43,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PaymentPeriod } from "@/types";
 import { useMobile } from "@/hooks/useMobile";
 import CustomHeader from "@/components/common/CustomHeader";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
 const COMMON_CURRENCIES = [
   "USD",
@@ -60,10 +61,10 @@ const COMMON_CURRENCIES = [
 export default function Settings() {
   const isMobile = useMobile();
   const { t } = useTranslation();
-  const { settings, isLoading } = useUserSettings();
+  const { settings, isLoading, refetch: refetchSettings } = useUserSettings();
   const updateMutation = useUpdateSettings();
-  const { data: expenses } = useExpenses({});
-  const { data: templates } = useTemplates();
+  const { data: expenses, refetch: refetchExpenses } = useExpenses({});
+  const { data: templates, refetch: refetchTemplates } = useTemplates();
 
   // Primary currency state
   const [primaryCurrency, setPrimaryCurrency] = useState("USD");
@@ -298,10 +299,12 @@ export default function Settings() {
     );
   }
 
-  return (
-    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
-      {isMobile && <CustomHeader title={t("settings.title")} />}
-      <div className="px-4 sm:px-0 flex flex-col gap-6">
+  const handleRefresh = async () => {
+    await Promise.all([refetchSettings(), refetchExpenses(), refetchTemplates()]);
+  };
+
+  const content = (
+    <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
@@ -570,7 +573,17 @@ export default function Settings() {
             </CardContent>
           </Card>
         </div>
-      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && <CustomHeader title={t("settings.title")} />}
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>{content}</PullToRefresh>
+      ) : (
+        content
+      )}
 
       {/* Export Dialog */}
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>

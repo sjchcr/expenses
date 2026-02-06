@@ -73,7 +73,11 @@ export function useDashboardStats() {
     previousMonthStart < yearStart ? previousMonthStart : yearStart;
 
   // Fetch expenses from the earliest needed date through end of current year
-  const { data: allExpenses, isLoading: expensesLoading } = useExpenses({
+  const {
+    data: allExpenses,
+    isLoading: expensesLoading,
+    refetch: refetchExpenses,
+  } = useExpenses({
     startDate: format(queryStartDate, "yyyy-MM-dd"),
     endDate: format(yearEnd, "yyyy-MM-dd"),
   });
@@ -326,6 +330,10 @@ export function useDashboardStats() {
 
   const isLoading = expensesLoading || settingsLoading || ratesLoading;
 
+  const refetch = async () => {
+    await refetchExpenses();
+  };
+
   return {
     pendingPayments,
     monthComparison,
@@ -342,5 +350,6 @@ export function useDashboardStats() {
     ),
     isLoading,
     totalExpensesCount: yearExpenses?.length || 0,
+    refetch,
   };
 }

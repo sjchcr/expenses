@@ -66,13 +66,16 @@ function App() {
     } = authService.onAuthStateChange(async (newUser) => {
       setUser(newUser);
 
-      // Initialize settings when user signs in
       if (newUser) {
+        // Initialize settings when user signs in
         try {
           await settingsService.initializeSettings();
         } catch (error) {
           console.error("Failed to initialize settings:", error);
         }
+      } else {
+        // Clear React Query cache when user signs out
+        queryClient.clear();
       }
     });
 

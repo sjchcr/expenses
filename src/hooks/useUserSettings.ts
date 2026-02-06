@@ -8,6 +8,7 @@ export function useUserSettings() {
     data: settings,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["user-settings"],
     queryFn: () => settingsService.getSettings(),
@@ -20,7 +21,7 @@ export function useUserSettings() {
     }
   }, [isLoading, settings]);
 
-  return { settings, isLoading, error };
+  return { settings, isLoading, error, refetch };
 }
 
 export function useUpdateSettings() {

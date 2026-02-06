@@ -20,6 +20,7 @@ import type { Salary } from "@/types";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import CustomHeader from "@/components/common/CustomHeader";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
 const CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP"];
 
@@ -130,7 +131,7 @@ export default function Aguinaldo() {
   const [currency, setCurrency] = useState("CRC");
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
-  const { data: salaries, isLoading } = useSalaries(aguinaldoYear);
+  const { data: salaries, isLoading, refetch } = useSalaries(aguinaldoYear);
   const upsertMutation = useUpsertSalary();
 
   const aguinaldoMonths = useMemo(
@@ -203,10 +204,8 @@ export default function Aguinaldo() {
   const handlePrevYear = () => setAguinaldoYear((y) => y - 1);
   const handleNextYear = () => setAguinaldoYear((y) => y + 1);
 
-  return (
-    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
-      {isMobile && <CustomHeader title={t("aguinaldo.title")} />}
-      <div className="px-4 sm:px-0 flex flex-col gap-6">
+  const content = (
+    <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-col justify-start items-start gap-1">
@@ -373,7 +372,17 @@ export default function Aguinaldo() {
             </CardContent>
           </Card>
         )}
-      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && <CustomHeader title={t("aguinaldo.title")} />}
+      {isMobile ? (
+        <PullToRefresh onRefresh={async () => { await refetch(); }}>{content}</PullToRefresh>
+      ) : (
+        content
+      )}
     </div>
   );
 }
