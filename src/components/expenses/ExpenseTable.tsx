@@ -25,7 +25,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -385,7 +384,6 @@ export function ExpenseTable({
                         {t("templates.createTemplate")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         variant="destructive"
@@ -415,7 +413,7 @@ export function ExpenseTable({
         onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")}
         className="w-full"
       >
-        <TabsList background={false} className="mx-4 gap-1">
+        <TabsList background={true} className="mx-4 gap-1">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />
             {t("common.all")}

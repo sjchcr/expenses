@@ -42,6 +42,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PaymentPeriod } from "@/types";
 import { useMobile } from "@/hooks/useMobile";
+import CustomHeader from "@/components/common/CustomHeader";
 
 const COMMON_CURRENCIES = [
   "USD",
@@ -299,6 +300,7 @@ export default function Settings() {
 
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && <CustomHeader title={t("settings.title")} />}
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
@@ -316,7 +318,7 @@ export default function Settings() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Account Settings */}
-          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -363,7 +365,7 @@ export default function Settings() {
           </Card>
 
           {/* Payment Periods */}
-          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -460,7 +462,7 @@ export default function Settings() {
           </Card>
 
           {/* Primary Currency */}
-          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-4 w-4" />
@@ -504,7 +506,7 @@ export default function Settings() {
           </Card>
 
           {/* Export Data */}
-          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
@@ -537,7 +539,7 @@ export default function Settings() {
           </Card>
 
           {/* Language */}
-          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden">
+          <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Languages className="h-4 w-4" />

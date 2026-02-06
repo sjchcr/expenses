@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Salary } from "@/types";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
+import CustomHeader from "@/components/common/CustomHeader";
 
 const CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP"];
 
@@ -204,6 +205,7 @@ export default function Aguinaldo() {
 
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && <CustomHeader title={t("aguinaldo.title")} />}
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
@@ -238,7 +240,7 @@ export default function Aguinaldo() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm shadow-sm">
+              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm">
                 {aguinaldoYear}
               </ButtonGroupText>
               <Button
@@ -272,7 +274,7 @@ export default function Aguinaldo() {
 
         {/* Salary Table */}
         {isLoading ? (
-          <Card className="border border-gray-200 dark:border-accent shadow-md rounded-xl overflow-hidden">
+          <Card className="border border-gray-200 dark:border-accent shadow-md overflow-hidden">
             <CardHeader>
               <Skeleton className="h-6 w-48" />
             </CardHeader>
@@ -283,7 +285,7 @@ export default function Aguinaldo() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden pb-0">
+          <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden pb-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {t("aguinaldo.salariesFor", { year: aguinaldoYear })}

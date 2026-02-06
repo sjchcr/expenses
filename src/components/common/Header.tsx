@@ -194,45 +194,7 @@ const Header = () => {
     ));
 
   return isMobile ? (
-    <>
-      <header className="sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
-        <div className="mask-b-from-30% mask-b-to-100% bg-background/90 backdrop-blur-2xl w-full h-full absolute top-0 left-0"></div>
-        <div className="flex justify-between items-center px-4 w-full">
-          <h1 className="text-2xl font-bold text-accent-foreground relative text-left">
-            {currentPageTitle}
-          </h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <UserAvatar user={user} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
-                  <DropdownMenuCheckboxItem
-                    key={value}
-                    onClick={() => setTheme(value)}
-                    checked={theme === value}
-                    className="capitalize"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
-                  <LogOut />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-      <MobileNavigation currentPath={location.pathname} items={NAV_ITEMS} />
-    </>
+    <MobileNavigation currentPath={location.pathname} items={NAV_ITEMS} />
   ) : (
     <header className="bg-background/60 backdrop-blur-2xl shadow-sm sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
       <div className="md:w-10/12 mx-auto sm:w-full px-4 md:px-0">

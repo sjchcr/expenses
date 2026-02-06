@@ -68,6 +68,9 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useMobile } from "@/hooks/useMobile";
+import CustomHeader, {
+  type HeaderActionsGroups,
+} from "@/components/common/CustomHeader";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -357,8 +360,33 @@ export default function Templates() {
   const recurringTemplates = templates?.filter((t) => t.is_recurring) || [];
   const regularTemplates = templates?.filter((t) => !t.is_recurring) || [];
 
+  const buttons: HeaderActionsGroups[] = [
+    {
+      group: "expenses",
+      type: "dropdown",
+      icon: Plus,
+      actions: [
+        {
+          label: t("templates.createTemplate"),
+          icon: Plus,
+          onClick: () => {
+            handleOpenDialog();
+          },
+        },
+        {
+          label: t("groups.newGroup"),
+          icon: FolderPlus,
+          onClick: () => handleOpenGroupDialog(),
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
+      {isMobile && (
+        <CustomHeader actions={buttons} title={t("templates.title")} />
+      )}
       <div className="px-4 sm:px-0 flex flex-col gap-6">
         {/* Header */}
         <div className="flex justify-between items-center gap-2">
@@ -401,7 +429,7 @@ export default function Templates() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recurring Templates */}
                 {recurringTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4" />
@@ -410,11 +438,16 @@ export default function Templates() {
                       <CardDescription>
                         {t("templates.recurringBillsDesc")}
                       </CardDescription>
-                      <CardAction>
-                        <Button size="icon" onClick={() => handleOpenDialog()}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </CardAction>
+                      {!isMobile && (
+                        <CardAction>
+                          <Button
+                            size="icon"
+                            onClick={() => handleOpenDialog()}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </CardAction>
+                      )}
                     </CardHeader>
                     <CardContent className="p-0">
                       <Table>
@@ -486,7 +519,7 @@ export default function Templates() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
                     <CardContent className="px-2">
                       <Empty>
                         <EmptyHeader>
@@ -513,7 +546,7 @@ export default function Templates() {
 
                 {/* Regular Templates */}
                 {regularTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
@@ -522,11 +555,16 @@ export default function Templates() {
                       <CardDescription>
                         {t("templates.quickTemplatesDesc")}
                       </CardDescription>
-                      <CardAction>
-                        <Button size="icon" onClick={() => handleOpenDialog()}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </CardAction>
+                      {!isMobile && (
+                        <CardAction>
+                          <Button
+                            size="icon"
+                            onClick={() => handleOpenDialog()}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </CardAction>
+                      )}
                     </CardHeader>
                     <CardContent className="p-0">
                       <Table>
@@ -592,7 +630,7 @@ export default function Templates() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden py-2 items-center justify-center">
+                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
                     <CardContent className="px-2">
                       <Empty>
                         <EmptyHeader>
@@ -632,22 +670,24 @@ export default function Templates() {
                 </CardContent>
               </Card>
             ) : groups && groups.length > 0 ? (
-              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Layers className="h-4 w-4" />
                     {t("groups.title")}
                   </CardTitle>
                   <CardDescription>{t("groups.description")}</CardDescription>
-                  <CardAction>
-                    <Button
-                      size="icon"
-                      onClick={() => handleOpenGroupDialog()}
-                      disabled={!templates || templates.length === 0}
-                    >
-                      <FolderPlus className="h-4 w-4" />
-                    </Button>
-                  </CardAction>
+                  {!isMobile && (
+                    <CardAction>
+                      <Button
+                        size="icon"
+                        onClick={() => handleOpenGroupDialog()}
+                        disabled={!templates || templates.length === 0}
+                      >
+                        <FolderPlus className="h-4 w-4" />
+                      </Button>
+                    </CardAction>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2">
@@ -695,7 +735,7 @@ export default function Templates() {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-2">
+              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
                 <CardContent className="px-2">
                   <Empty>
                     <EmptyHeader>

@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
+  LayersPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -45,6 +46,7 @@ import { useMobile } from "@/hooks/useMobile";
 import CustomHeader, {
   type HeaderActionsGroups,
 } from "@/components/common/CustomHeader";
+import { cn } from "@/lib/utils";
 
 // Month names for the select - using translation keys
 const MONTH_KEYS = [
@@ -233,6 +235,8 @@ export default function Expenses() {
   const buttons: HeaderActionsGroups[] = [
     {
       group: "expenses",
+      type: "dropdown",
+      icon: Plus,
       actions: [
         {
           label: t("expenses.addExpense"),
@@ -244,7 +248,7 @@ export default function Expenses() {
         },
         {
           label: t("expenses.fromGroup"),
-          icon: Layers,
+          icon: LayersPlus,
           onClick: () => setIsGroupDialogOpen(true),
         },
       ],
@@ -346,7 +350,7 @@ export default function Expenses() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm shadow-sm">
+              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm">
                 {selectedYear}
               </ButtonGroupText>
               <Button
@@ -400,7 +404,7 @@ export default function Expenses() {
         {/* Tables by Payment Period */}
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border border-gray-200 dark:border-accent shadow-md rounded-xl overflow-hidden p-0 gap-0">
+            <Card className="border border-gray-200 dark:border-accent shadow-md overflow-hidden p-0 gap-0">
               <CardHeader className="p-2 grid-rows-1">
                 <Skeleton className="h-4 w-62.5" />
                 <CardAction>
@@ -420,7 +424,7 @@ export default function Expenses() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border border-gray-200 dark:border-accent shadow-md rounded-xl overflow-hidden p-0 gap-0">
+            <Card className="border border-gray-200 dark:border-accent shadow-md overflow-hidden p-0 gap-0">
               <CardHeader className="p-2 grid-rows-1">
                 <Skeleton className="h-4 w-62.5" />
                 <CardAction>
@@ -446,23 +450,28 @@ export default function Expenses() {
             {sortedPeriods.map((period) => (
               <Card
                 key={period}
-                className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md rounded-xl overflow-hidden gap-0"
+                className={cn(
+                  "bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden",
+                  isMobile ? "gap-4" : "gap-0",
+                )}
               >
                 <CardHeader className="grid-rows-1">
                   <CardTitle className="flex items-center h-full">
                     {period}
                   </CardTitle>
-                  <CardAction>
-                    <Button
-                      size="icon"
-                      onClick={() => {
-                        setEditingExpense(null);
-                        setIsAddDialogOpen(true);
-                      }}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </CardAction>
+                  {!isMobile && (
+                    <CardAction>
+                      <Button
+                        size="icon"
+                        onClick={() => {
+                          setEditingExpense(null);
+                          setIsAddDialogOpen(true);
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </CardAction>
+                  )}
                 </CardHeader>
                 <CardContent className="p-0">
                   <ExpenseTable

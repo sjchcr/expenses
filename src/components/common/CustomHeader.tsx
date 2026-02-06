@@ -4,6 +4,7 @@ import {
   LogOut,
   MonitorSmartphone,
   Moon,
+  Plus,
   Sun,
   type LucideIcon,
 } from "lucide-react";
@@ -33,6 +34,8 @@ interface CustomHeaderProps {
 
 export interface HeaderActionsGroups {
   group: string;
+  type: "button" | "dropdown";
+  icon?: LucideIcon;
   actions: HeaderActionsProps[];
 }
 
@@ -72,7 +75,7 @@ const getInitials = (user: User | null): string => {
 };
 
 const UserAvatar = ({ user }: { user: User | null }) => (
-  <Avatar className="w-9 h-9">
+  <Avatar className="w-11 h-11 border border-gray-200 dark:border-gray-900">
     <AvatarImage
       src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
       alt={user?.email || "User"}
@@ -101,8 +104,8 @@ const CustomHeader = ({
   };
   return (
     <header className="sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
-      <div className="mask-b-from-30% mask-b-to-100% bg-background/90 backdrop-blur-2xl w-full h-full absolute top-0 left-0"></div>
-      <div className="flex justify-between items-center px-4 w-full">
+      <div className="mask-b-from-30% mask-b-to-100% bg-background/95 backdrop-blur-2xl w-full h-full absolute top-0 left-0"></div>
+      <div className="flex justify-between items-center px-4 w-full min-h-11">
         <h1 className="text-2xl font-bold text-accent-foreground relative text-left">
           {title}
         </h1>
@@ -113,25 +116,53 @@ const CustomHeader = ({
         )}
         <div className="flex items-center gap-2 relative">
           {actions &&
-            actions.map(({ group, actions }) => (
-              <ButtonGroup key={group}>
-                {actions.map(({ label, icon: Icon, onClick }) => (
-                  <Button
-                    size="icon"
-                    variant="defaultTranslucent"
-                    className="rounded-full"
-                    onClick={onClick}
-                    key={label}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </Button>
-                ))}
-              </ButtonGroup>
-            ))}
+            actions.map(({ group, icon: GroupIcon, type, actions }) =>
+              type === "button" ? (
+                <ButtonGroup key={group}>
+                  {actions.map(({ label, icon: Icon, onClick }) => (
+                    <Button
+                      size="iconLg"
+                      variant="defaultTranslucent"
+                      className="rounded-full"
+                      onClick={onClick}
+                      key={label}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </Button>
+                  ))}
+                </ButtonGroup>
+              ) : (
+                <DropdownMenu key={group}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="iconLg"
+                      variant="defaultTranslucent"
+                      className="rounded-full"
+                    >
+                      {GroupIcon ? (
+                        <GroupIcon className="h-6 w-6" />
+                      ) : (
+                        <Plus className="h-6 w-6" />
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuGroup>
+                      {actions.map(({ label, icon: Icon, onClick }) => (
+                        <DropdownMenuItem key={label} onClick={onClick}>
+                          <Icon className="h-4 w-4" />
+                          {label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ),
+            )}
           {hasAvatar && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="iconLg" className="rounded-full">
                   <UserAvatar user={user} />
                 </Button>
               </DropdownMenuTrigger>
