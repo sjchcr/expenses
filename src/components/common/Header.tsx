@@ -26,16 +26,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/hooks/useTheme";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { MobileNavigation } from "./MobileNavigation";
 
 const NAV_ITEMS = [
@@ -108,12 +98,6 @@ const NavItem = ({ path, labelKey, icon: Icon, isActive }: NavItemProps) => {
   );
 };
 
-const THEME_OPTIONS = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: MonitorSmartphone },
-] as const;
-
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
 
@@ -157,23 +141,11 @@ const Header = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const isMobile = useMobile();
-  const { resolvedTheme, theme, setTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const { t } = useTranslation();
   const siteTitle = t("siteTitle", {
     defaultValue: import.meta.env.VITE_SITE_TITLE,
   });
-  const activeNavItem = NAV_ITEMS.find((item) => {
-    const normalizedPath = item.path.endsWith("/")
-      ? item.path.slice(0, -1)
-      : item.path;
-    return (
-      location.pathname === normalizedPath ||
-      location.pathname.startsWith(`${normalizedPath}/`)
-    );
-  });
-  const currentPageTitle = activeNavItem
-    ? t(activeNavItem.labelKey)
-    : siteTitle;
 
   useEffect(() => {
     authService.getCurrentUser().then(setUser);
