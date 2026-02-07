@@ -35,10 +35,50 @@ export const authService = {
     return data;
   },
 
-  async signUpWithEmail(email: string, password: string) {
+  async resetPassword(email: string) {
+    // Use app URL scheme for native, website URL for web
+    const redirectTo = Capacitor.isNativePlatform()
+      ? "cr.steven.expensestracker://auth/reset-password"
+      : `${window.location.origin}/reset-password`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+    if (error) throw error;
+  },
+
+  async updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
+  },
+
+  async signUpWithEmail(
+    email: string,
+    password: string,
+    options?: { firstName?: string; lastName?: string },
+  ) {
+    const firstName = options?.firstName?.trim();
+    const lastName = options?.lastName?.trim();
+    const fullName = [firstName, lastName].filter(Boolean).join(" ");
+
+    // Use app URL scheme for native, website URL for web
+    const emailRedirectTo = Capacitor.isNativePlatform()
+      ? "cr.steven.expensestracker://auth/callback"
+      : `${window.location.origin}/dashboard`;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo,
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: fullName || undefined,
+        },
+      },
     });
     if (error) throw error;
     return data;

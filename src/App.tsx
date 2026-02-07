@@ -34,6 +34,7 @@ const Templates = lazy(() => import("@/pages/Templates"));
 const Aguinaldo = lazy(() => import("@/pages/Aguinaldo"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -131,6 +132,7 @@ function App() {
         >
           <Routes>
             <Route path="/login" element={user ? <Navigate to="/expenses" /> : <Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* Protected routes with layout */}

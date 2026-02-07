@@ -1,6 +1,7 @@
 import { useState, type ComponentType, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "motion/react";
+import { toast, Toaster } from "sonner";
 import { authService } from "@/services/auth.service";
 import {
   Card,
@@ -30,22 +31,42 @@ import {
 } from "@/components/ui/dialog";
 import { useTheme } from "@/hooks/useTheme";
 import { useMobile } from "@/hooks/useMobile";
-import { Mail } from "lucide-react";
+import { Mail, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+
+const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+type PasswordChecks = {
+  length: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  digit: boolean;
+  symbol: boolean;
+};
+
+type AuthMode = "signin" | "signup" | "forgotPassword";
 
 interface EmailAuthContentProps {
   Header: ComponentType<{ children: ReactNode }>;
   Title: ComponentType<{ children: ReactNode; className?: string }>;
   Description: ComponentType<{ children: ReactNode }>;
   Footer: ComponentType<{ children: ReactNode; className?: string }>;
-  isSignUp: boolean;
-  setIsSignUp: (value: boolean) => void;
+  mode: AuthMode;
+  onChangeMode: (mode: AuthMode) => void;
+  firstName: string;
+  setFirstName: (value: string) => void;
+  lastName: string;
+  setLastName: (value: string) => void;
   email: string;
   setEmail: (value: string) => void;
   password: string;
   setPassword: (value: string) => void;
+  showPassword: boolean;
+  toggleShowPassword: () => void;
+  passwordChecks: PasswordChecks;
   error: string | null;
   loading: boolean;
   onSubmit: (e: React.FormEvent) => void;
+  onForgotPassword: (e: React.FormEvent) => void;
   formClassName?: string;
   buttonClassName?: string;
 }
@@ -55,53 +76,74 @@ function EmailAuthContent({
   Title,
   Description,
   Footer,
-  isSignUp,
-  setIsSignUp,
+  mode,
+  onChangeMode,
+  firstName,
+  setFirstName,
+  lastName,
+  setLastName,
   email,
   setEmail,
   password,
   setPassword,
+  showPassword,
+  toggleShowPassword,
+  passwordChecks,
   error,
   loading,
   onSubmit,
+  onForgotPassword,
   formClassName = "",
   buttonClassName = "",
 }: EmailAuthContentProps) {
   const { t } = useTranslation();
 
+  const titles: Record<AuthMode, string> = {
+    signin: t("auth.signInWithEmail"),
+    signup: t("auth.createAccount"),
+    forgotPassword: t("auth.forgotPassword"),
+  };
+
+  const descriptions: Record<AuthMode, string> = {
+    signin: t("auth.signInWithEmailDesc"),
+    signup: t("auth.createAccountDesc"),
+    forgotPassword: t("auth.forgotPasswordDesc"),
+  };
+
   return (
-    <>
+    <div className="flex flex-col gap-4 pr-0">
       <Header>
         <Title className="text-xl">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
-              key={isSignUp ? "signup-title" : "signin-title"}
+              key={`${mode}-title`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              {isSignUp ? t("auth.createAccount") : t("auth.signInWithEmail")}
+              {titles[mode]}
             </motion.span>
           </AnimatePresence>
         </Title>
         <Description>
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
-              key={isSignUp ? "signup-desc" : "signin-desc"}
+              key={`${mode}-desc`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              {isSignUp
-                ? t("auth.createAccountDesc")
-                : t("auth.signInWithEmailDesc")}
+              {descriptions[mode]}
             </motion.span>
           </AnimatePresence>
         </Description>
       </Header>
-      <form onSubmit={onSubmit} className={`flex flex-col gap-4 ${formClassName}`}>
+      <form
+        onSubmit={mode === "forgotPassword" ? onForgotPassword : onSubmit}
+        className={`flex flex-col gap-4 ${formClassName}`}
+      >
         <AnimatePresence mode="wait" initial={false}>
           {error && (
             <motion.div
@@ -113,6 +155,43 @@ function EmailAuthContent({
               className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm overflow-hidden"
             >
               {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence mode="wait" initial={false}>
+          {mode === "signup" && (
+            <motion.div
+              key="name-fields"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-3 overflow-hidden"
+            >
+              <div className="flex flex-col items-start gap-2 w-full">
+                <Label htmlFor="firstName">{t("auth.firstName")}</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  variant="muted"
+                  placeholder={t("auth.firstNamePlaceholder")}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  autoComplete="given-name"
+                />
+              </div>
+              <div className="flex flex-col items-start gap-2 w-full">
+                <Label htmlFor="lastName">{t("auth.lastName")}</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  variant="muted"
+                  placeholder={t("auth.lastNamePlaceholder")}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  autoComplete="family-name"
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -129,43 +208,119 @@ function EmailAuthContent({
             autoComplete="email"
           />
         </div>
-        <div className="flex flex-col items-start gap-2 w-full">
-          <Label htmlFor="password">{t("auth.password")}</Label>
-          <Input
-            id="password"
-            type="password"
-            variant="muted"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete={isSignUp ? "new-password" : "current-password"}
-          />
-        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          {mode !== "forgotPassword" && (
+            <motion.div
+              key="password-field"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col items-start gap-2 w-full overflow-hidden"
+            >
+              <div className="flex items-center justify-between w-full">
+                <Label htmlFor="password">{t("auth.password")}</Label>
+                {mode === "signin" && (
+                  <button
+                    type="button"
+                    onClick={() => onChangeMode("forgotPassword")}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {t("auth.forgotPassword")}
+                  </button>
+                )}
+              </div>
+              <div className="w-full relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  variant="muted"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  className="pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
+                  aria-label={
+                    showPassword ? t("auth.hidePassword") : t("auth.showPassword")
+                  }
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {mode === "signup" && (
+                <ul className="text-xs space-y-1 text-muted-foreground w-full pl-3">
+                  {[
+                    { key: "length", label: t("auth.passwordRuleLength") },
+                    { key: "uppercase", label: t("auth.passwordRuleUppercase") },
+                    { key: "lowercase", label: t("auth.passwordRuleLowercase") },
+                    { key: "digit", label: t("auth.passwordRuleDigit") },
+                    { key: "symbol", label: t("auth.passwordRuleSymbol") },
+                  ].map(({ key, label }) => {
+                    const passed = passwordChecks[key as keyof PasswordChecks];
+                    const Icon = passed ? CheckCircle2 : XCircle;
+                    return (
+                      <li
+                        key={key}
+                        className={`flex items-center gap-2 ${
+                          passed ? "text-emerald-600" : "text-muted-foreground"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
       <Footer className="flex-col gap-2">
         <Button
           type="submit"
           disabled={loading}
-          onClick={onSubmit}
+          onClick={mode === "forgotPassword" ? onForgotPassword : onSubmit}
           className={buttonClassName}
         >
           {loading
             ? t("common.loading")
-            : isSignUp
+            : mode === "signup"
             ? t("auth.createAccount")
+            : mode === "forgotPassword"
+            ? t("auth.sendResetLink")
             : t("auth.signIn")}
         </Button>
         <Button
           type="button"
           variant="ghost"
-          onClick={() => setIsSignUp(!isSignUp)}
+          onClick={() => onChangeMode(mode === "signup" ? "signin" : "signup")}
           className={buttonClassName}
         >
-          {isSignUp ? t("auth.haveAccount") : t("auth.noAccount")}
+          {mode === "signup" ? t("auth.haveAccount") : t("auth.noAccount")}
         </Button>
+        {mode === "forgotPassword" && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onChangeMode("signin")}
+            className={buttonClassName}
+          >
+            {t("auth.backToSignIn")}
+          </Button>
+        )}
       </Footer>
-    </>
+    </div>
   );
 }
 
@@ -178,22 +333,48 @@ export default function Login() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [emailDrawerOpen, setEmailDrawerOpen] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("signin");
+
+  const passwordChecks: PasswordChecks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    digit: /\d/.test(password),
+    symbol: /[^A-Za-z0-9]/.test(password),
+  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
+      if (authMode === "signup" && !PASSWORD_RULE.test(password)) {
+        setError(t("auth.passwordRequirements"));
+        setLoading(false);
+        return;
+      }
       setError(null);
-      if (isSignUp) {
-        await authService.signUpWithEmail(email, password);
+      if (authMode === "signup") {
+        const result = await authService.signUpWithEmail(email, password, {
+          firstName,
+          lastName,
+        });
+        setEmailDrawerOpen(false);
+        // Check if email confirmation is required
+        if (result.user && !result.session) {
+          toast.success(t("auth.signUpSuccess"), {
+            description: t("auth.checkEmailConfirmation"),
+          });
+        }
       } else {
         await authService.signInWithEmail(email, password);
+        setEmailDrawerOpen(false);
       }
-      setEmailDrawerOpen(false);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -201,12 +382,40 @@ export default function Login() {
     }
   };
 
-  const openEmailDrawer = (signUp: boolean) => {
-    setIsSignUp(signUp);
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setError(t("auth.emailRequired"));
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      await authService.resetPassword(email);
+      setEmailDrawerOpen(false);
+      toast.success(t("auth.resetEmailSent"), {
+        description: t("auth.checkEmailReset"),
+      });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEmailDrawer = (mode: AuthMode) => {
+    setAuthMode(mode);
     setError(null);
+    setFirstName("");
+    setLastName("");
     setEmail("");
     setPassword("");
     setEmailDrawerOpen(true);
+  };
+
+  const changeAuthMode = (mode: AuthMode) => {
+    setAuthMode(mode);
+    setError(null);
   };
 
   const handleGoogleSignIn = async () => {
@@ -319,7 +528,7 @@ export default function Login() {
             </Button>
             <Button
               disabled={loading}
-              onClick={() => openEmailDrawer(false)}
+              onClick={() => openEmailDrawer("signin")}
               className="w-full flex items-center justify-center gap-3"
             >
               <Mail className="w-5 h-5" />
@@ -340,41 +549,73 @@ export default function Login() {
               Title={DrawerTitle}
               Description={DrawerDescription}
               Footer={DrawerFooter}
-              isSignUp={isSignUp}
-              setIsSignUp={setIsSignUp}
+              mode={authMode}
+              onChangeMode={changeAuthMode}
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
               email={email}
               setEmail={setEmail}
               password={password}
               setPassword={setPassword}
+              showPassword={showPassword}
+              toggleShowPassword={() => setShowPassword((prev) => !prev)}
+              passwordChecks={passwordChecks}
               error={error}
               loading={loading}
               onSubmit={handleEmailAuth}
+              onForgotPassword={handleForgotPassword}
               formClassName="px-4"
             />
           </DrawerContent>
         </Drawer>
       ) : (
         <Dialog open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
-          <DialogContent className="bg-background/90 backdrop-blur-lg">
+          <DialogContent className="bg-background/90 backdrop-blur-lg p-4">
             <EmailAuthContent
               Header={DialogHeader}
               Title={DialogTitle}
               Description={DialogDescription}
               Footer={DialogFooter}
-              isSignUp={isSignUp}
-              setIsSignUp={setIsSignUp}
+              mode={authMode}
+              onChangeMode={changeAuthMode}
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
               email={email}
               setEmail={setEmail}
               password={password}
               setPassword={setPassword}
+              showPassword={showPassword}
+              toggleShowPassword={() => setShowPassword((prev) => !prev)}
+              passwordChecks={passwordChecks}
               error={error}
               loading={loading}
               onSubmit={handleEmailAuth}
+              onForgotPassword={handleForgotPassword}
               buttonClassName="w-full"
             />
           </DialogContent>
         </Dialog>
       )}
+
+      <Toaster
+        richColors
+        theme={resolvedTheme as "light" | "dark"}
+        position="bottom-center"
+        toastOptions={{
+          classNames: {
+            toast:
+              "!rounded-2xl border border-border bg-card/80 backdrop-blur-xl shadow-lg",
+            title: "text-card-foreground font-semibold",
+            description: "text-muted-foreground",
+            success:
+              "!bg-green-500/20 dark:!bg-green-400/20 !border-green-500/20 dark:!border-green-400/30",
+          },
+        }}
+      />
     </div>
   );
 }

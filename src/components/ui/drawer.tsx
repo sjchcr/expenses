@@ -1,55 +1,8 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 import { X } from "lucide-react";
-import { motion } from "motion/react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
-
-function AnimatedHeight({ children }: { children: React.ReactNode }) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const [height, setHeight] = React.useState<number | "auto">("auto");
-  const lastHeight = React.useRef<number>(0);
-  const isFirstRender = React.useRef(true);
-
-  React.useEffect(() => {
-    if (!contentRef.current) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      const newHeight = entries[0].contentRect.height;
-
-      // Set initial height without animation
-      if (isFirstRender.current) {
-        lastHeight.current = newHeight;
-        setHeight(newHeight);
-        isFirstRender.current = false;
-        return;
-      }
-
-      // Only animate if height change is significant (>10px)
-      if (Math.abs(newHeight - lastHeight.current) > 10) {
-        setHeight(newHeight);
-        lastHeight.current = newHeight;
-      }
-    });
-
-    resizeObserver.observe(contentRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  return (
-    <motion.div
-      initial={false}
-      animate={{ height }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="overflow-hidden"
-    >
-      <div ref={contentRef} className="flex flex-col gap-6">
-        {children}
-      </div>
-    </motion.div>
-  );
-}
 
 function Drawer({
   ...props
@@ -108,7 +61,7 @@ function DrawerContent({
         data-slot="drawer-content"
         data-close-button={closeButton}
         className={cn(
-          "group/drawer-content bg-background fixed z-50 flex h-auto flex-col overflow-hidden",
+          "group/drawer-content bg-background fixed z-50 flex h-auto flex-col overflow-y-auto",
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-3xl data-[vaul-drawer-direction=top]:border-b",
           "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-3xl data-[vaul-drawer-direction=bottom]:border-t",
           "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm",
@@ -131,7 +84,9 @@ function DrawerContent({
             </Button>
           </DrawerPrimitive.Close>
         )}
-        <AnimatedHeight>{children}</AnimatedHeight>
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex flex-col gap-6">{children}</div>
+        </div>
       </DrawerPrimitive.Content>
     </DrawerPortal>
   );
