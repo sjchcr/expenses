@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,20 @@ export const MobileNavigation = ({
     return () => window.removeEventListener("resize", updateIndicator);
   }, [activeIndex]);
 
+  const handleNavClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+      if (path !== currentPath) return;
+      event.preventDefault();
+      if (typeof window !== "undefined") {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+    },
+    [currentPath],
+  );
+
   return (
     <nav
       ref={containerRef}
@@ -81,6 +95,7 @@ export const MobileNavigation = ({
                 itemRefs.current[index] = el;
               }}
               to={item.path}
+              onClick={(event) => handleNavClick(event, item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-0 px-4 py-2 rounded-full transition-colors relative z-10",
                 isActive && "text-primary font-bold",

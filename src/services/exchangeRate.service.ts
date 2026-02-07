@@ -1,5 +1,23 @@
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
+import { Capacitor } from "@capacitor/core";
+
+const ENV_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function getApiBaseUrl(): string | null {
+  if (ENV_API_BASE_URL) {
+    return ENV_API_BASE_URL.replace(/\/$/, "");
+  }
+
+  if (typeof window !== "undefined" && !Capacitor.isNativePlatform()) {
+    return window.location.origin;
+  }
+
+  console.warn(
+    "Exchange rate API base URL is not configured. Set VITE_API_BASE_URL for native builds.",
+  );
+  return null;
+}
 
 export const exchangeRateService = {
   async getRate(fromCurrency: string, toCurrency: string, date?: Date) {
@@ -24,15 +42,20 @@ export const exchangeRateService = {
 
     // Fetch from serverless API
     try {
+      const baseUrl = getApiBaseUrl();
+      if (!baseUrl) {
+        return null;
+      }
+
       const response = await fetch(
-        `/api/exchange-rate?from=${fromCurrency}&to=${toCurrency}`
+        `${baseUrl}/api/exchange-rate?from=${fromCurrency}&to=${toCurrency}`,
       );
 
       // Check if response is JSON (API might not be available on localhost)
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         console.warn(
-          "Exchange rate API not available (likely running on localhost without Vercel dev)"
+          "Exchange rate API not available (likely running on localhost without Vercel dev)",
         );
         return null;
       }
@@ -43,13 +66,15 @@ export const exchangeRateService = {
         const rate = data.rate;
 
         // Cache the rate
-        const { error: insertError } = await supabase.from("exchange_rates").insert({
-          from_currency: fromCurrency,
-          to_currency: toCurrency,
-          rate,
-          date: dateStr,
-          source: "exchangerate-api",
-        });
+        const { error: insertError } = await supabase
+          .from("exchange_rates")
+          .insert({
+            from_currency: fromCurrency,
+            to_currency: toCurrency,
+            rate,
+            date: dateStr,
+            source: "exchangerate-api",
+          });
 
         if (insertError) {
           console.error("Failed to cache exchange rate:", insertError);
@@ -69,7 +94,7 @@ export const exchangeRateService = {
   async convertAmount(
     amount: number,
     fromCurrency: string,
-    toCurrency: string
+    toCurrency: string,
   ) {
     if (fromCurrency === toCurrency) return amount;
 
