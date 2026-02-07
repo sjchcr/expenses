@@ -244,7 +244,20 @@
     "language": "Idioma",
     "languageDesc": "Selecciona tu idioma preferido para la aplicación.",
     "english": "Inglés",
-    "spanish": "Español"
+    "spanish": "Español",
+    "changeAvatar": "Cambiar foto",
+    "uploadAvatar": "Subir foto",
+    "removeAvatar": "Eliminar foto",
+    "adjustAvatarTitle": "Ajusta tu foto",
+    "adjustAvatarDescription": "Arrastra la imagen y usa el control de zoom para que encaje dentro del círculo.",
+    "dragToReposition": "Arrastra dentro del círculo para mover la imagen",
+    "zoom": "Zoom",
+    "applyCrop": "Aplicar recorte",
+    "avatarCropFailed": "No se pudo recortar la imagen. Intenta con otra foto.",
+    "avatarUpdated": "Foto de perfil actualizada",
+    "avatarRemoved": "Foto de perfil eliminada",
+    "avatarUploadFailed": "Error al subir la foto",
+    "avatarRemoveFailed": "Error al eliminar la foto"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

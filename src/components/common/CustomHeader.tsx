@@ -24,6 +24,7 @@ import type { User } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useTheme } from "@/hooks/useTheme";
 import { authService } from "@/services/auth.service";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 interface CustomHeaderProps {
   title: string;
@@ -74,15 +75,16 @@ const getInitials = (user: User | null): string => {
   return "?";
 };
 
-const UserAvatar = ({ user }: { user: User | null }) => (
-  <Avatar className="w-11 h-11 border border-gray-200 dark:border-gray-900">
-    <AvatarImage
-      src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
-      alt={user?.email || "User"}
-    />
-    <AvatarFallback>{getInitials(user)}</AvatarFallback>
-  </Avatar>
-);
+const UserAvatar = ({ user }: { user: User | null }) => {
+  const { avatarUrl } = useAvatarUrl(user);
+
+  return (
+    <Avatar className="w-11 h-11 border border-gray-200 dark:border-gray-900">
+      <AvatarImage src={avatarUrl || undefined} alt={user?.email || "User"} />
+      <AvatarFallback>{getInitials(user)}</AvatarFallback>
+    </Avatar>
+  );
+};
 
 const CustomHeader = ({
   title,

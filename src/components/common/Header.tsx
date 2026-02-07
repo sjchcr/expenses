@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/hooks/useTheme";
 import { MobileNavigation } from "./MobileNavigation";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 const NAV_ITEMS = [
   { path: "/dashboard", labelKey: "nav.dashboard", icon: Home },
@@ -59,15 +60,16 @@ const getInitials = (user: User | null): string => {
   return "?";
 };
 
-const UserAvatar = ({ user }: { user: User | null }) => (
-  <Avatar className="w-9 h-9">
-    <AvatarImage
-      src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
-      alt={user?.email || "User"}
-    />
-    <AvatarFallback>{getInitials(user)}</AvatarFallback>
-  </Avatar>
-);
+const UserAvatar = ({ user }: { user: User | null }) => {
+  const { avatarUrl } = useAvatarUrl(user);
+
+  return (
+    <Avatar className="w-9 h-9">
+      <AvatarImage src={avatarUrl || undefined} alt={user?.email || "User"} />
+      <AvatarFallback>{getInitials(user)}</AvatarFallback>
+    </Avatar>
+  );
+};
 
 interface NavItemProps {
   path: string;

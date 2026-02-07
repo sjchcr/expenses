@@ -244,7 +244,20 @@
     "language": "Language",
     "languageDesc": "Select your preferred language for the application.",
     "english": "English",
-    "spanish": "Spanish"
+    "spanish": "Spanish",
+    "changeAvatar": "Change photo",
+    "uploadAvatar": "Upload photo",
+    "removeAvatar": "Remove photo",
+    "adjustAvatarTitle": "Adjust your photo",
+    "adjustAvatarDescription": "Drag the image and use the zoom slider so it fits nicely inside the circle.",
+    "dragToReposition": "Drag inside the circle to reposition",
+    "zoom": "Zoom",
+    "applyCrop": "Apply crop",
+    "avatarCropFailed": "Couldn't crop the image. Please try another photo.",
+    "avatarUpdated": "Profile photo updated",
+    "avatarRemoved": "Profile photo removed",
+    "avatarUploadFailed": "Failed to upload photo",
+    "avatarRemoveFailed": "Failed to remove photo"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

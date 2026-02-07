@@ -15,6 +15,8 @@ import i18n, { changeLanguage } from "@/lib/i18n";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useTemplates } from "@/hooks/useTemplates";
 import { authService } from "@/services/auth.service";
+import { AvatarUpload } from "@/components/common/AvatarUpload";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,6 +82,7 @@ export default function Settings() {
   const [exportFormat, setExportFormat] = useState<"csv" | "json">("csv");
 
   // User info
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -100,15 +103,16 @@ export default function Settings() {
   }, [settings]);
 
   // Load user info
-  useEffect(() => {
-    authService.getCurrentUser().then((user) => {
-      if (user) {
-        setUserEmail(user.email || null);
-        const fName = user.user_metadata?.first_name || "";
-        const lName = user.user_metadata?.last_name || "";
+  const loadUser = () => {
+    authService.getCurrentUser().then((u) => {
+      if (u) {
+        setUser(u);
+        setUserEmail(u.email || null);
+        const fName = (u.user_metadata?.first_name as string) || "";
+        const lName = (u.user_metadata?.last_name as string) || "";
         // If no first/last name, try to split full_name
-        if (!fName && !lName && user.user_metadata?.full_name) {
-          const parts = user.user_metadata.full_name.split(" ");
+        if (!fName && !lName && u.user_metadata?.full_name) {
+          const parts = String(u.user_metadata.full_name).split(" ");
           setFirstName(parts[0] || "");
           setLastName(parts.slice(1).join(" ") || "");
           setOriginalFirstName(parts[0] || "");
@@ -121,6 +125,10 @@ export default function Settings() {
         }
       }
     });
+  };
+
+  useEffect(() => {
+    loadUser();
   }, []);
 
   const handleSavePrimaryCurrency = async () => {
@@ -330,6 +338,7 @@ export default function Settings() {
               <CardDescription>{t("settings.accountDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <AvatarUpload user={user} onAvatarChange={() => loadUser()} />
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="firstName">{t("settings.firstName")}</Label>
