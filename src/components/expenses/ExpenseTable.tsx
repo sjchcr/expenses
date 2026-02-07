@@ -297,7 +297,7 @@ export function ExpenseTable({
                           return (
                             <span
                               key={currency}
-                              className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1"
+                              className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1  h-11 sm:h-auto"
                             >
                               <Checkbox
                                 checked={false}
@@ -324,7 +324,7 @@ export function ExpenseTable({
                               );
                             }}
                             className={cn(
-                              "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors  w-full",
+                              "col-span-1 flex justify-start items-center gap-1.5 cursor-pointer rounded px-1 py-0.5 transition-colors w-full h-11 sm:h-auto",
                               amountData.paid
                                 ? "text-green-600"
                                 : "text-accent-foreground",
@@ -413,7 +413,7 @@ export function ExpenseTable({
         onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")}
         className="w-full"
       >
-        <TabsList background={true} className="mx-4 gap-1">
+        <TabsList background={true} className="mx-4 gap-1  h-11">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />
             {t("common.all")}

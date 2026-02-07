@@ -10,17 +10,17 @@ const tabsTriggerVariants = cva(
     variants: {
       variant: {
         default:
-          "h-[calc(100%-1px)] flex-1 border border-transparent text-foreground dark:text-muted-foreground data-[state=active]:border-input data-[state=active]:bg-background data-[state=active]:shadow-sm dark:data-[state=active]:border-input dark:data-[state=active]:text-foreground dark:data-[state=active]:bg-input/30",
+          "h-[calc(100%-1px)] flex-1 border border-transparent text-foreground dark:text-muted-foreground data-[state=active]:border-input data-[state=active]:bg-background dark:data-[state=active]:border-input dark:data-[state=active]:text-foreground dark:data-[state=active]:bg-input/30",
         outline:
-          "h-[calc(100%-1px)] flex-1 border border-transparent text-foreground data-[state=active]:bg-background data-[state=active]:border-input data-[state=active]:shadow-sm",
+          "h-[calc(100%-1px)] flex-1 border border-transparent hover:bg-background/75 dark:hover:bg-background/30 text-foreground data-[state=active]:bg-background dark:data-[state=active]:bg-background/30 data-[state=active]:border-input dark:data-[state=active]:border-background/50",
         ghost:
           "hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-accent data-[state=active]:text-accent-foreground",
         success:
-          "h-[calc(100%-1px)] flex-1 border border-transparent hover:bg-green-600/10 hover:text-green-600 data-[state=active]:bg-green-600/20 data-[state=active]:border-green-600/30 data-[state=active]:text-green-700 data-[state=active]:shadow-sm data-[state=active]:shadow-green-700/20",
+          "h-[calc(100%-1px)] flex-1 border border-transparent hover:bg-green-600/10 hover:text-green-600 data-[state=active]:bg-green-600/10 data-[state=active]:border-green-600/30 data-[state=active]:text-green-700",
         warning:
-          "h-[calc(100%-1px)] flex-1 border border-transparent hover:bg-amber-500/10 hover:text-amber-500 data-[state=active]:bg-amber-500/20 data-[state=active]:border-amber-500/30 data-[state=active]:text-amber-700 data-[state=active]:shadow-sm data-[state=active]:shadow-amber-700/20",
+          "h-[calc(100%-1px)] flex-1 border border-transparent hover:bg-amber-500/10 hover:text-amber-500 data-[state=active]:bg-amber-500/10 data-[state=active]:border-amber-500/30 data-[state=active]:text-amber-500",
         destructive:
-          "h-[calc(100%-1px)] flex-1 hover:bg-red-600/10 hover:text-red-600 data-[state=active]:bg-red-600/20 data-[state=active]:text-red-700 data-[state=active]:border-red-600/30 data-[state=active]:shadow-sm data-[state=active]:shadow-red-700/20",
+          "h-[calc(100%-1px)] flex-1 hover:bg-red-600/10 hover:text-red-600 data-[state=active]:bg-red-600/20 data-[state=active]:text-red-700 data-[state=active]:border-red-600/30",
       },
     },
     defaultVariants: {

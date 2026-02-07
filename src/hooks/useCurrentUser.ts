@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { authService } from "@/services/auth.service";
+import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
 export function useCurrentUser() {
@@ -20,6 +21,15 @@ export function useCurrentUser() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const displayName =
     user?.user_metadata?.first_name ||

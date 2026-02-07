@@ -63,7 +63,7 @@ export function PendingPaymentsCard({
         </div>
         {pendingPayments.length > 0 && (
           <CardAction>
-            <Button variant="default" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/expenses?filter=pending">
                 {t("dashboard.viewAll")}
                 <ArrowRight className="h-3 w-3" />
@@ -84,7 +84,9 @@ export function PendingPaymentsCard({
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{currency}</Badge>
                   <span className="text-muted-foreground text-sm">
-                    {count === 1 ? t("dashboard.expenseSingular", { count }) : t("dashboard.expensePlural", { count })}
+                    {count === 1
+                      ? t("dashboard.expenseSingular", { count })
+                      : t("dashboard.expensePlural", { count })}
                   </span>
                 </div>
                 <span className="font-semibold text-amber-600">

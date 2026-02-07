@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LogOut,
@@ -25,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useTheme } from "@/hooks/useTheme";
 import { authService } from "@/services/auth.service";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface CustomHeaderProps {
   title: string;
@@ -92,13 +92,9 @@ const CustomHeader = ({
   hasAvatar,
   actions,
 }: CustomHeaderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    authService.getCurrentUser().then(setUser);
-  }, []);
 
   const handleSignOut = async () => {
     await authService.signOut();

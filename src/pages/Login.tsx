@@ -82,7 +82,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background to-indigo-100 dark:to-accent px-4">
-      <Card className="w-full max-w-md p-6">
+      <Card className="w-full max-w-md py-4">
         <CardHeader>
           <img
             src={

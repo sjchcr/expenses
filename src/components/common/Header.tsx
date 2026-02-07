@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services/auth.service";
@@ -28,6 +27,7 @@ import { useMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/hooks/useTheme";
 import { MobileNavigation } from "./MobileNavigation";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const NAV_ITEMS = [
   { path: "/dashboard", labelKey: "nav.dashboard", icon: Home },
@@ -141,17 +141,13 @@ const ThemeToggle = () => {
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useCurrentUser();
   const isMobile = useMobile();
   const { resolvedTheme } = useTheme();
   const { t } = useTranslation();
   const siteTitle = t("siteTitle", {
     defaultValue: import.meta.env.VITE_SITE_TITLE,
   });
-
-  useEffect(() => {
-    authService.getCurrentUser().then(setUser);
-  }, []);
 
   const handleSignOut = async () => {
     await authService.signOut();

@@ -150,8 +150,16 @@ export default function Templates() {
     null,
   );
 
-  const { data: templates, isLoading, refetch: refetchTemplates } = useTemplates();
-  const { data: groups, isLoading: isLoadingGroups, refetch: refetchGroups } = useTemplateGroups();
+  const {
+    data: templates,
+    isLoading,
+    refetch: refetchTemplates,
+  } = useTemplates();
+  const {
+    data: groups,
+    isLoading: isLoadingGroups,
+    refetch: refetchGroups,
+  } = useTemplateGroups();
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const deleteMutation = useDeleteTemplate();
@@ -389,279 +397,26 @@ export default function Templates() {
 
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
-        {/* Header */}
-        <div className="flex justify-between items-center gap-2">
-          <div className="flex flex-col justify-start items-start gap-1">
-            {!isMobile && (
-              <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
-                {t("templates.title")}
-              </h2>
-            )}
-            <div className="text-sm text-gray-600">
-              {t("templates.description")}
-            </div>
+      {/* Header */}
+      <div className="flex justify-between items-center gap-2">
+        <div className="flex flex-col justify-start items-start gap-1">
+          {!isMobile && (
+            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
+              {t("templates.title")}
+            </h2>
+          )}
+          <div className="text-sm text-gray-600">
+            {t("templates.description")}
           </div>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Templates Section - Left side */}
-          <div className="xl:col-span-2 space-y-6">
-            {isLoading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-5 w-40" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-32 w-full" />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-5 w-40" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-32 w-full" />
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recurring Templates */}
-                {recurringTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CalendarDays className="h-4 w-4" />
-                        {t("templates.recurringBills")}
-                      </CardTitle>
-                      <CardDescription>
-                        {t("templates.recurringBillsDesc")}
-                      </CardDescription>
-                      {!isMobile && (
-                        <CardAction>
-                          <Button
-                            size="icon"
-                            onClick={() => handleOpenDialog()}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </CardAction>
-                      )}
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="pl-4">
-                              {t("templates.templateName")}
-                            </TableHead>
-                            <TableHead>
-                              {t("templates.currenciesAmounts")}
-                            </TableHead>
-                            <TableHead>{t("common.day")}</TableHead>
-                            <TableHead className="w-24 pr-4">
-                              {t("common.actions")}
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {recurringTemplates.map((template) => (
-                            <TableRow
-                              key={template.id}
-                              className="hover:bg-primary/5"
-                            >
-                              <TableCell className="font-medium pl-4">
-                                <p className="font-bold">{template.name}</p>
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                {formatAmountsDisplay(template.amounts)}
-                              </TableCell>
-                              <TableCell>
-                                {template.recurrence_day
-                                  ? `Day ${template.recurrence_day}`
-                                  : "-"}
-                              </TableCell>
-                              <TableCell className="pr-4">
-                                <div className="flex gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 w-7"
-                                    onClick={() => handleOpenDialog(template)}
-                                  >
-                                    <Pencil className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    variant="ghostDestructive"
-                                    size="sm"
-                                    className="h-7 w-7"
-                                    onClick={() => handleDelete(template)}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                        <TableFooter>
-                          <TableRow>
-                            <TableCell colSpan={4} className="px-4 pt-2 pb-0">
-                              <p className="text-xs text-gray-500">
-                                {t("templates.totalTemplates")}:{" "}
-                                {recurringTemplates.length}
-                              </p>
-                            </TableCell>
-                          </TableRow>
-                        </TableFooter>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
-                    <CardContent className="px-2">
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <CircleOff />
-                          </EmptyMedia>
-                          <EmptyTitle>
-                            {t("templates.noRecurringTemplates")}
-                          </EmptyTitle>
-                          <EmptyDescription>
-                            {t("templates.noRecurringTemplatesDesc")}
-                          </EmptyDescription>
-                        </EmptyHeader>
-                        <EmptyContent className="flex-row justify-center gap-2">
-                          <Button size="sm" onClick={() => handleOpenDialog()}>
-                            <Plus className="h-4 w-4" />
-                            {t("templates.createRecurringTemplate")}
-                          </Button>
-                        </EmptyContent>
-                      </Empty>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Regular Templates */}
-                {regularTemplates.length > 0 ? (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        {t("templates.quickTemplates")}
-                      </CardTitle>
-                      <CardDescription>
-                        {t("templates.quickTemplatesDesc")}
-                      </CardDescription>
-                      {!isMobile && (
-                        <CardAction>
-                          <Button
-                            size="icon"
-                            onClick={() => handleOpenDialog()}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </CardAction>
-                      )}
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="pl-4">
-                              {t("templates.templateName")}
-                            </TableHead>
-                            <TableHead>
-                              {t("templates.currenciesAmounts")}
-                            </TableHead>
-                            <TableHead className="w-24 pr-4">
-                              {t("common.actions")}
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {regularTemplates.map((template) => (
-                            <TableRow
-                              key={template.id}
-                              className="hover:bg-primary/5"
-                            >
-                              <TableCell className="font-medium pl-4">
-                                {template.name}
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                {formatAmountsDisplay(template.amounts)}
-                              </TableCell>
-                              <TableCell className="pr-4">
-                                <div className="flex gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 w-7"
-                                    onClick={() => handleOpenDialog(template)}
-                                  >
-                                    <Pencil className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    variant="ghostDestructive"
-                                    size="sm"
-                                    className="h-7 w-7"
-                                    onClick={() => handleDelete(template)}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                        <TableFooter>
-                          <TableRow>
-                            <TableCell colSpan={4} className="px-4 pt-2 pb-0">
-                              <p className="text-xs text-gray-500">
-                                {t("templates.totalTemplates")}:{" "}
-                                {regularTemplates.length}
-                              </p>
-                            </TableCell>
-                          </TableRow>
-                        </TableFooter>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
-                    <CardContent className="px-2">
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <CircleOff />
-                          </EmptyMedia>
-                          <EmptyTitle>
-                            {t("templates.noQuickTemplates")}
-                          </EmptyTitle>
-                          <EmptyDescription>
-                            {t("templates.noQuickTemplatesDesc")}
-                          </EmptyDescription>
-                        </EmptyHeader>
-                        <EmptyContent className="flex-row justify-center gap-2">
-                          <Button size="sm" onClick={() => handleOpenDialog()}>
-                            <Plus className="h-4 w-4" />
-                            {t("templates.createQuickTemplate")}
-                          </Button>
-                        </EmptyContent>
-                      </Empty>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Groups Section - Right side */}
-          <div className="xl:col-span-1">
-            {isLoadingGroups ? (
+      {/* Content */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Templates Section - Left side */}
+        <div className="xl:col-span-2 space-y-6">
+          {isLoading ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
                   <Skeleton className="h-5 w-40" />
@@ -670,103 +425,340 @@ export default function Templates() {
                   <Skeleton className="h-32 w-full" />
                 </CardContent>
               </Card>
-            ) : groups && groups.length > 0 ? (
-              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Layers className="h-4 w-4" />
-                    {t("groups.title")}
-                  </CardTitle>
-                  <CardDescription>{t("groups.description")}</CardDescription>
-                  {!isMobile && (
-                    <CardAction>
-                      <Button
-                        size="icon"
-                        onClick={() => handleOpenGroupDialog()}
-                        disabled={!templates || templates.length === 0}
-                      >
-                        <FolderPlus className="h-4 w-4" />
-                      </Button>
-                    </CardAction>
-                  )}
+                  <Skeleton className="h-5 w-40" />
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col gap-2">
-                    {groups.map((group) => (
-                      <div
-                        key={group.id}
-                        className="border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm truncate">
-                              {group.name}
-                            </h4>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                              {getGroupTemplateNames(group.template_ids) ||
-                                "No templates"}
+                  <Skeleton className="h-32 w-full" />
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recurring Templates */}
+              {recurringTemplates.length > 0 ? (
+                <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4" />
+                      {t("templates.recurringBills")}
+                    </CardTitle>
+                    <CardDescription>
+                      {t("templates.recurringBillsDesc")}
+                    </CardDescription>
+                    {!isMobile && (
+                      <CardAction>
+                        <Button size="icon" onClick={() => handleOpenDialog()}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </CardAction>
+                    )}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="pl-4">
+                            {t("templates.templateName")}
+                          </TableHead>
+                          <TableHead>
+                            {t("templates.currenciesAmounts")}
+                          </TableHead>
+                          <TableHead>{t("common.day")}</TableHead>
+                          <TableHead className="w-24 pr-4">
+                            {t("common.actions")}
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {recurringTemplates.map((template) => (
+                          <TableRow
+                            key={template.id}
+                            className="hover:bg-primary/5"
+                          >
+                            <TableCell className="font-medium pl-4">
+                              <p className="font-bold">{template.name}</p>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {formatAmountsDisplay(template.amounts)}
+                            </TableCell>
+                            <TableCell>
+                              {template.recurrence_day
+                                ? `Day ${template.recurrence_day}`
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="pr-4">
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleOpenDialog(template)}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghostDestructive"
+                                  size="icon"
+                                  onClick={() => handleDelete(template)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TableCell colSpan={4} className="px-4 pt-2 pb-0">
+                            <p className="text-xs text-gray-500">
+                              {t("templates.totalTemplates")}:{" "}
+                              {recurringTemplates.length}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {group.template_ids.length} template
-                              {group.template_ids.length !== 1 ? "s" : ""}
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
+                  <CardContent className="px-2">
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <CircleOff />
+                        </EmptyMedia>
+                        <EmptyTitle>
+                          {t("templates.noRecurringTemplates")}
+                        </EmptyTitle>
+                        <EmptyDescription>
+                          {t("templates.noRecurringTemplatesDesc")}
+                        </EmptyDescription>
+                      </EmptyHeader>
+                      <EmptyContent className="flex-row justify-center gap-2">
+                        <Button size="sm" onClick={() => handleOpenDialog()}>
+                          <Plus className="h-4 w-4" />
+                          {t("templates.createRecurringTemplate")}
+                        </Button>
+                      </EmptyContent>
+                    </Empty>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Regular Templates */}
+              {regularTemplates.length > 0 ? (
+                <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      {t("templates.quickTemplates")}
+                    </CardTitle>
+                    <CardDescription>
+                      {t("templates.quickTemplatesDesc")}
+                    </CardDescription>
+                    {!isMobile && (
+                      <CardAction>
+                        <Button size="icon" onClick={() => handleOpenDialog()}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </CardAction>
+                    )}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="pl-4">
+                            {t("templates.templateName")}
+                          </TableHead>
+                          <TableHead>
+                            {t("templates.currenciesAmounts")}
+                          </TableHead>
+                          <TableHead className="w-24 pr-4">
+                            {t("common.actions")}
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {regularTemplates.map((template) => (
+                          <TableRow
+                            key={template.id}
+                            className="hover:bg-primary/5"
+                          >
+                            <TableCell className="font-medium pl-4">
+                              {template.name}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {formatAmountsDisplay(template.amounts)}
+                            </TableCell>
+                            <TableCell className="pr-4">
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleOpenDialog(template)}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghostDestructive"
+                                  size="icon"
+                                  onClick={() => handleDelete(template)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TableCell colSpan={4} className="px-4 pt-2 pb-0">
+                            <p className="text-xs text-gray-500">
+                              {t("templates.totalTemplates")}:{" "}
+                              {regularTemplates.length}
                             </p>
-                          </div>
-                          <div className="flex gap-1 ml-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0"
-                              onClick={() => handleOpenGroupDialog(group)}
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghostDestructive"
-                              size="sm"
-                              className="h-7 w-7 p-0"
-                              onClick={() => handleDeleteGroup(group)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden py-2 items-center justify-center">
+                  <CardContent className="px-2">
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <CircleOff />
+                        </EmptyMedia>
+                        <EmptyTitle>
+                          {t("templates.noQuickTemplates")}
+                        </EmptyTitle>
+                        <EmptyDescription>
+                          {t("templates.noQuickTemplatesDesc")}
+                        </EmptyDescription>
+                      </EmptyHeader>
+                      <EmptyContent className="flex-row justify-center gap-2">
+                        <Button onClick={() => handleOpenDialog()}>
+                          <Plus className="h-4 w-4" />
+                          {t("templates.createQuickTemplate")}
+                        </Button>
+                      </EmptyContent>
+                    </Empty>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Groups Section - Right side */}
+        <div className="xl:col-span-1">
+          {isLoadingGroups ? (
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-5 w-40" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-32 w-full" />
+              </CardContent>
+            </Card>
+          ) : groups && groups.length > 0 ? (
+            <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  {t("groups.title")}
+                </CardTitle>
+                <CardDescription>{t("groups.description")}</CardDescription>
+                {!isMobile && (
+                  <CardAction>
+                    <Button
+                      size="icon"
+                      onClick={() => handleOpenGroupDialog()}
+                      disabled={!templates || templates.length === 0}
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                    </Button>
+                  </CardAction>
+                )}
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2">
+                  {groups.map((group) => (
+                    <div
+                      key={group.id}
+                      className="border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">
+                            {group.name}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                            {getGroupTemplateNames(group.template_ids) ||
+                              "No templates"}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {group.template_ids.length} template
+                            {group.template_ids.length !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenGroupDialog(group)}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghostDestructive"
+                            onClick={() => handleDeleteGroup(group)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
-                <CardContent className="px-2">
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <CircleOff />
-                      </EmptyMedia>
-                      <EmptyTitle>{t("groups.noGroups")}</EmptyTitle>
-                      <EmptyDescription>
-                        {templates && templates.length > 0
-                          ? t("groups.noGroupsDesc")
-                          : t("groups.noTemplatesForGroups")}
-                      </EmptyDescription>
-                    </EmptyHeader>
-                    <EmptyContent className="flex-row justify-center gap-2">
-                      {templates && templates.length > 0 && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleOpenGroupDialog()}
-                        >
-                          <FolderPlus className="h-4 w-4" />
-                          {t("groups.newGroup")}
-                        </Button>
-                      )}
-                    </EmptyContent>
-                  </Empty>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-linear-to-b from-background to-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden gap-2">
+              <CardContent className="px-2">
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <CircleOff />
+                    </EmptyMedia>
+                    <EmptyTitle>{t("groups.noGroups")}</EmptyTitle>
+                    <EmptyDescription>
+                      {templates && templates.length > 0
+                        ? t("groups.noGroupsDesc")
+                        : t("groups.noTemplatesForGroups")}
+                    </EmptyDescription>
+                  </EmptyHeader>
+                  <EmptyContent className="flex-row justify-center gap-2">
+                    {templates && templates.length > 0 && (
+                      <Button onClick={() => handleOpenGroupDialog()}>
+                        <FolderPlus className="h-4 w-4" />
+                        {t("groups.newGroup")}
+                      </Button>
+                    )}
+                  </EmptyContent>
+                </Empty>
+              </CardContent>
+            </Card>
+          )}
         </div>
+      </div>
     </div>
   );
 
