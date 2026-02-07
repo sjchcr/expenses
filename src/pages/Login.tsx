@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTheme } from "@/hooks/useTheme";
 
 const isDev = import.meta.env.DEV;
 
 export default function Login() {
   const { t } = useTranslation();
+  const { resolvedTheme } = useTheme();
   const siteTitle = t("siteTitle", {
     defaultValue: import.meta.env.VITE_SITE_TITLE,
   });
@@ -82,6 +84,15 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background to-indigo-100 dark:to-accent px-4">
       <Card className="w-full max-w-md p-6">
         <CardHeader>
+          <img
+            src={
+              resolvedTheme === "dark"
+                ? "/icon-1024x1024-dark.png"
+                : "/icon-1024x1024.png"
+            }
+            alt={siteTitle}
+            className="h-20 w-20"
+          />
           <CardTitle className="text-2xl">{siteTitle}</CardTitle>
           <CardDescription>{t("auth.manageFinances")}</CardDescription>
         </CardHeader>
@@ -97,7 +108,7 @@ export default function Login() {
               size="lg"
               onClick={handleAppleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 hover:text-white transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-950 hover:text-white transition-colors disabled:opacity-50"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -109,7 +120,7 @@ export default function Login() {
               size="lg"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 hover:text-gray-900 hover:bg-gray-200 transition-colors disabled:opacity-50"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

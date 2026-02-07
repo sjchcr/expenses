@@ -53,22 +53,41 @@ export const settingsService = {
         { period: 2, start_day: 16, end_day: 31 },
       ];
 
+      const defaultRecord = {
+        user_id: user.id,
+        primary_currency: "USD",
+        payment_periods: defaultPeriods as any,
+        language: "en",
+      };
+
       const { data, error } = await supabase
         .from("user_settings")
-        .insert({
-          user_id: user.id,
-          primary_currency: "USD",
-          payment_periods: defaultPeriods as any,
-          language: "en",
+        .upsert(defaultRecord, {
+          onConflict: "user_id",
+          ignoreDuplicates: true,
         })
         .select()
+        .maybeSingle();
+
+      if (error && error.code !== "23505") {
+        throw error;
+      }
+
+      if (data) {
+        return data as unknown as UserSettings;
+      }
+
+      const { data: existingAfterUpsert, error: fetchError } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
-      return data as unknown as UserSettings;
+      if (fetchError) throw fetchError;
+      return existingAfterUpsert as unknown as UserSettings;
     }
 
-    return existing;
+    return existing as unknown as UserSettings;
   },
 
   async updateSettings(

@@ -65,7 +65,7 @@
     "email": "Email",
     "password": "Password",
     "devLogin": "Dev Login",
-    "manageFinances": "Manage your finances with ease"
+    "manageFinances": "Manage your finances with ease. Free, secure, and designed for everyone."
   },
   "dashboard": {
     "welcomeBack": "Welcome back",
@@ -221,10 +221,12 @@
     "savePeriods": "Save periods",
     "periodsCannotOverlap": "Payment periods cannot overlap",
     "startBeforeEnd": "Period {{period}}: Start day must be before end day",
+    "startDay": "Start day",
+    "endDay": "End day",
     "account": "Account",
     "accountDesc": "Your account information and profile settings.",
-    "firstName": "First Name",
-    "lastName": "Last Name",
+    "firstName": "First name",
+    "lastName": "Last name",
     "saveProfile": "Save profile",
     "profileUpdated": "Profile updated successfully",
     "exportData": "Export data",
@@ -258,6 +260,51 @@
     "avatarRemoved": "Profile photo removed",
     "avatarUploadFailed": "Failed to upload photo",
     "avatarRemoveFailed": "Failed to remove photo"
+  },
+  "onboarding": {
+    "title": "Let's personalize your account",
+    "subtitle": "Share a few details so we can finish setting everything up.",
+    "steps": {
+      "profile": {
+        "title": "Your details",
+        "description": "Add your first and last name so we know how to address you.",
+        "hint": "You can update this later in Settings."
+      },
+      "avatar": {
+        "title": "Profile photo",
+        "description": "Upload a picture so people recognize your account.",
+        "hint": "Square images with good lighting look best."
+      },
+      "language": {
+        "title": "Language preference",
+        "description": "Pick the language you want to use across the app.",
+        "hint": "You can change this at any time from Settings."
+      },
+      "finance": {
+        "title": "Currency & payment periods",
+        "description": "Set your default currency and how you break down each month.",
+        "hint": "Customize this now so reports match the way you get paid."
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish setup"
+    },
+    "errors": {
+      "names": "Enter both your first and last name to continue.",
+      "avatar": "Please upload a profile photo before continuing.",
+      "language": "Select your preferred language to continue.",
+      "currency": "Select your primary currency to continue.",
+      "periods": "Review your payment periods before continuing.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "success": "You're all set! Welcome aboard."
+  },
+  "onboardingModal": {
+    "title": "We're thrilled you joined the app!",
+    "description": "Let's start by setting up your profile. Head over to Settings to add your name, photo, preferred language, and payment periods.",
+    "cta": "Go to Settings"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

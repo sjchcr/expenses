@@ -65,7 +65,7 @@
     "email": "Correo electrónico",
     "password": "Contraseña",
     "devLogin": "Login de desarrollo",
-    "manageFinances": "Administra tus finanzas con facilidad"
+    "manageFinances": "Administra tus finanzas con facilidad. Gratis, seguro y diseñado para todos."
   },
   "dashboard": {
     "welcomeBack": "Hola de nuevo",
@@ -221,6 +221,8 @@
     "savePeriods": "Guardar periodos",
     "periodsCannotOverlap": "Los periodos de pago no pueden superponerse",
     "startBeforeEnd": "Periodo {{period}}: El día de inicio debe ser antes del día final",
+    "startDay": "Día de inicio",
+    "endDay": "Día final",
     "account": "Cuenta",
     "accountDesc": "Tu información de cuenta y ajustes de perfil.",
     "firstName": "Nombre",
@@ -258,6 +260,51 @@
     "avatarRemoved": "Foto de perfil eliminada",
     "avatarUploadFailed": "Error al subir la foto",
     "avatarRemoveFailed": "Error al eliminar la foto"
+  },
+  "onboarding": {
+    "title": "Personalicemos tu cuenta",
+    "subtitle": "Comparte algunos detalles para terminar la configuración.",
+    "steps": {
+      "profile": {
+        "title": "Tus datos",
+        "description": "Ingresa tu nombre y apellido para saber cómo dirigirnos a ti.",
+        "hint": "Puedes actualizar esta información luego en Ajustes."
+      },
+      "avatar": {
+        "title": "Foto de perfil",
+        "description": "Sube una imagen para que tu cuenta sea reconocible.",
+        "hint": "Las imágenes cuadradas y bien iluminadas se ven mejor."
+      },
+      "language": {
+        "title": "Idioma preferido",
+        "description": "Elige el idioma que quieres usar en la aplicación.",
+        "hint": "Puedes cambiarlo cuando quieras desde Ajustes."
+      },
+      "finance": {
+        "title": "Moneda y periodos de pago",
+        "description": "Define tu moneda principal y cómo divides el mes.",
+        "hint": "Personalízalo ahora para que los reportes coincidan con tu forma de pago."
+      }
+    },
+    "actions": {
+      "back": "Atrás",
+      "next": "Siguiente",
+      "finish": "Finalizar configuración"
+    },
+    "errors": {
+      "names": "Ingresa tu nombre y apellido para continuar.",
+      "avatar": "Sube una foto de perfil antes de continuar.",
+      "language": "Selecciona tu idioma preferido para continuar.",
+      "currency": "Selecciona tu moneda principal para continuar.",
+      "periods": "Revisa tus periodos de pago antes de continuar.",
+      "generic": "Algo salió mal. Intenta nuevamente."
+    },
+    "success": "¡Todo listo! Bienvenido."
+  },
+  "onboardingModal": {
+    "title": "¡Nos alegra que te unas a la app!",
+    "description": "Comencemos configurando tu perfil. Ve a Ajustes para agregar tu nombre, foto, idioma preferido y periodos de pago.",
+    "cta": "Ir a Ajustes"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

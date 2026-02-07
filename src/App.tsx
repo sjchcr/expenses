@@ -1,5 +1,11 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { supabase } from "@/lib/supabase";
@@ -7,6 +13,18 @@ import { authService } from "@/services/auth.service";
 import { settingsService } from "@/services/settings.service";
 import Layout from "@/components/layout/Layout";
 import { Spinner } from "@/components/ui/spinner";
+import { avatarService } from "@/services/avatar.service";
+import { useTheme } from "@/hooks/useTheme";
+import { useTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 // Lazy load pages for code splitting
 const Login = lazy(() => import("@/pages/Login"));
@@ -31,13 +49,12 @@ const queryClient = new QueryClient({
 function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showOnboardingReminder, setShowOnboardingReminder] = useState(false);
 
   useEffect(() => {
-    // First, let Supabase process any OAuth callback tokens from the URL
-    // This is important for web OAuth redirects (Apple/Google sign-in)
+    // Process OAuth callbacks and fetch session
     const initAuth = async () => {
       try {
-        // getSession() will automatically process OAuth callback tokens in the URL
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -45,7 +62,6 @@ function App() {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
 
-        // Initialize settings for new users
         if (currentUser) {
           try {
             await settingsService.initializeSettings();
@@ -60,27 +76,40 @@ function App() {
 
     initAuth();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = authService.onAuthStateChange(async (newUser) => {
       setUser(newUser);
 
       if (newUser) {
-        // Initialize settings when user signs in
         try {
           await settingsService.initializeSettings();
         } catch (error) {
           console.error("Failed to initialize settings:", error);
         }
       } else {
-        // Clear React Query cache when user signs out
         queryClient.clear();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const needsOnboarding = useMemo(() => {
+    if (!user) return false;
+    const metadata = user.user_metadata || {};
+    if (metadata.onboarding_completed) return false;
+    const hasNames = Boolean(metadata.first_name && metadata.last_name);
+    const hasAvatar = Boolean(
+      avatarService.getCustomAvatarPath(user) ||
+        avatarService.getAvatarUrl(user),
+    );
+    return !(hasNames && hasAvatar);
+  }, [user]);
+
+  useEffect(() => {
+    setShowOnboardingReminder(Boolean(user && needsOnboarding));
+  }, [needsOnboarding, user]);
 
   if (loading) {
     return (
@@ -101,30 +130,80 @@ function App() {
           }
         >
           <Routes>
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/expenses" /> : <Login />}
-          />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/login" element={user ? <Navigate to="/expenses" /> : <Login />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
 
-          {/* Protected routes with layout */}
-          <Route element={user ? <Layout /> : <Navigate to="/login" />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/aguinaldo" element={<Aguinaldo />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
+            {/* Protected routes with layout */}
+            <Route element={user ? <Layout /> : <Navigate to="/login" /> }>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/aguinaldo" element={<Aguinaldo />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
 
-          <Route
-            path="/"
-            element={<Navigate to={user ? "/expenses" : "/login"} />}
-          />
+            <Route path="/" element={<Navigate to={user ? "/expenses" : "/login"} />} />
           </Routes>
+          <OnboardingReminderModal
+            open={showOnboardingReminder}
+            onClose={() => setShowOnboardingReminder(false)}
+          />
         </Suspense>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
+  );
+}
+
+function OnboardingReminderModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
+  const { t } = useTranslation();
+  const siteTitle = t("siteTitle", {
+    defaultValue: import.meta.env.VITE_SITE_TITLE,
+  });
+
+  const handleNavigate = () => {
+    onClose();
+    navigate("/settings");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader className="space-y-4">
+          <div className="flex items-center gap-3">
+            <img
+              src={
+                resolvedTheme === "dark"
+                  ? "/icon-1024x1024-dark.png"
+                  : "/icon-1024x1024.png"
+              }
+              alt={siteTitle}
+              className="h-12 w-12"
+            />
+            <DialogTitle className="text-2xl">
+              {t("onboardingModal.title")}
+            </DialogTitle>
+          </div>
+          <DialogDescription className="text-base">
+            {t("onboardingModal.description")}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={onClose}>
+            {t("common.close")}
+          </Button>
+          <Button onClick={handleNavigate}>{t("onboardingModal.cta")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

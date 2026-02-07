@@ -175,14 +175,22 @@ export const authService = {
     return user;
   },
 
-  async updateProfile(data: { firstName?: string; lastName?: string }) {
-    const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
+  async updateProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    metadata?: Record<string, unknown>;
+  }) {
+    const firstName = data.firstName?.trim();
+    const lastName = data.lastName?.trim();
+    const fullName = [firstName, lastName].filter(Boolean).join(" ");
+    const metadata = {
+      ...(data.metadata || {}),
+      first_name: firstName,
+      last_name: lastName,
+      full_name: fullName,
+    };
     const { data: userData, error } = await supabase.auth.updateUser({
-      data: {
-        first_name: data.firstName,
-        last_name: data.lastName,
-        full_name: fullName,
-      },
+      data: metadata,
     });
     if (error) throw error;
     return userData.user;

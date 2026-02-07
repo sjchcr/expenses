@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { authService } from "@/services/auth.service";
 import type { User } from "@supabase/supabase-js";
 
@@ -6,13 +6,20 @@ export function useCurrentUser() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    authService.getCurrentUser().then((u) => {
-      setUser(u);
-      console.log("Current user:", u);
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      return currentUser;
+    } finally {
       setIsLoading(false);
-    });
+    }
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const displayName =
     user?.user_metadata?.first_name ||
@@ -27,5 +34,6 @@ export function useCurrentUser() {
     displayName,
     email: user?.email || null,
     isLoading,
+    refresh,
   };
 }
