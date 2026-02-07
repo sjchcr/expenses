@@ -25,7 +25,7 @@ export default function Layout() {
         richColors
         theme={resolvedTheme as "light" | "dark"}
         position="bottom-center"
-        mobileOffset={96}
+        mobileOffset={{ bottom: "96px" }}
         toastOptions={{
           classNames: {
             toast:
