@@ -120,8 +120,17 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-user-select: none;
+    user-select: none;
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-touch-callout: none;
+  }
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
