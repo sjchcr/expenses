@@ -4,6 +4,8 @@ import { format, parseISO } from "date-fns";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -13,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -29,6 +32,7 @@ import { ChevronDownIcon, Plus, Trash2, FileText } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTemplates } from "@/hooks/useTemplates";
+import { ButtonGroup } from "../ui/button-group";
 
 interface AddExpenseDialogProps {
   open: boolean;
@@ -79,7 +83,9 @@ export function AddExpenseDialog({
     createEmptyAmount(),
   ]);
   const [openStartDate, setOpenStartDate] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState<Date>(() => parseISO(getDefaultDate()));
+  const [calendarMonth, setCalendarMonth] = useState<Date>(() =>
+    parseISO(getDefaultDate()),
+  );
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -245,14 +251,22 @@ export function AddExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-md gap-0">
+        <DialogHeader className="pb-4 border-b">
           <DialogTitle>
             {expense ? t("expenses.editExpense") : t("expenses.addNewExpense")}
           </DialogTitle>
+          <DialogDescription>
+            {expense
+              ? t("expenses.editExpenseDescription")
+              : t("expenses.addExpenseDescription")}
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4"
+        >
           {!expense && templates && templates.length > 0 && (
             <div className="pb-2 border-b">
               <Label htmlFor="template" className="flex items-center gap-1.5">
@@ -267,7 +281,9 @@ export function AddExpenseDialog({
                   <SelectValue placeholder={t("expenses.selectTemplate")} />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="none">{t("expenses.noTemplate")}</SelectItem>
+                  <SelectItem value="none">
+                    {t("expenses.noTemplate")}
+                  </SelectItem>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name} (
@@ -347,8 +363,27 @@ export function AddExpenseDialog({
                   key={index}
                   className="space-y-2 pb-3 border-b border-dashed last:border-0 last:pb-0"
                 >
-                  <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
-                    <div>
+                  <div className="flex items-center w-full gap-2">
+                    <ButtonGroup className="w-full">
+                      <Select
+                        value={amountData.currency}
+                        onValueChange={(value) =>
+                          handleAmountChange(index, "currency", value)
+                        }
+                      >
+                        <SelectTrigger className="font-mono">
+                          <SelectValue placeholder="Currency" />
+                        </SelectTrigger>
+                        <SelectContent className="min-w-24">
+                          <SelectGroup>
+                            {COMMON_CURRENCIES.map((curr) => (
+                              <SelectItem key={curr} value={curr}>
+                                {curr}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                       <Input
                         type="number"
                         step="0.01"
@@ -360,37 +395,20 @@ export function AddExpenseDialog({
                         placeholder="0.00"
                         required={index === 0}
                       />
-                    </div>
-                    <Select
-                      value={amountData.currency}
-                      onValueChange={(value) =>
-                        handleAmountChange(index, "currency", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Currency" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {COMMON_CURRENCIES.map((curr) => (
-                          <SelectItem key={curr} value={curr}>
-                            {curr}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    </ButtonGroup>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveAmount(index)}
                       disabled={amounts.length === 1}
-                      className="h-9 w-9 p-0"
+                      className="aspect-square"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 pl-3">
                       <Checkbox
                         id={`paid-${index}`}
                         checked={amountData.paid}
@@ -405,7 +423,7 @@ export function AddExpenseDialog({
                       />
                       <Label
                         htmlFor={`paid-${index}`}
-                        className="text-sm text-muted-foreground"
+                        className="text-sm text-muted-foreground pl-0"
                       >
                         {t("common.paid")}
                       </Label>
@@ -426,7 +444,7 @@ export function AddExpenseDialog({
                       className="text-sm w-full"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground px-3">
                     {t("expenses.exchangeRateHint")}
                   </p>
                 </div>
@@ -435,12 +453,12 @@ export function AddExpenseDialog({
           </div>
 
           <div>
-            <label
+            <Label
               htmlFor="due_date"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               {t("expenses.dueDate")}
-            </label>
+            </Label>
             <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
               <PopoverTrigger asChild>
                 <Button
@@ -471,21 +489,24 @@ export function AddExpenseDialog({
               </PopoverContent>
             </Popover>
           </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? t("common.saving") : expense ? t("common.update") : t("common.add")}
-            </Button>
-          </div>
         </form>
+        <DialogFooter className="border-t pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading
+              ? t("common.saving")
+              : expense
+              ? t("common.update")
+              : t("common.add")}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

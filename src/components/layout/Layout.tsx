@@ -8,12 +8,12 @@ export default function Layout() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       {/* Navigation */}
       <Header />
 
       {/* Page Content */}
-      <main className="min-h-[calc(100vh-133px)] pb-24 md:pb-0">
+      <main className="min-h-[calc(100dvh-133px)] pb-24 md:pb-0">
         <Outlet />
       </main>
 

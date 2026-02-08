@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useCreateTemplate } from "@/hooks/useTemplates";
+import { useCreateTemplate, useUpdateTemplate } from "@/hooks/useTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,14 +17,14 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { TemplateAmount } from "@/types";
-import { ButtonGroup } from "@/components/ui/button-group";
+import type { ExpenseTemplate, TemplateAmount } from "@/types";
+import { ButtonGroup } from "../ui/button-group";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -40,15 +40,10 @@ interface TemplateFormData {
   recurrence_day: number | null;
 }
 
-interface InitialData {
-  name: string;
-  amounts: { currency: string; amount: number }[];
-}
-
-interface CreateTemplateDialogProps {
+interface TemplateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialData?: InitialData | null;
+  template?: ExpenseTemplate | null;
 }
 
 const createEmptyAmount = (): AmountFormData => ({
@@ -63,32 +58,35 @@ const createEmptyFormData = (): TemplateFormData => ({
   recurrence_day: null,
 });
 
-export function CreateTemplateDialog({
+export function TemplateDialog({
   open,
   onOpenChange,
-  initialData,
-}: CreateTemplateDialogProps) {
+  template,
+}: TemplateDialogProps) {
   const { t } = useTranslation();
   const createMutation = useCreateTemplate();
+  const updateMutation = useUpdateTemplate();
   const [formData, setFormData] = useState<TemplateFormData>(
     createEmptyFormData(),
   );
 
+  const isEditing = !!template;
+
   useEffect(() => {
-    if (open && initialData) {
+    if (open && template) {
       setFormData({
-        name: initialData.name,
-        amounts: initialData.amounts.map((a) => ({
+        name: template.name,
+        amounts: template.amounts.map((a) => ({
           currency: a.currency,
-          amount: a.amount.toString(),
+          amount: a.amount?.toString() || "",
         })),
-        is_recurring: false,
-        recurrence_day: null,
+        is_recurring: template.is_recurring || false,
+        recurrence_day: template.recurrence_day,
       });
     } else if (!open) {
       setFormData(createEmptyFormData());
     }
-  }, [open, initialData]);
+  }, [open, template]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -144,23 +142,37 @@ export function CreateTemplateDialog({
     };
 
     try {
-      await createMutation.mutateAsync(templateData);
-      toast.success(t("templates.templateCreated"));
+      if (isEditing && template) {
+        await updateMutation.mutateAsync({
+          id: template.id,
+          updates: templateData,
+        });
+        toast.success(t("templates.templateUpdated"));
+      } else {
+        await createMutation.mutateAsync(templateData);
+        toast.success(t("templates.templateCreated"));
+      }
       handleClose();
     } catch {
       toast.error(t("expenses.failedToSave"));
     }
   };
 
-  const isLoading = createMutation.isPending;
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md gap-0">
         <DialogHeader className="pb-4 border-b">
-          <DialogTitle>{t("templates.createTemplate")}</DialogTitle>
+          <DialogTitle>
+            {isEditing
+              ? t("templates.editTemplate")
+              : t("templates.createTemplate")}
+          </DialogTitle>
           <DialogDescription>
-            {t("templates.createTemplateDescription")}
+            {isEditing
+              ? t("templates.editTemplateDescription")
+              : t("templates.createTemplateDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -191,11 +203,11 @@ export function CreateTemplateDialog({
                 onClick={handleAddAmount}
                 className="h-7 text-xs"
               >
-                <Plus className="h-3 w-3 mr-1" />
+                <Plus className="h-3 w-3" />
                 {t("templates.addCurrency")}
               </Button>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="space-y-3">
               {formData.amounts.map((amountData, index) => (
                 <div
                   key={index}
@@ -222,7 +234,16 @@ export function CreateTemplateDialog({
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      <Input placeholder="10.00" pattern="[0-9]*" />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={amountData.amount}
+                        onChange={(e) =>
+                          handleAmountChange(index, "amount", e.target.value)
+                        }
+                        placeholder={t("templates.amountOptional")}
+                      />
                     </ButtonGroup>
                   </div>
                   <Button
@@ -233,7 +254,7 @@ export function CreateTemplateDialog({
                     disabled={formData.amounts.length === 1}
                     className="aspect-square"
                   >
-                    <Trash2 />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
@@ -255,7 +276,7 @@ export function CreateTemplateDialog({
                 })
               }
             />
-            <Label className="pl-0" htmlFor="is_recurring">
+            <Label htmlFor="is_recurring" className="pl-0">
               {t("templates.isRecurring")}
             </Label>
           </div>
@@ -303,7 +324,11 @@ export function CreateTemplateDialog({
             {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? t("common.saving") : t("common.create")}
+            {isLoading
+              ? t("common.saving")
+              : isEditing
+              ? t("common.update")
+              : t("common.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

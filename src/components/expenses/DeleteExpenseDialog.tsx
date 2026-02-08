@@ -29,7 +29,7 @@ export function DeleteExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>{t("expenses.deleteExpense")}</DialogTitle>
           <DialogDescription>
@@ -38,20 +38,22 @@ export function DeleteExpenseDialog({
         </DialogHeader>
 
         {expense && (
-          <div className="bg-gray-50 rounded-lg p-4 my-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">{t("common.name")}:</span>
-                <span className="text-sm text-gray-900">{expense.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">{t("common.amount")}:</span>
-                <span className="text-sm text-gray-900">
-                  {expense.amounts.map((a) => `${a.currency} ${a.amount.toFixed(2)}`).join(", ")}
-                </span>
-              </div>
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <p className="col-span-1 font-medium">{t("common.name")}</p>
+              <p className="col-span-2 text-gray-600 text-right">
+                {expense.name}
+              </p>
             </div>
-          </div>
+            <div className="grid grid-cols-3 gap-2">
+              <p className="col-span-1 font-medium">{t("common.amount")}</p>
+              <p className="col-span-2 text-gray-600 text-right">
+                {expense.amounts
+                  .map((a) => `${a.currency} ${a.amount.toFixed(2)}`)
+                  .join(", ")}
+              </p>
+            </div>
+          </>
         )}
 
         <DialogFooter>

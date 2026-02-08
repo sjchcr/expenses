@@ -46,7 +46,7 @@ type PasswordChecks = {
 type AuthMode = "signin" | "signup" | "forgotPassword";
 
 interface EmailAuthContentProps {
-  Header: ComponentType<{ children: ReactNode }>;
+  Header: ComponentType<{ children: ReactNode; className?: string }>;
   Title: ComponentType<{ children: ReactNode; className?: string }>;
   Description: ComponentType<{ children: ReactNode }>;
   Footer: ComponentType<{ children: ReactNode; className?: string }>;
@@ -111,8 +111,8 @@ function EmailAuthContent({
   };
 
   return (
-    <div className="flex flex-col gap-4 pr-0">
-      <Header>
+    <>
+      <Header className="border-b pb-4">
         <Title className="text-xl">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
@@ -142,7 +142,7 @@ function EmailAuthContent({
       </Header>
       <form
         onSubmit={mode === "forgotPassword" ? onForgotPassword : onSubmit}
-        className={`flex flex-col gap-4 ${formClassName}`}
+        className={`flex flex-col gap-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4 ${formClassName}`}
       >
         <AnimatePresence mode="wait" initial={false}>
           {error && (
@@ -152,7 +152,7 @@ function EmailAuthContent({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm overflow-hidden"
+              className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
             >
               {error}
             </motion.div>
@@ -166,7 +166,7 @@ function EmailAuthContent({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col gap-3 overflow-hidden"
+              className="flex flex-col gap-3"
             >
               <div className="flex flex-col items-start gap-2 w-full">
                 <Label htmlFor="firstName">{t("auth.firstName")}</Label>
@@ -216,7 +216,7 @@ function EmailAuthContent({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col items-start gap-2 w-full overflow-hidden"
+              className="flex flex-col items-start gap-2 w-full"
             >
               <div className="flex items-center justify-between w-full">
                 <Label htmlFor="password">{t("auth.password")}</Label>
@@ -239,7 +239,9 @@ function EmailAuthContent({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  autoComplete={
+                    mode === "signup" ? "new-password" : "current-password"
+                  }
                   className="pr-12"
                 />
                 <button
@@ -247,7 +249,9 @@ function EmailAuthContent({
                   onClick={toggleShowPassword}
                   className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
                   aria-label={
-                    showPassword ? t("auth.hidePassword") : t("auth.showPassword")
+                    showPassword
+                      ? t("auth.hidePassword")
+                      : t("auth.showPassword")
                   }
                 >
                   {showPassword ? (
@@ -261,8 +265,14 @@ function EmailAuthContent({
                 <ul className="text-xs space-y-1 text-muted-foreground w-full pl-3">
                   {[
                     { key: "length", label: t("auth.passwordRuleLength") },
-                    { key: "uppercase", label: t("auth.passwordRuleUppercase") },
-                    { key: "lowercase", label: t("auth.passwordRuleLowercase") },
+                    {
+                      key: "uppercase",
+                      label: t("auth.passwordRuleUppercase"),
+                    },
+                    {
+                      key: "lowercase",
+                      label: t("auth.passwordRuleLowercase"),
+                    },
                     { key: "digit", label: t("auth.passwordRuleDigit") },
                     { key: "symbol", label: t("auth.passwordRuleSymbol") },
                   ].map(({ key, label }) => {
@@ -286,7 +296,7 @@ function EmailAuthContent({
           )}
         </AnimatePresence>
       </form>
-      <Footer className="flex-col gap-2">
+      <Footer className="flex flex-col sm:flex-col gap-2 border-t pt-4">
         <Button
           type="submit"
           disabled={loading}
@@ -320,7 +330,7 @@ function EmailAuthContent({
           </Button>
         )}
       </Footer>
-    </div>
+    </>
   );
 }
 
@@ -461,8 +471,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
-      <Card className="w-full min-h-screen sm:h-fit flex flex-col items-center justify-center gap-10 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 max-w-md pb-4 rounded-none sm:rounded-2xl bg-transparent border-0 shadow-none">
+    <div className="min-h-dvh w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
+      <Card className="w-full min-h-dvh sm:h-fit flex flex-col items-center justify-center gap-10 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 max-w-md pb-4 rounded-none sm:rounded-2xl bg-transparent border-0 shadow-none">
         <CardHeader className="w-full text-primary-foreground">
           <img
             src={
@@ -566,13 +576,13 @@ export default function Login() {
               loading={loading}
               onSubmit={handleEmailAuth}
               onForgotPassword={handleForgotPassword}
-              formClassName="px-4"
+              formClassName="px-8"
             />
           </DrawerContent>
         </Drawer>
       ) : (
         <Dialog open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
-          <DialogContent className="bg-background/90 backdrop-blur-lg p-4">
+          <DialogContent className="bg-background/90 backdrop-blur-lg p-4 max-w-md gap-0">
             <EmailAuthContent
               Header={DialogHeader}
               Title={DialogTitle}

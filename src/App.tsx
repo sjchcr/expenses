@@ -114,7 +114,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen w-full bg-background">
+      <div className="flex items-center justify-center min-h-dvh w-full bg-background">
         <Spinner className="size-12" />
       </div>
     );
@@ -125,7 +125,7 @@ function App() {
       <BrowserRouter>
         <Suspense
           fallback={
-            <div className="flex items-center justify-center min-h-screen w-full bg-background">
+            <div className="flex items-center justify-center min-h-dvh w-full bg-background">
               <Spinner className="size-12" />
             </div>
           }

@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { Layers, Check, AlertCircle, ChevronDownIcon, CheckCheck } from "lucide-react";
+import { Check, AlertCircle, ChevronDownIcon, CheckCheck } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -211,192 +213,212 @@ export function CreateFromGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md gap-0">
+        <DialogHeader className="pb-4 border-b">
           <DialogTitle className="flex items-center gap-2">
-            <Layers className="h-5 w-5" />
-            {t("expenses.fromGroup")}
+            {t("expenses.addExpenseFromGroup")}
           </DialogTitle>
+          <DialogDescription>
+            {t("expenses.fromGroupDescription")}
+          </DialogDescription>
         </DialogHeader>
 
         {hasNoGroups ? (
-          <div className="text-center py-6">
+          <div className="text-center no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4">
             <p className="text-gray-500 mb-2">{t("groups.noGroups")}</p>
             <p className="text-sm text-gray-400">
               {t("groups.noTemplatesForGroups")}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="group">{t("groups.selectGroup")} *</Label>
-              <Select
-                value={selectedGroupId}
-                onValueChange={handleGroupSelect}
-                disabled={isCreating}
-              >
-                <SelectTrigger id="group" className="mt-1 w-full">
-                  <SelectValue placeholder={t("groups.chooseGroup")} />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {groups?.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.name} ({group.template_ids.length} templates)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <>
+            <div className="space-y-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4">
+              <div>
+                <Label htmlFor="group">{t("groups.selectGroup")} *</Label>
+                <Select
+                  value={selectedGroupId}
+                  onValueChange={handleGroupSelect}
+                  disabled={isCreating}
+                >
+                  <SelectTrigger id="group" className="mt-1 w-full">
+                    <SelectValue placeholder={t("groups.chooseGroup")} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {groups?.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        {group.name} ({group.template_ids.length} templates)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {selectedGroup && (
-              <>
-                <div>
-                  <Label htmlFor="base-date">{t("groups.baseDate")}</Label>
-                  <p className="text-xs text-gray-500 mb-1">
-                    {t("groups.baseDateHint")}
-                  </p>
-                  <Popover
-                    open={openDatePicker}
-                    onOpenChange={setOpenDatePicker}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        id="base-date"
-                        className="w-full justify-between font-normal"
-                        disabled={isCreating}
-                      >
-                        {baseDate}
-                        <ChevronDownIcon className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-fit overflow-hidden p-0"
-                      align="start"
+              {selectedGroup && (
+                <>
+                  <div>
+                    <Label htmlFor="base-date">{t("groups.baseDate")}</Label>
+                    <p className="text-xs text-gray-500 mb-1">
+                      {t("groups.baseDateHint")}
+                    </p>
+                    <Popover
+                      open={openDatePicker}
+                      onOpenChange={setOpenDatePicker}
                     >
-                      <Calendar
-                        mode="single"
-                        selected={parseISO(baseDate)}
-                        captionLayout="dropdown"
-                        onSelect={(date) => {
-                          if (date) {
-                            setBaseDate(format(date, "yyyy-MM-dd"));
-                            setOpenDatePicker(false);
-                          }
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <Label>{t("groups.templatesToCreate")}</Label>
-                    {groupTemplates.length > 0 && !hasCreationStarted && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => {
-                          if (selectedTemplateIds.length === groupTemplates.length) {
-                            setSelectedTemplateIds([]);
-                          } else {
-                            setSelectedTemplateIds(groupTemplates.map((t) => t.id));
-                          }
-                        }}
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          id="base-date"
+                          className="w-full justify-between font-normal"
+                          disabled={isCreating}
+                        >
+                          {baseDate}
+                          <ChevronDownIcon className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-fit overflow-hidden p-0"
+                        align="start"
                       >
-                        <CheckCheck className="h-3 w-3" />
-                        {selectedTemplateIds.length === groupTemplates.length
-                          ? t("common.deselectAll")
-                          : t("common.selectAll")}
-                      </Button>
-                    )}
+                        <Calendar
+                          mode="single"
+                          selected={parseISO(baseDate)}
+                          captionLayout="dropdown"
+                          onSelect={(date) => {
+                            if (date) {
+                              setBaseDate(format(date, "yyyy-MM-dd"));
+                              setOpenDatePicker(false);
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                  <div className="mt-1 border rounded-lg max-h-48 overflow-y-auto">
-                    {groupTemplates.length > 0 ? (
-                      <div className="divide-y">
-                        {groupTemplates.map((template) => {
-                          const isSelected = selectedTemplateIds.includes(template.id);
-                          const statusIndex = templatesToCreate.findIndex(
-                            (t) => t.id === template.id,
-                          );
-                          const status =
-                            statusIndex >= 0
-                              ? creationStatuses[statusIndex]
-                              : undefined;
-                          return (
-                            <div
-                              key={template.id}
-                              className="flex items-center gap-3 px-3 py-2"
-                            >
-                              {!hasCreationStarted && (
-                                <Checkbox
-                                  checked={isSelected}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setSelectedTemplateIds((prev) => [
-                                        ...prev,
-                                        template.id,
-                                      ]);
-                                    } else {
-                                      setSelectedTemplateIds((prev) =>
-                                        prev.filter((id) => id !== template.id),
-                                      );
-                                    }
-                                  }}
-                                  disabled={isCreating}
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium truncate">
-                                  {template.name}
+
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>{t("groups.templatesToCreate")}</Label>
+                      {groupTemplates.length > 0 && !hasCreationStarted && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => {
+                            if (
+                              selectedTemplateIds.length ===
+                              groupTemplates.length
+                            ) {
+                              setSelectedTemplateIds([]);
+                            } else {
+                              setSelectedTemplateIds(
+                                groupTemplates.map((t) => t.id),
+                              );
+                            }
+                          }}
+                        >
+                          <CheckCheck className="h-3 w-3" />
+                          {selectedTemplateIds.length === groupTemplates.length
+                            ? t("common.deselectAll")
+                            : t("common.selectAll")}
+                        </Button>
+                      )}
+                    </div>
+                    <div className="mt-1 border rounded-lg max-h-48 overflow-y-auto">
+                      {groupTemplates.length > 0 ? (
+                        <div className="divide-y">
+                          {groupTemplates.map((template) => {
+                            const isSelected = selectedTemplateIds.includes(
+                              template.id,
+                            );
+                            const statusIndex = templatesToCreate.findIndex(
+                              (t) => t.id === template.id,
+                            );
+                            const status =
+                              statusIndex >= 0
+                                ? creationStatuses[statusIndex]
+                                : undefined;
+                            return (
+                              <div
+                                key={template.id}
+                                className="flex items-center gap-3 px-3 py-2"
+                              >
+                                {!hasCreationStarted && (
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedTemplateIds((prev) => [
+                                          ...prev,
+                                          template.id,
+                                        ]);
+                                      } else {
+                                        setSelectedTemplateIds((prev) =>
+                                          prev.filter(
+                                            (id) => id !== template.id,
+                                          ),
+                                        );
+                                      }
+                                    }}
+                                    disabled={isCreating}
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium truncate">
+                                    {template.name}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {template.amounts
+                                      .map((a) =>
+                                        a.amount
+                                          ? `${
+                                              a.currency
+                                            } ${a.amount.toLocaleString()}`
+                                          : a.currency,
+                                      )
+                                      .join(", ")}
+                                  </div>
                                 </div>
-                                <div className="text-xs text-gray-500">
-                                  {template.amounts
-                                    .map((a) =>
-                                      a.amount
-                                        ? `${a.currency} ${a.amount.toLocaleString()}`
-                                        : a.currency,
-                                    )
-                                    .join(", ")}
-                                </div>
+                                {status && (
+                                  <div className="ml-2">
+                                    {status.status === "creating" && (
+                                      <div className="h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                                    )}
+                                    {status.status === "success" && (
+                                      <Check className="h-4 w-4 text-green-500" />
+                                    )}
+                                    {status.status === "error" && (
+                                      <AlertCircle className="h-4 w-4 text-red-500" />
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                              {status && (
-                                <div className="ml-2">
-                                  {status.status === "creating" && (
-                                    <div className="h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-                                  )}
-                                  {status.status === "success" && (
-                                    <Check className="h-4 w-4 text-green-500" />
-                                  )}
-                                  {status.status === "error" && (
-                                    <AlertCircle className="h-4 w-4 text-red-500" />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {t("groups.noTemplatesInGroup")}
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {t("groups.noTemplatesInGroup")}
+                        </p>
+                      )}
+                    </div>
+                    {groupTemplates.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {selectedTemplateIds.length === 1
+                          ? t("groups.expensesSelected", {
+                              count: selectedTemplateIds.length,
+                              total: groupTemplates.length,
+                            })
+                          : t("groups.expensesSelectedPlural", {
+                              count: selectedTemplateIds.length,
+                              total: groupTemplates.length,
+                            })}
                       </p>
                     )}
                   </div>
-                  {groupTemplates.length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {selectedTemplateIds.length === 1
-                        ? t("groups.expensesSelected", { count: selectedTemplateIds.length, total: groupTemplates.length })
-                        : t("groups.expensesSelectedPlural", { count: selectedTemplateIds.length, total: groupTemplates.length })}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            <div className="flex justify-end gap-2 pt-4">
+                </>
+              )}
+            </div>
+            <DialogFooter className="border-t pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -409,18 +431,24 @@ export function CreateFromGroupDialog({
                 <Button
                   onClick={handleCreate}
                   disabled={
-                    !selectedGroup || selectedTemplateIds.length === 0 || isCreating
+                    !selectedGroup ||
+                    selectedTemplateIds.length === 0 ||
+                    isCreating
                   }
                 >
                   {isCreating
                     ? t("common.creating")
                     : selectedTemplateIds.length === 1
-                      ? t("groups.createExpenses", { count: selectedTemplateIds.length })
-                      : t("groups.createExpensesPlural", { count: selectedTemplateIds.length })}
+                    ? t("groups.createExpenses", {
+                        count: selectedTemplateIds.length,
+                      })
+                    : t("groups.createExpensesPlural", {
+                        count: selectedTemplateIds.length,
+                      })}
                 </Button>
               )}
-            </div>
-          </div>
+            </DialogFooter>
+          </>
         )}
       </DialogContent>
     </Dialog>

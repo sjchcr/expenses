@@ -99,7 +99,7 @@ export default function ResetPassword() {
 
   if (checking) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-primary to-primary/70 dark:to-accent">
+      <div className="min-h-dvh w-full flex items-center justify-center bg-linear-to-b from-primary to-primary/70 dark:to-accent">
         <Spinner className="size-12 text-primary-foreground" />
       </div>
     );
@@ -107,8 +107,8 @@ export default function ResetPassword() {
 
   if (!hasSession) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
-        <Card className="w-full min-h-screen sm:min-h-0 sm:h-fit flex flex-col items-center justify-center gap-6 pt-[calc(1rem+env(safe-area-inset-top))] max-w-md rounded-none sm:rounded-2xl bg-background/90 backdrop-blur-lg">
+      <div className="min-h-dvh w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
+        <Card className="w-full min-h-dvh sm:min-h-0 sm:h-fit flex flex-col items-center justify-center gap-6 pt-[calc(1rem+env(safe-area-inset-top))] max-w-md rounded-none sm:rounded-2xl bg-background/90 backdrop-blur-lg">
           <CardHeader className="w-full">
             <img
               src={
@@ -133,8 +133,8 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
-      <Card className="w-full min-h-screen sm:min-h-0 sm:h-fit flex flex-col items-center justify-center gap-6 pt-[calc(1rem+env(safe-area-inset-top))] max-w-md rounded-none sm:rounded-2xl bg-background/90 backdrop-blur-lg">
+    <div className="min-h-dvh w-full flex items-center justify-center sm:px-6 bg-linear-to-b from-primary to-primary/70 dark:to-accent">
+      <Card className="w-full min-h-dvh sm:min-h-0 sm:h-fit flex flex-col items-center justify-center gap-6 pt-[calc(1rem+env(safe-area-inset-top))] max-w-md rounded-none sm:rounded-2xl bg-background/90 backdrop-blur-lg">
         <CardHeader className="w-full">
           <img
             src={

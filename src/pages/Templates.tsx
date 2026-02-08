@@ -10,35 +10,9 @@ import {
   Layers,
   Zap,
 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  useTemplates,
-  useCreateTemplate,
-  useUpdateTemplate,
-  useDeleteTemplate,
-} from "@/hooks/useTemplates";
-import {
-  useTemplateGroups,
-  useCreateTemplateGroup,
-  useUpdateTemplateGroup,
-  useDeleteTemplateGroup,
-} from "@/hooks/useTemplateGroups";
+import { useTemplates } from "@/hooks/useTemplates";
+import { useTemplateGroups } from "@/hooks/useTemplateGroups";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Card,
   CardAction,
@@ -56,7 +30,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ExpenseTemplate, TemplateAmount, TemplateGroup } from "@/types";
 import {
@@ -72,56 +45,20 @@ import CustomHeader, {
   type HeaderActionsGroups,
 } from "@/components/common/CustomHeader";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
-
-const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
-
-interface AmountFormData {
-  currency: string;
-  amount: string;
-}
-
-interface TemplateFormData {
-  name: string;
-  amounts: AmountFormData[];
-  is_recurring: boolean;
-  recurrence_day: number | null;
-}
-
-interface GroupFormData {
-  name: string;
-  template_ids: string[];
-}
-
-const createEmptyAmount = (): AmountFormData => ({
-  currency: "USD",
-  amount: "",
-});
-
-const createEmptyFormData = (): TemplateFormData => ({
-  name: "",
-  amounts: [createEmptyAmount()],
-  is_recurring: false,
-  recurrence_day: null,
-});
-
-const createEmptyGroupFormData = (): GroupFormData => ({
-  name: "",
-  template_ids: [],
-});
+import { TemplateDialog } from "@/components/templates/TemplateDialog";
+import { DeleteTemplateDialog } from "@/components/templates/DeleteTemplateDialog";
+import { GroupDialog } from "@/components/templates/GroupDialog";
+import { DeleteGroupDialog } from "@/components/templates/DeleteGroupDialog";
 
 // Helper to format amounts display
-const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
+export const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
   return (
     <div className="flex flex-col justify-start items-start gap-1">
-      {amounts.map((a) => {
-        return (
-          <p>
-            {a.amount
-              ? `${a.currency} ${a.amount.toLocaleString()}`
-              : a.currency}
-          </p>
-        );
-      })}
+      {amounts.map((a, index) => (
+        <p key={index}>
+          {a.amount ? `${a.currency} ${a.amount.toLocaleString()}` : a.currency}
+        </p>
+      ))}
     </div>
   );
 };
@@ -129,22 +66,23 @@ const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
 export default function Templates() {
   const isMobile = useMobile();
   const { t } = useTranslation();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Template dialog state
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] =
     useState<ExpenseTemplate | null>(null);
-  const [formData, setFormData] = useState<TemplateFormData>(
-    createEmptyFormData(),
-  );
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Delete template dialog state
+  const [isDeleteTemplateDialogOpen, setIsDeleteTemplateDialogOpen] =
+    useState(false);
   const [templateToDelete, setTemplateToDelete] =
     useState<ExpenseTemplate | null>(null);
 
-  // Group state
+  // Group dialog state
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<TemplateGroup | null>(null);
-  const [groupFormData, setGroupFormData] = useState<GroupFormData>(
-    createEmptyGroupFormData(),
-  );
+
+  // Delete group dialog state
   const [isDeleteGroupDialogOpen, setIsDeleteGroupDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<TemplateGroup | null>(
     null,
@@ -160,179 +98,37 @@ export default function Templates() {
     isLoading: isLoadingGroups,
     refetch: refetchGroups,
   } = useTemplateGroups();
-  const createMutation = useCreateTemplate();
-  const updateMutation = useUpdateTemplate();
-  const deleteMutation = useDeleteTemplate();
-  const createGroupMutation = useCreateTemplateGroup();
-  const updateGroupMutation = useUpdateTemplateGroup();
-  const deleteGroupMutation = useDeleteTemplateGroup();
 
-  const handleOpenDialog = (template?: ExpenseTemplate) => {
-    if (template) {
-      setEditingTemplate(template);
-      setFormData({
-        name: template.name,
-        amounts: template.amounts.map((a) => ({
-          currency: a.currency,
-          amount: a.amount?.toString() || "",
-        })),
-        is_recurring: template.is_recurring || false,
-        recurrence_day: template.recurrence_day,
-      });
-    } else {
-      setEditingTemplate(null);
-      setFormData(createEmptyFormData());
-    }
-    setIsDialogOpen(true);
+  // Template handlers
+  const handleOpenTemplateDialog = (template?: ExpenseTemplate) => {
+    setEditingTemplate(template || null);
+    setIsTemplateDialogOpen(true);
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
+  const handleCloseTemplateDialog = () => {
+    setIsTemplateDialogOpen(false);
     setEditingTemplate(null);
-    setFormData(createEmptyFormData());
   };
 
-  const handleAddAmount = () => {
-    setFormData({
-      ...formData,
-      amounts: [...formData.amounts, createEmptyAmount()],
-    });
-  };
-
-  const handleRemoveAmount = (index: number) => {
-    if (formData.amounts.length > 1) {
-      setFormData({
-        ...formData,
-        amounts: formData.amounts.filter((_, i) => i !== index),
-      });
-    }
-  };
-
-  const handleAmountChange = (
-    index: number,
-    field: keyof AmountFormData,
-    value: string,
-  ) => {
-    const newAmounts = [...formData.amounts];
-    newAmounts[index] = { ...newAmounts[index], [field]: value };
-    setFormData({ ...formData, amounts: newAmounts });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const templateAmounts: TemplateAmount[] = formData.amounts
-      .filter((a) => a.currency)
-      .map((a) => ({
-        currency: a.currency,
-        amount: a.amount ? parseFloat(a.amount) : null,
-      }));
-
-    if (templateAmounts.length === 0) {
-      toast.error(t("templates.addAtLeastOneCurrency"));
-      return;
-    }
-
-    const templateData = {
-      name: formData.name,
-      amounts: templateAmounts,
-      is_recurring: formData.is_recurring,
-      recurrence_day: formData.is_recurring ? formData.recurrence_day : null,
-    };
-
-    try {
-      if (editingTemplate) {
-        await updateMutation.mutateAsync({
-          id: editingTemplate.id,
-          updates: templateData,
-        });
-        toast.success(t("templates.templateUpdated"));
-      } else {
-        await createMutation.mutateAsync(templateData);
-        toast.success(t("templates.templateCreated"));
-      }
-      handleCloseDialog();
-    } catch (error) {
-      console.error("Failed to save template:", error);
-      toast.error(t("common.saving"));
-    }
-  };
-
-  const handleDelete = (template: ExpenseTemplate) => {
+  const handleDeleteTemplate = (template: ExpenseTemplate) => {
     setTemplateToDelete(template);
-    setIsDeleteDialogOpen(true);
+    setIsDeleteTemplateDialogOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (templateToDelete) {
-      try {
-        await deleteMutation.mutateAsync(templateToDelete.id);
-        toast.success(t("templates.templateDeleted"));
-        setIsDeleteDialogOpen(false);
-        setTemplateToDelete(null);
-      } catch (error) {
-        console.error("Failed to delete template:", error);
-        toast.error(t("common.deleting"));
-      }
-    }
+  const handleCloseDeleteTemplateDialog = () => {
+    setIsDeleteTemplateDialogOpen(false);
+    setTemplateToDelete(null);
   };
-
-  const isFormLoading = createMutation.isPending || updateMutation.isPending;
 
   // Group handlers
   const handleOpenGroupDialog = (group?: TemplateGroup) => {
-    if (group) {
-      setEditingGroup(group);
-      setGroupFormData({
-        name: group.name,
-        template_ids: group.template_ids,
-      });
-    } else {
-      setEditingGroup(null);
-      setGroupFormData(createEmptyGroupFormData());
-    }
+    setEditingGroup(group || null);
     setIsGroupDialogOpen(true);
   };
 
   const handleCloseGroupDialog = () => {
     setIsGroupDialogOpen(false);
     setEditingGroup(null);
-    setGroupFormData(createEmptyGroupFormData());
-  };
-
-  const handleGroupTemplateToggle = (templateId: string) => {
-    setGroupFormData((prev) => ({
-      ...prev,
-      template_ids: prev.template_ids.includes(templateId)
-        ? prev.template_ids.filter((id) => id !== templateId)
-        : [...prev.template_ids, templateId],
-    }));
-  };
-
-  const handleSubmitGroup = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (groupFormData.template_ids.length === 0) {
-      toast.error(t("groups.selectAtLeastOne"));
-      return;
-    }
-
-    try {
-      if (editingGroup) {
-        await updateGroupMutation.mutateAsync({
-          id: editingGroup.id,
-          updates: groupFormData,
-        });
-        toast.success(t("groups.groupUpdated"));
-      } else {
-        await createGroupMutation.mutateAsync(groupFormData);
-        toast.success(t("groups.groupCreated"));
-      }
-      handleCloseGroupDialog();
-    } catch (error) {
-      console.error("Failed to save group:", error);
-      toast.error(t("common.saving"));
-    }
   };
 
   const handleDeleteGroup = (group: TemplateGroup) => {
@@ -340,22 +136,10 @@ export default function Templates() {
     setIsDeleteGroupDialogOpen(true);
   };
 
-  const handleConfirmDeleteGroup = async () => {
-    if (groupToDelete) {
-      try {
-        await deleteGroupMutation.mutateAsync(groupToDelete.id);
-        toast.success(t("groups.groupDeleted"));
-        setIsDeleteGroupDialogOpen(false);
-        setGroupToDelete(null);
-      } catch (error) {
-        console.error("Failed to delete group:", error);
-        toast.error(t("common.deleting"));
-      }
-    }
+  const handleCloseDeleteGroupDialog = () => {
+    setIsDeleteGroupDialogOpen(false);
+    setGroupToDelete(null);
   };
-
-  const isGroupFormLoading =
-    createGroupMutation.isPending || updateGroupMutation.isPending;
 
   // Helper to get template names for a group
   const getGroupTemplateNames = (templateIds: string[]): string => {
@@ -378,9 +162,7 @@ export default function Templates() {
         {
           label: t("templates.createTemplate"),
           icon: Plus,
-          onClick: () => {
-            handleOpenDialog();
-          },
+          onClick: () => handleOpenTemplateDialog(),
         },
         {
           label: t("groups.newGroup"),
@@ -449,7 +231,10 @@ export default function Templates() {
                     </CardDescription>
                     {!isMobile && (
                       <CardAction>
-                        <Button size="icon" onClick={() => handleOpenDialog()}>
+                        <Button
+                          size="icon"
+                          onClick={() => handleOpenTemplateDialog()}
+                        >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </CardAction>
@@ -493,14 +278,16 @@ export default function Templates() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleOpenDialog(template)}
+                                  onClick={() =>
+                                    handleOpenTemplateDialog(template)
+                                  }
                                 >
                                   <Pencil className="h-3 w-3" />
                                 </Button>
                                 <Button
                                   variant="ghostDestructive"
                                   size="icon"
-                                  onClick={() => handleDelete(template)}
+                                  onClick={() => handleDeleteTemplate(template)}
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -538,7 +325,10 @@ export default function Templates() {
                         </EmptyDescription>
                       </EmptyHeader>
                       <EmptyContent className="flex-row justify-center gap-2">
-                        <Button size="sm" onClick={() => handleOpenDialog()}>
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenTemplateDialog()}
+                        >
                           <Plus className="h-4 w-4" />
                           {t("templates.createRecurringTemplate")}
                         </Button>
@@ -561,7 +351,10 @@ export default function Templates() {
                     </CardDescription>
                     {!isMobile && (
                       <CardAction>
-                        <Button size="icon" onClick={() => handleOpenDialog()}>
+                        <Button
+                          size="icon"
+                          onClick={() => handleOpenTemplateDialog()}
+                        >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </CardAction>
@@ -599,14 +392,16 @@ export default function Templates() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleOpenDialog(template)}
+                                  onClick={() =>
+                                    handleOpenTemplateDialog(template)
+                                  }
                                 >
                                   <Pencil className="h-3 w-3" />
                                 </Button>
                                 <Button
                                   variant="ghostDestructive"
                                   size="icon"
-                                  onClick={() => handleDelete(template)}
+                                  onClick={() => handleDeleteTemplate(template)}
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -644,7 +439,7 @@ export default function Templates() {
                         </EmptyDescription>
                       </EmptyHeader>
                       <EmptyContent className="flex-row justify-center gap-2">
-                        <Button onClick={() => handleOpenDialog()}>
+                        <Button onClick={() => handleOpenTemplateDialog()}>
                           <Plus className="h-4 w-4" />
                           {t("templates.createQuickTemplate")}
                         </Button>
@@ -695,7 +490,7 @@ export default function Templates() {
                       key={group.id}
                       className="border border-gray-200 dark:border-gray-900 rounded-lg p-2 bg-background"
                     >
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm truncate">
                             {group.name}
@@ -705,7 +500,8 @@ export default function Templates() {
                               "No templates"}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {group.template_ids.length} template
+                            {group.template_ids.length}{" "}
+                            {t("groups.groupTemplates").toLowerCase()}
                             {group.template_ids.length !== 1 ? "s" : ""}
                           </p>
                         </div>
@@ -719,6 +515,7 @@ export default function Templates() {
                           </Button>
                           <Button
                             variant="ghostDestructive"
+                            size="icon"
                             onClick={() => handleDeleteGroup(group)}
                           >
                             <Trash2 className="h-3 w-3" />
@@ -773,328 +570,46 @@ export default function Templates() {
         content
       )}
 
-      {/* Add/Edit Template Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingTemplate
-                ? t("templates.editTemplate")
-                : t("templates.createTemplate")}
-            </DialogTitle>
-          </DialogHeader>
+      {/* Template Dialog (Create/Edit) */}
+      <TemplateDialog
+        open={isTemplateDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseTemplateDialog();
+          else setIsTemplateDialogOpen(true);
+        }}
+        template={editingTemplate}
+      />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">{t("templates.templateName")} *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder={t("templates.templateNamePlaceholder")}
-                required
-              />
-            </div>
+      {/* Delete Template Dialog */}
+      <DeleteTemplateDialog
+        open={isDeleteTemplateDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseDeleteTemplateDialog();
+          else setIsDeleteTemplateDialogOpen(true);
+        }}
+        template={templateToDelete}
+      />
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label>{t("templates.currenciesAmounts")}</Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleAddAmount}
-                  className="h-7 text-xs"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  {t("templates.addCurrency")}
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {formData.amounts.map((amountData, index) => (
-                  <div
-                    key={index}
-                    className="grid grid-cols-[100px_1fr_auto] gap-2 items-end"
-                  >
-                    <Select
-                      value={amountData.currency}
-                      onValueChange={(value) =>
-                        handleAmountChange(index, "currency", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Currency" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {COMMON_CURRENCIES.map((curr) => (
-                          <SelectItem key={curr} value={curr}>
-                            {curr}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={amountData.amount}
-                      onChange={(e) =>
-                        handleAmountChange(index, "amount", e.target.value)
-                      }
-                      placeholder={t("templates.amountOptional")}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghostDestructive"
-                      size="sm"
-                      onClick={() => handleRemoveAmount(index)}
-                      disabled={formData.amounts.length === 1}
-                      className="h-9 w-9 p-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {t("templates.amountOptionalHint")}
-              </p>
-            </div>
+      {/* Group Dialog (Create/Edit) */}
+      <GroupDialog
+        open={isGroupDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseGroupDialog();
+          else setIsGroupDialogOpen(true);
+        }}
+        group={editingGroup}
+        templates={templates}
+      />
 
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="is_recurring"
-                checked={formData.is_recurring}
-                onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
-                    is_recurring: checked as boolean,
-                    recurrence_day: checked
-                      ? formData.recurrence_day || 1
-                      : null,
-                  })
-                }
-              />
-              <Label htmlFor="is_recurring">{t("templates.isRecurring")}</Label>
-            </div>
-
-            {formData.is_recurring && (
-              <div>
-                <Label htmlFor="recurrence_day">
-                  {t("templates.recurrenceDay")} *
-                </Label>
-                <Select
-                  value={String(formData.recurrence_day || 1)}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      recurrence_day: parseInt(value, 10),
-                    })
-                  }
-                >
-                  <SelectTrigger id="recurrence_day">
-                    <SelectValue placeholder="Select day" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                      <SelectItem key={day} value={String(day)}>
-                        Day {day}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  {t("templates.recurrenceDayHint")}
-                </p>
-              </div>
-            )}
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCloseDialog}
-                disabled={isFormLoading}
-              >
-                {t("common.cancel")}
-              </Button>
-              <Button type="submit" disabled={isFormLoading}>
-                {isFormLoading
-                  ? t("common.saving")
-                  : editingTemplate
-                  ? t("common.update")
-                  : t("common.create")}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>{t("templates.deleteTemplate")}</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600">
-            {t("templates.deleteConfirm", { name: templateToDelete?.name })}
-          </p>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDeleteDialogOpen(false);
-                setTemplateToDelete(null);
-              }}
-              disabled={deleteMutation.isPending}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending
-                ? t("common.deleting")
-                : t("common.delete")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add/Edit Group Dialog */}
-      <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingGroup ? t("groups.editGroup") : t("groups.createGroup")}
-            </DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmitGroup} className="space-y-4">
-            <div>
-              <Label htmlFor="group-name">{t("groups.groupName")} *</Label>
-              <Input
-                id="group-name"
-                value={groupFormData.name}
-                onChange={(e) =>
-                  setGroupFormData({ ...groupFormData, name: e.target.value })
-                }
-                placeholder={t("groups.groupNamePlaceholder")}
-                required
-              />
-            </div>
-
-            <div>
-              <Label className="mb-2 block">
-                {t("groups.selectTemplates")} *
-              </Label>
-              <div className="border rounded-lg max-h-64 overflow-y-auto">
-                {templates && templates.length > 0 ? (
-                  <div className="divide-y">
-                    {templates.map((template) => (
-                      <label
-                        key={template.id}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-accent cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={groupFormData.template_ids.includes(
-                            template.id,
-                          )}
-                          onCheckedChange={() =>
-                            handleGroupTemplateToggle(template.id)
-                          }
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {template.name}
-                          </div>
-                          <div className="text-xs text-gray-500 truncate">
-                            {formatAmountsDisplay(template.amounts)}
-                          </div>
-                        </div>
-                        {template.is_recurring && (
-                          <CalendarDays className="h-4 w-4 text-gray-400 shrink-0" />
-                        )}
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="p-4 text-sm text-gray-500 text-center">
-                    {t("groups.noTemplatesAvailable")}
-                  </p>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {groupFormData.template_ids.length === 1
-                  ? t("groups.templatesSelected", {
-                      count: groupFormData.template_ids.length,
-                    })
-                  : t("groups.templatesSelectedPlural", {
-                      count: groupFormData.template_ids.length,
-                    })}
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCloseGroupDialog}
-                disabled={isGroupFormLoading}
-              >
-                {t("common.cancel")}
-              </Button>
-              <Button type="submit" disabled={isGroupFormLoading}>
-                {isGroupFormLoading
-                  ? t("common.saving")
-                  : editingGroup
-                  ? t("common.update")
-                  : t("common.create")}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Group Confirmation Dialog */}
-      <Dialog
+      {/* Delete Group Dialog */}
+      <DeleteGroupDialog
         open={isDeleteGroupDialogOpen}
-        onOpenChange={setIsDeleteGroupDialogOpen}
-      >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>{t("groups.deleteGroup")}</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600">
-            {t("groups.deleteConfirm", { name: groupToDelete?.name })}
-          </p>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDeleteGroupDialogOpen(false);
-                setGroupToDelete(null);
-              }}
-              disabled={deleteGroupMutation.isPending}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDeleteGroup}
-              disabled={deleteGroupMutation.isPending}
-            >
-              {deleteGroupMutation.isPending
-                ? t("common.deleting")
-                : t("common.delete")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={(open) => {
+          if (!open) handleCloseDeleteGroupDialog();
+          else setIsDeleteGroupDialogOpen(true);
+        }}
+        group={groupToDelete}
+      />
     </div>
   );
 }

@@ -16,6 +16,10 @@ const config: CapacitorConfig = {
         twitter: false,
       },
     },
+    Keyboard: {
+      resize: "body",
+      resizeOnFullScreen: true,
+    },
   },
 };
 
