@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useKeyboard } from "@/hooks/useKeyboard";
 
 function Dialog({
   ...props
@@ -49,26 +50,39 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  submitOnTop = false,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
+  submitOnTop?: boolean;
 }) {
+  const { isOpen: isKeyboardOpen } = useKeyboard();
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-submit-on-top={submitOnTop ? "true" : undefined}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-3xl border p-4 shadow-lg duration-200 outline-none sm:max-w-lg",
+          "group/dialog-content bg-background/90 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-3xl border p-4 shadow-lg duration-200 outline-none sm:max-w-lg",
           className,
         )}
+        style={{
+          marginTop: isKeyboardOpen ? "env(safe-area-inset-top)" : undefined,
+          ...style,
+        }}
         {...props}
       >
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className={cn(
+              "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 w-11 sm:w-9",
+              submitOnTop ? "left-4 sm:left-auto sm:right-4" : "right-4",
+            )}
           >
             <Button variant="outline" size="icon" className="bg-muted/50">
               <X />
@@ -84,7 +98,11 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-left pr-19 sm:pr-13", className)}
+      className={cn(
+        "flex flex-col gap-2 text-left pr-19 sm:pr-13",
+        "group-data-[submit-on-top=true]/dialog-content:pr-0 group-data-[submit-on-top=true]/dialog-content:pl-0",
+        className,
+      )}
       {...props}
     />
   );
@@ -110,7 +128,11 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
+      className={cn(
+        "text-lg leading-none font-semibold",
+        "group-data-[submit-on-top=true]/dialog-content:h-11 group-data-[submit-on-top=true]/dialog-content:flex group-data-[submit-on-top=true]/dialog-content:items-center group-data-[submit-on-top=true]/dialog-content:justify-center group-data-[submit-on-top=true]/dialog-content:pl-19 group-data-[submit-on-top=true]/dialog-content:pr-19 group-data-[submit-on-top=true]/dialog-content:sm:justify-start group-data-[submit-on-top=true]/dialog-content:sm:pl-0 group-data-[submit-on-top=true]/dialog-content:sm:text-left",
+        className,
+      )}
       {...props}
     />
   );

@@ -103,7 +103,9 @@ export function SpendingTrendsChart({
       <CardContent>
         {activeCurrencies.length === 0 ? (
           <div className="h-75 flex items-center justify-center">
-            <p className="text-muted-foreground text-sm">{t("dashboard.noExpenseDataYet")}</p>
+            <p className="text-muted-foreground text-sm">
+              {t("dashboard.noExpenseDataYet")}
+            </p>
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-75 w-full">
@@ -206,7 +208,7 @@ export function SpendingTrendsChart({
                 return (
                   <Area
                     key={currency}
-                    type="natural"
+                    type="linear"
                     dataKey={currency}
                     yAxisId="left"
                     stroke={`var(--chart-${colorIndex})`}
@@ -223,7 +225,7 @@ export function SpendingTrendsChart({
                 return (
                   <Area
                     key={currency}
-                    type="natural"
+                    type="linear"
                     dataKey={currency}
                     yAxisId={hasLeftAxis ? "left" : "right"}
                     stroke={`var(--chart-${colorIndex})`}
@@ -240,7 +242,7 @@ export function SpendingTrendsChart({
                 return (
                   <Area
                     key={currency}
-                    type="natural"
+                    type="linear"
                     dataKey={currency}
                     yAxisId="right"
                     stroke={`var(--chart-${colorIndex})`}

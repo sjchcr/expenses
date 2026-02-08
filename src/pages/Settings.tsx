@@ -488,7 +488,7 @@ export default function Settings() {
                 value={primaryCurrency}
                 onValueChange={setPrimaryCurrency}
               >
-                <SelectTrigger id="primary-currency" className="mt-1">
+                <SelectTrigger id="primary-currency" className="mt-1 w-full">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
@@ -567,7 +567,7 @@ export default function Settings() {
                   updateMutation.mutate({ language: lng });
                 }}
               >
-                <SelectTrigger id="language" className="mt-1">
+                <SelectTrigger id="language" className="mt-1 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

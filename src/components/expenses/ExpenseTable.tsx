@@ -9,7 +9,7 @@ import {
   CircleCheck,
   CircleOff,
   Loader2,
-  EllipsisVertical,
+  Ellipsis,
   FilePlusCorner,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -360,7 +360,7 @@ export function ExpenseTable({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <EllipsisVertical />
+                      <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

@@ -28,11 +28,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronDownIcon, Plus, Trash2, FileText } from "lucide-react";
+import { ChevronDownIcon, Plus, Trash2, FileText, Check } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTemplates } from "@/hooks/useTemplates";
-import { ButtonGroup } from "../ui/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { useMobile } from "@/hooks/useMobile";
+import { Spinner } from "@/components/ui/spinner";
 
 interface AddExpenseDialogProps {
   open: boolean;
@@ -69,6 +71,7 @@ export function AddExpenseDialog({
   defaultMonth,
   defaultYear,
 }: AddExpenseDialogProps) {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const getDefaultDate = () => {
     const now = new Date();
@@ -251,7 +254,7 @@ export function AddExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0">
+      <DialogContent className="max-w-md gap-0" submitOnTop={isMobile}>
         <DialogHeader className="pb-4 border-b">
           <DialogTitle>
             {expense ? t("expenses.editExpense") : t("expenses.addNewExpense")}
@@ -318,15 +321,16 @@ export function AddExpenseDialog({
             />
             {/* Auto-suggest dropdown */}
             {showSuggestions && suggestedTemplates.length > 0 && !expense && (
-              <div className="absolute z-50 w-full mt-1 bg-background dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+              <div className="absolute z-50 w-full mt-1 bg-background/60 backdrop-blur-2xl dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
                 <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
                   {t("expenses.suggestionsFromTemplates")}
                 </div>
                 {suggestedTemplates.map((template) => (
-                  <button
+                  <Button
                     key={template.id}
+                    variant="ghost"
                     type="button"
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-primary/10 flex items-center justify-between"
+                    className="w-full px-3 py-2 text-left text-sm flex items-center justify-between rounded-none!"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       handleSuggestionSelect(template.id);
@@ -337,7 +341,7 @@ export function AddExpenseDialog({
                       {template.amounts.map((a) => a.currency).join(", ")}
                       {template.is_recurring && " · Recurring"}
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -398,8 +402,8 @@ export function AddExpenseDialog({
                     </ButtonGroup>
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="sm"
+                      variant="ghostDestructive"
+                      size="icon"
                       onClick={() => handleRemoveAmount(index)}
                       disabled={amounts.length === 1}
                       className="aspect-square"
@@ -490,23 +494,35 @@ export function AddExpenseDialog({
             </Popover>
           </div>
         </form>
-        <DialogFooter className="border-t pt-4">
+        {isMobile ? (
           <Button
             type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
+            size="icon"
+            onClick={handleSubmit}
             disabled={isLoading}
+            className="absolute top-4 right-4"
           >
-            {t("common.cancel")}
+            {isLoading ? <Spinner /> : <Check />}
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading
-              ? t("common.saving")
-              : expense
-              ? t("common.update")
-              : t("common.add")}
-          </Button>
-        </DialogFooter>
+        ) : (
+          <DialogFooter className="border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading
+                ? t("common.saving")
+                : expense
+                ? t("common.update")
+                : t("common.add")}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -206,172 +206,176 @@ export default function Aguinaldo() {
 
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
-        {/* Header */}
-        <div className="flex justify-between items-center gap-2">
-          <div className="flex flex-col justify-start items-start gap-1">
-            {!isMobile && (
-              <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
-                {t("aguinaldo.title")} {aguinaldoYear}
-              </h2>
-            )}
-            <div className="text-sm text-gray-600">
-              {t("aguinaldo.description")}{" "}
-              <span className="font-mono bg-accent text-xs p-1 rounded-sm">
-                {t("aguinaldo.formula")}
-              </span>
-              .
-            </div>
+      {/* Header */}
+      <div className="flex justify-between items-center gap-2">
+        <div className="flex flex-col justify-start items-start gap-1">
+          {!isMobile && (
+            <h2 className="text-2xl font-bold text-accent-foreground flex items-center gap-2">
+              {t("aguinaldo.title")} {aguinaldoYear}
+            </h2>
+          )}
+          <div className="text-sm text-gray-600">
+            {t("aguinaldo.description")}{" "}
+            <span className="font-mono bg-accent text-xs p-1 rounded-sm">
+              {t("aguinaldo.formula")}
+            </span>
+            .
           </div>
         </div>
+      </div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b">
-          <div className="flex flex-col gap-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("aguinaldo.aguinaldoYear")}
-            </label>
-            <ButtonGroup className="w-full">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePrevYear}
-                aria-label="Previous year"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm">
-                {aguinaldoYear}
-              </ButtonGroupText>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleNextYear}
-                aria-label="Next year"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </ButtonGroup>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("common.currency")}
-            </label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((curr) => (
-                  <SelectItem key={curr} value={curr}>
-                    {curr}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b">
+        <div className="flex flex-col gap-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("aguinaldo.aguinaldoYear")}
+          </label>
+          <ButtonGroup className="w-full">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePrevYear}
+              aria-label="Previous year"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <ButtonGroupText className="w-[calc(100%-4.5rem)] justify-center bg-background text-sm">
+              {aguinaldoYear}
+            </ButtonGroupText>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleNextYear}
+              aria-label="Next year"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </ButtonGroup>
         </div>
-
-        {/* Salary Table */}
-        {isLoading ? (
-          <Card className="border border-gray-200 dark:border-accent shadow-md overflow-hidden">
-            <CardHeader>
-              <Skeleton className="h-6 w-48" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+        <div className="flex flex-col gap-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("common.currency")}
+          </label>
+          <Select value={currency} onValueChange={setCurrency}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCIES.map((curr) => (
+                <SelectItem key={curr} value={curr}>
+                  {curr}
+                </SelectItem>
               ))}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden pb-0">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {t("aguinaldo.salariesFor", { year: aguinaldoYear })}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                {aguinaldoMonths.map(({ year, month, label }, index) => {
-                  const monthKey = `${year}-${month}`;
-                  const monthTotal = monthlyTotals[monthKey] || 0;
-                  const salary1 = getSalary(year, month, 1);
-                  const salary2 = getSalary(year, month, 2);
-                  const isSaving1 = savingKey === `${year}-${month}-1`;
-                  const isSaving2 = savingKey === `${year}-${month}-2`;
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-                  return (
-                    <div
-                      key={monthKey}
-                      className={cn(
-                        "w-full flex items-center justify-center gap-2 px-4 py-2 hover:bg-primary/5",
-                        index !== aguinaldoMonths.length - 1 &&
-                          "border-b border-gray-200 dark:border-accent",
-                      )}
-                    >
-                      <div className="grid grid-cols-2 md:grid-cols-4 items-center gap-3 w-full">
-                        <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 justify-between items-start md:items-center gap-3">
-                          <div className="col-span-1">{label}</div>
-                          <div className="col-span-1">
-                            <SalaryInput
-                              year={year}
-                              month={month}
-                              paymentNumber={1}
-                              salary={salary1}
-                              currency={currency}
-                              onSave={handleSave}
-                              isSaving={isSaving1}
-                            />
-                          </div>
-                          <div className="col-span-1">
-                            <SalaryInput
-                              year={year}
-                              month={month}
-                              paymentNumber={2}
-                              salary={salary2}
-                              currency={currency}
-                              onSave={handleSave}
-                              isSaving={isSaving2}
-                            />
-                          </div>
+      {/* Salary Table */}
+      {isLoading ? (
+        <Card className="border border-gray-200 dark:border-accent shadow-md overflow-hidden">
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden pb-0">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {t("aguinaldo.salariesFor", { year: aguinaldoYear })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              {aguinaldoMonths.map(({ year, month, label }, index) => {
+                const monthKey = `${year}-${month}`;
+                const monthTotal = monthlyTotals[monthKey] || 0;
+                const salary1 = getSalary(year, month, 1);
+                const salary2 = getSalary(year, month, 2);
+                const isSaving1 = savingKey === `${year}-${month}-1`;
+                const isSaving2 = savingKey === `${year}-${month}-2`;
+
+                return (
+                  <div
+                    key={monthKey}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 px-4 py-2 hover:bg-primary/5",
+                      index !== aguinaldoMonths.length - 1 &&
+                        "border-b border-gray-200 dark:border-accent",
+                    )}
+                  >
+                    <div className="grid grid-cols-2 md:grid-cols-4 items-center gap-3 w-full">
+                      <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 justify-between items-start md:items-center gap-3">
+                        <div className="col-span-1">{label}</div>
+                        <div className="col-span-1">
+                          <SalaryInput
+                            year={year}
+                            month={month}
+                            paymentNumber={1}
+                            salary={salary1}
+                            currency={currency}
+                            onSave={handleSave}
+                            isSaving={isSaving1}
+                          />
                         </div>
-                        <p
-                          className={cn(
-                            "font-bold col-span-1 text-right",
-                            salary1 && salary2
-                              ? "text-green-600 dark:text-green-400"
-                              : (!salary1 || salary1.gross_amount == 0) &&
-                                (!salary2 || salary2.gross_amount == 0)
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-yellow-600 dark:text-yellow-400",
-                          )}
-                        >
-                          {formatCurrency(monthTotal, currency)}
-                        </p>
+                        <div className="col-span-1">
+                          <SalaryInput
+                            year={year}
+                            month={month}
+                            paymentNumber={2}
+                            salary={salary2}
+                            currency={currency}
+                            onSave={handleSave}
+                            isSaving={isSaving2}
+                          />
+                        </div>
                       </div>
+                      <p
+                        className={cn(
+                          "font-bold col-span-1 text-right",
+                          salary1 && salary2
+                            ? "text-green-600 dark:text-green-400"
+                            : (!salary1 || salary1.gross_amount == 0) &&
+                              (!salary2 || salary2.gross_amount == 0)
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-yellow-600 dark:text-yellow-400",
+                        )}
+                      >
+                        {formatCurrency(monthTotal, currency)}
+                      </p>
                     </div>
-                  );
-                })}
-                <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-gray-200 dark:border-accent bg-blue-800/10 dark:bg-blue-800/20 px-4 py-2 text-blue-800 dark:text-blue-300">
-                  <p className="col-span-1 md:col-span-3 text-right">
-                    {t("aguinaldo.totalAnnualSalary")}
-                  </p>
-                  <p className="col-span-1 text-right font-bold">
-                    {formatCurrency(grandTotal, currency)}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 px-4 py-2 text-xl bg-green-500/10 dark:bg-green-600/20 text-green-600 dark:text-green-400">
-                  <p className="col-span-1 md:col-span-3 text-right">
-                    {t("aguinaldo.title")}
-                  </p>
-                  <p className="col-span-1 text-right font-bold">
-                    {formatCurrency(aguinaldo, currency)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden p-0">
+        <CardContent className="p-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-gray-200 dark:border-accent bg-blue-800/10 dark:bg-blue-800/20 px-4 py-2 text-blue-800 dark:text-blue-300">
+            <p className="col-span-1 md:col-span-3 text-right">
+              {t("aguinaldo.totalAnnualSalary")}
+            </p>
+            <p className="col-span-1 text-right font-bold">
+              {formatCurrency(grandTotal, currency)}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 px-4 py-2 text-xl bg-green-500/10 dark:bg-green-600/20 text-green-600 dark:text-green-400">
+            <p className="col-span-1 md:col-span-3 text-right">
+              {t("aguinaldo.title")}
+            </p>
+            <p className="col-span-1 text-right font-bold">
+              {formatCurrency(aguinaldo, currency)}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 
@@ -379,7 +383,13 @@ export default function Aguinaldo() {
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       {isMobile && <CustomHeader title={t("aguinaldo.title")} />}
       {isMobile ? (
-        <PullToRefresh onRefresh={async () => { await refetch(); }}>{content}</PullToRefresh>
+        <PullToRefresh
+          onRefresh={async () => {
+            await refetch();
+          }}
+        >
+          {content}
+        </PullToRefresh>
       ) : (
         content
       )}

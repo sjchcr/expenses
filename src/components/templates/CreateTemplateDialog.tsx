@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Trash2 } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateTemplate } from "@/hooks/useTemplates";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import type { TemplateAmount } from "@/types";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { useMobile } from "@/hooks/useMobile";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -68,6 +69,7 @@ export function CreateTemplateDialog({
   onOpenChange,
   initialData,
 }: CreateTemplateDialogProps) {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const createMutation = useCreateTemplate();
   const [formData, setFormData] = useState<TemplateFormData>(
@@ -156,7 +158,7 @@ export function CreateTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0">
+      <DialogContent className="max-w-md gap-0" submitOnTop={true}>
         <DialogHeader className="pb-4 border-b">
           <DialogTitle>{t("templates.createTemplate")}</DialogTitle>
           <DialogDescription>
@@ -285,7 +287,7 @@ export function CreateTemplateDialog({
                 <SelectContent className="max-h-60">
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                     <SelectItem key={day} value={String(day)}>
-                      Day {day}
+                      {t("common.day")} {day}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -293,19 +295,31 @@ export function CreateTemplateDialog({
             </div>
           )}
         </form>
-        <DialogFooter className="border-t pt-4">
+        {isMobile ? (
           <Button
             type="button"
-            variant="outline"
-            onClick={handleClose}
+            size="icon"
             disabled={isLoading}
+            onClick={handleSubmit}
+            className="absolute top-4 right-4"
           >
-            {t("common.cancel")}
+            <Check />
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? t("common.saving") : t("common.create")}
-          </Button>
-        </DialogFooter>
+        ) : (
+          <DialogFooter className="border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? t("common.saving") : t("common.create")}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

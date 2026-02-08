@@ -14,14 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -30,7 +22,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useTheme } from "@/hooks/useTheme";
-import { useMobile } from "@/hooks/useMobile";
 import { Mail, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
@@ -337,7 +328,6 @@ function EmailAuthContent({
 export default function Login() {
   const { t } = useTranslation();
   const { resolvedTheme } = useTheme();
-  const isMobile = useMobile();
   const siteTitle = t("siteTitle", {
     defaultValue: import.meta.env.VITE_SITE_TITLE,
   });
@@ -548,68 +538,34 @@ export default function Login() {
         </CardContent>
       </Card>
 
-      {isMobile ? (
-        <Drawer open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
-          <DrawerContent
-            className="bg-background/70 backdrop-blur-lg"
-            closeButton="top-right"
-          >
-            <EmailAuthContent
-              Header={DrawerHeader}
-              Title={DrawerTitle}
-              Description={DrawerDescription}
-              Footer={DrawerFooter}
-              mode={authMode}
-              onChangeMode={changeAuthMode}
-              firstName={firstName}
-              setFirstName={setFirstName}
-              lastName={lastName}
-              setLastName={setLastName}
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              showPassword={showPassword}
-              toggleShowPassword={() => setShowPassword((prev) => !prev)}
-              passwordChecks={passwordChecks}
-              error={error}
-              loading={loading}
-              onSubmit={handleEmailAuth}
-              onForgotPassword={handleForgotPassword}
-              formClassName="px-8"
-            />
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
-          <DialogContent className="bg-background/90 backdrop-blur-lg p-4 max-w-md gap-0">
-            <EmailAuthContent
-              Header={DialogHeader}
-              Title={DialogTitle}
-              Description={DialogDescription}
-              Footer={DialogFooter}
-              mode={authMode}
-              onChangeMode={changeAuthMode}
-              firstName={firstName}
-              setFirstName={setFirstName}
-              lastName={lastName}
-              setLastName={setLastName}
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              showPassword={showPassword}
-              toggleShowPassword={() => setShowPassword((prev) => !prev)}
-              passwordChecks={passwordChecks}
-              error={error}
-              loading={loading}
-              onSubmit={handleEmailAuth}
-              onForgotPassword={handleForgotPassword}
-              buttonClassName="w-full"
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <Dialog open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
+        <DialogContent className="bg-background/90 backdrop-blur-lg p-4 max-w-md gap-0">
+          <EmailAuthContent
+            Header={DialogHeader}
+            Title={DialogTitle}
+            Description={DialogDescription}
+            Footer={DialogFooter}
+            mode={authMode}
+            onChangeMode={changeAuthMode}
+            firstName={firstName}
+            setFirstName={setFirstName}
+            lastName={lastName}
+            setLastName={setLastName}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            showPassword={showPassword}
+            toggleShowPassword={() => setShowPassword((prev) => !prev)}
+            passwordChecks={passwordChecks}
+            error={error}
+            loading={loading}
+            onSubmit={handleEmailAuth}
+            onForgotPassword={handleForgotPassword}
+            buttonClassName="w-full"
+          />
+        </DialogContent>
+      </Dialog>
 
       <Toaster
         richColors

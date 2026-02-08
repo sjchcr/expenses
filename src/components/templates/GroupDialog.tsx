@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Check } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCreateTemplateGroup,
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { ExpenseTemplate, TemplateGroup, TemplateAmount } from "@/types";
+import { useMobile } from "@/hooks/useMobile";
+import { Spinner } from "@/components/ui/spinner";
 
 interface GroupFormData {
   name: string;
@@ -55,6 +57,7 @@ export function GroupDialog({
   group,
   templates,
 }: GroupDialogProps) {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const createMutation = useCreateTemplateGroup();
   const updateMutation = useUpdateTemplateGroup();
@@ -118,7 +121,7 @@ export function GroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0">
+      <DialogContent className="max-w-md gap-0" submitOnTop={true}>
         <DialogHeader className="pb-4 border-b">
           <DialogTitle>
             {isEditing ? t("groups.editGroup") : t("groups.createGroup")}
@@ -196,23 +199,35 @@ export function GroupDialog({
             </p>
           </div>
         </form>
-        <DialogFooter className="border-t pt-4">
+        {isMobile ? (
           <Button
             type="button"
-            variant="outline"
-            onClick={handleClose}
+            size="icon"
+            onClick={handleSubmit}
             disabled={isLoading}
+            className="absolute top-4 right-4"
           >
-            {t("common.cancel")}
+            {isLoading ? <Spinner /> : <Check />}
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading
-              ? t("common.saving")
-              : isEditing
-              ? t("common.update")
-              : t("common.create")}
-          </Button>
-        </DialogFooter>
+        ) : (
+          <DialogFooter className="border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading
+                ? t("common.saving")
+                : isEditing
+                ? t("common.update")
+                : t("common.create")}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

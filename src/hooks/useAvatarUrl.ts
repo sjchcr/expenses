@@ -7,10 +7,42 @@ import {
 } from "@/lib/avatar-events";
 import type { User } from "@supabase/supabase-js";
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour, matches avatarService
-const SIGNED_URL_REFRESH_BUFFER_MS = 5 * 60 * 1000; // refresh 5 minutes before expiry
-const SIGNED_URL_REFRESH_INTERVAL_MS =
-  SIGNED_URL_TTL_SECONDS * 1000 - SIGNED_URL_REFRESH_BUFFER_MS;
+const SIGNED_URL_TTL_MS = 55 * 60 * 1000; // 55 minutes cache TTL
+const SIGNED_URL_REFRESH_INTERVAL_MS = SIGNED_URL_TTL_MS;
+
+// Global cache for signed avatar URLs
+interface AvatarCache {
+  url: string | null;
+  userId: string;
+  timestamp: number;
+  customPath: string | null;
+}
+
+let avatarCache: AvatarCache | null = null;
+
+function isCacheValid(userId: string, customPath: string | null): boolean {
+  if (!avatarCache) return false;
+  if (avatarCache.userId !== userId) return false;
+  if (avatarCache.customPath !== customPath) return false;
+  return Date.now() - avatarCache.timestamp < SIGNED_URL_TTL_MS;
+}
+
+function setCache(
+  userId: string,
+  url: string | null,
+  customPath: string | null,
+) {
+  avatarCache = {
+    url,
+    userId,
+    timestamp: Date.now(),
+    customPath,
+  };
+}
+
+function invalidateCache() {
+  avatarCache = null;
+}
 
 interface RefreshOptions {
   /** Provide an already-created signed URL for instant UI updates */
@@ -25,8 +57,11 @@ export function useAvatarUrl(user: User | null) {
 
   const refreshAvatarUrl = useCallback(
     async (options?: RefreshOptions): Promise<string | null> => {
+      // If an immediate URL is provided (e.g., after upload), use it and invalidate cache
       if (options?.immediateUrl !== undefined) {
+        invalidateCache();
         setAvatarUrl(options.immediateUrl);
+        // Still continue to refresh and cache the proper URL
       }
 
       let effectiveUser = user;
@@ -54,20 +89,30 @@ export function useAvatarUrl(user: User | null) {
         }
       }
 
+      // Check cache before making network requests
+      if (isCacheValid(effectiveUser.id, customPath)) {
+        const cachedUrl = avatarCache!.url;
+        setAvatarUrl(cachedUrl);
+        return cachedUrl;
+      }
+
       if (customPath) {
         try {
           const signedUrl = await avatarService.getSignedAvatarUrl(effectiveUser);
+          setCache(effectiveUser.id, signedUrl, customPath);
           setAvatarUrl(signedUrl);
           return signedUrl;
         } catch {
           // Fall back to OAuth-provided URL
           const fallbackUrl = avatarService.getAvatarUrl(effectiveUser);
+          setCache(effectiveUser.id, fallbackUrl, customPath);
           setAvatarUrl(fallbackUrl);
           return fallbackUrl;
         }
       }
 
       const fallbackUrl = avatarService.getAvatarUrl(effectiveUser);
+      setCache(effectiveUser.id, fallbackUrl, customPath);
       setAvatarUrl(fallbackUrl);
       return fallbackUrl;
     },

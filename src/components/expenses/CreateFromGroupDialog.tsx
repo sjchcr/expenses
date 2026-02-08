@@ -32,6 +32,8 @@ import { useTemplates } from "@/hooks/useTemplates";
 import { useCreateExpense } from "@/hooks/useExpenses";
 import { expensesService } from "@/services/expenses.service";
 import type { PaymentPeriod, ExpenseTemplate } from "@/types";
+import { useMobile } from "@/hooks/useMobile";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CreateFromGroupDialogProps {
   open: boolean;
@@ -51,6 +53,7 @@ export function CreateFromGroupDialog({
   onOpenChange,
   paymentPeriods,
 }: CreateFromGroupDialogProps) {
+  const isMobile = useMobile();
   const { t } = useTranslation();
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([]);
@@ -213,7 +216,7 @@ export function CreateFromGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0">
+      <DialogContent className="max-w-md gap-0" submitOnTop={isMobile}>
         <DialogHeader className="pb-4 border-b">
           <DialogTitle className="flex items-center gap-2">
             {t("expenses.addExpenseFromGroup")}
@@ -418,36 +421,51 @@ export function CreateFromGroupDialog({
                 </>
               )}
             </div>
-            <DialogFooter className="border-t pt-4">
+            {isMobile ? (
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isCreating}
+                onClick={handleCreate}
+                size="icon"
+                disabled={
+                  !selectedGroup ||
+                  selectedTemplateIds.length === 0 ||
+                  isCreating
+                }
+                className="absolute top-4 right-4"
               >
-                {hasCreationStarted ? t("common.close") : t("common.cancel")}
+                {isCreating ? <Spinner /> : <Check />}
               </Button>
-              {!hasCreationStarted && (
+            ) : (
+              <DialogFooter className="border-t pt-4">
                 <Button
-                  onClick={handleCreate}
-                  disabled={
-                    !selectedGroup ||
-                    selectedTemplateIds.length === 0 ||
-                    isCreating
-                  }
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isCreating}
                 >
-                  {isCreating
-                    ? t("common.creating")
-                    : selectedTemplateIds.length === 1
-                    ? t("groups.createExpenses", {
-                        count: selectedTemplateIds.length,
-                      })
-                    : t("groups.createExpensesPlural", {
-                        count: selectedTemplateIds.length,
-                      })}
+                  {hasCreationStarted ? t("common.close") : t("common.cancel")}
                 </Button>
-              )}
-            </DialogFooter>
+                {!hasCreationStarted && (
+                  <Button
+                    onClick={handleCreate}
+                    disabled={
+                      !selectedGroup ||
+                      selectedTemplateIds.length === 0 ||
+                      isCreating
+                    }
+                  >
+                    {isCreating
+                      ? t("common.creating")
+                      : selectedTemplateIds.length === 1
+                      ? t("groups.createExpenses", {
+                          count: selectedTemplateIds.length,
+                        })
+                      : t("groups.createExpensesPlural", {
+                          count: selectedTemplateIds.length,
+                        })}
+                  </Button>
+                )}
+              </DialogFooter>
+            )}
           </>
         )}
       </DialogContent>

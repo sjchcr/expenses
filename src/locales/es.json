@@ -150,7 +150,7 @@
     "noExpenses": "No se encontraron gastos",
     "fromGroup": "Desde grupo",
     "fromGroupDescription": "Crea gastos a partir de un grupo de plantillas. Esto creará un gasto por cada plantilla en el grupo.",
-    "addExpenseFromGroup": "Agregar gastos desde grupo",
+    "addExpenseFromGroup": "Agregar desde grupo",
     "exchangeRates": "Tipos de cambio",
     "paymentPeriod": "Periodo de pago",
     "dueDate": "Fecha de vencimiento",

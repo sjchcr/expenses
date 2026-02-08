@@ -44,7 +44,7 @@ export function DeleteGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{t("groups.deleteGroup")}</DialogTitle>
           <DialogDescription>

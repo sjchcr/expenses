@@ -9,6 +9,8 @@ import {
   FolderPlus,
   Layers,
   Zap,
+  Ellipsis,
+  Edit,
 } from "lucide-react";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useTemplateGroups } from "@/hooks/useTemplateGroups";
@@ -49,13 +51,20 @@ import { TemplateDialog } from "@/components/templates/TemplateDialog";
 import { DeleteTemplateDialog } from "@/components/templates/DeleteTemplateDialog";
 import { GroupDialog } from "@/components/templates/GroupDialog";
 import { DeleteGroupDialog } from "@/components/templates/DeleteGroupDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Helper to format amounts display
 export const formatAmountsDisplay = (amounts: TemplateAmount[]) => {
   return (
-    <div className="flex flex-col justify-start items-start gap-1">
+    <div className="grid grid-cols-2 gap-2 w-full">
       {amounts.map((a, index) => (
-        <p key={index}>
+        <p key={index} className="col-span-1 text-sm">
           {a.amount ? `${a.currency} ${a.amount.toLocaleString()}` : a.currency}
         </p>
       ))}
@@ -240,73 +249,61 @@ export default function Templates() {
                       </CardAction>
                     )}
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="pl-4">
-                            {t("templates.templateName")}
-                          </TableHead>
-                          <TableHead>
-                            {t("templates.currenciesAmounts")}
-                          </TableHead>
-                          <TableHead>{t("common.day")}</TableHead>
-                          <TableHead className="w-24 pr-4">
-                            {t("common.actions")}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {recurringTemplates.map((template) => (
-                          <TableRow
-                            key={template.id}
-                            className="hover:bg-primary/5"
-                          >
-                            <TableCell className="font-medium pl-4">
-                              <p className="font-bold">{template.name}</p>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {formatAmountsDisplay(template.amounts)}
-                            </TableCell>
-                            <TableCell>
+                  <CardContent className="flex flex-col gap-0 p-0">
+                    {recurringTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        className="flex items-center justify-between gap-2 px-4 py-2 border-b hover:bg-primary/5"
+                      >
+                        <div className="flex flex-col items-start justify-start gap-2 w-full">
+                          <p className="font-bold text-sm">{template.name}</p>
+                          <div className="flex justify-between gap-2 w-full">
+                            {formatAmountsDisplay(template.amounts)}
+                            <p className="text-sm w-20">
                               {template.recurrence_day
-                                ? `Day ${template.recurrence_day}`
+                                ? `${t("common.day")} ${
+                                    template.recurrence_day
+                                  }`
                                 : "-"}
-                            </TableCell>
-                            <TableCell className="pr-4">
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
+                            </p>
+                          </div>
+                        </div>
+                        <div className="gap-1">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Ellipsis />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
                                   onClick={() =>
                                     handleOpenTemplateDialog(template)
                                   }
                                 >
-                                  <Pencil className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghostDestructive"
-                                  size="icon"
+                                  <Edit />
+                                  {t("templates.editTemplate")}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  variant="destructive"
                                   onClick={() => handleDeleteTemplate(template)}
                                 >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                      <TableFooter>
-                        <TableRow>
-                          <TableCell colSpan={4} className="px-4 pt-2 pb-0">
-                            <p className="text-xs text-gray-500">
-                              {t("templates.totalTemplates")}:{" "}
-                              {recurringTemplates.length}
-                            </p>
-                          </TableCell>
-                        </TableRow>
-                      </TableFooter>
-                    </Table>
+                                  <Trash2 />
+                                  {t("templates.deleteTemplate")}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-xs text-gray-500 px-4 pt-4">
+                      {t("templates.totalTemplates")}:{" "}
+                      {recurringTemplates.length}
+                    </p>
                   </CardContent>
                 </Card>
               ) : (

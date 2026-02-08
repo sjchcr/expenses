@@ -29,7 +29,7 @@ export function DeleteExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{t("expenses.deleteExpense")}</DialogTitle>
           <DialogDescription>
