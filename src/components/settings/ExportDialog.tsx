@@ -82,7 +82,9 @@ export function ExportDialog({
           headers.join(","),
           ...rows.map((r) => r.map((c) => `"${c}"`).join(",")),
         ].join("\n");
-        filename = `expenses-export-${new Date().toISOString().split("T")[0]}.csv`;
+        filename = `expenses-export-${
+          new Date().toISOString().split("T")[0]
+        }.csv`;
         mimeType = "text/csv";
       } else {
         const exportData = {
@@ -92,7 +94,9 @@ export function ExportDialog({
           templates: templates || [],
         };
         content = JSON.stringify(exportData, null, 2);
-        filename = `expenses-export-${new Date().toISOString().split("T")[0]}.json`;
+        filename = `expenses-export-${
+          new Date().toISOString().split("T")[0]
+        }.json`;
         mimeType = "application/json";
       }
 
@@ -176,10 +180,18 @@ export function ExportDialog({
           </Button>
         ) : (
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => onOpenChange(false)}
+            >
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleExport} disabled={isExporting}>
+            <Button
+              onClick={handleExport}
+              className="w-full"
+              disabled={isExporting}
+            >
               <Download className="h-4 w-4" />
               {isExporting ? t("common.exporting") : t("settings.download")}
             </Button>

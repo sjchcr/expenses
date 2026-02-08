@@ -1,10 +1,17 @@
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Salary } from "@/types";
 import { SalaryInput } from "./SalaryInput";
 import { formatCurrency, type AguinaldoMonth } from "./utils";
+import { Label } from "../ui/label";
 
 interface SalaryTableProps {
   aguinaldoYear: number;
@@ -12,7 +19,11 @@ interface SalaryTableProps {
   currency: string;
   isLoading: boolean;
   savingKey: string | null;
-  getSalary: (year: number, month: number, paymentNumber: number) => Salary | undefined;
+  getSalary: (
+    year: number,
+    month: number,
+    paymentNumber: number,
+  ) => Salary | undefined;
   monthlyTotals: Record<string, number>;
   onSave: (
     year: number,
@@ -50,11 +61,12 @@ export function SalaryTable({
   }
 
   return (
-    <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden pb-0">
+    <Card className="bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden pb-0 gap-4">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {t("aguinaldo.salariesFor", { year: aguinaldoYear })}
         </CardTitle>
+        <CardDescription>{t("aguinaldo.salariesDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -70,33 +82,37 @@ export function SalaryTable({
               <div
                 key={monthKey}
                 className={cn(
-                  "w-full flex items-center justify-center gap-2 px-4 py-2 hover:bg-primary/5",
+                  "w-full flex items-center justify-center gap-2 p-4 hover:bg-primary/5",
                   index !== aguinaldoMonths.length - 1 &&
                     "border-b border-gray-200 dark:border-accent",
                 )}
               >
-                <div className="grid grid-cols-2 md:grid-cols-4 items-center gap-3 w-full">
-                  <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 justify-between items-start md:items-center gap-3">
-                    <div className="col-span-1">{label}</div>
-                    <div className="col-span-1">
-                      <SalaryInput
-                        year={year}
-                        month={month}
-                        paymentNumber={1}
-                        salary={salary1}
-                        onSave={onSave}
-                        isSaving={isSaving1}
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      <SalaryInput
-                        year={year}
-                        month={month}
-                        paymentNumber={2}
-                        salary={salary2}
-                        onSave={onSave}
-                        isSaving={isSaving2}
-                      />
+                <div className="grid grid-cols-2 md:grid-cols-3 items-end gap-3 w-full">
+                  <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 justify-between items-start md:items-center gap-3">
+                    <Label className="text-md pl-0">{label}</Label>
+                    <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4">
+                      <div className="col-span-1 w-full">
+                        <Label>{t("aguinaldo.salary")} 1</Label>
+                        <SalaryInput
+                          year={year}
+                          month={month}
+                          paymentNumber={1}
+                          salary={salary1}
+                          onSave={onSave}
+                          isSaving={isSaving1}
+                        />
+                      </div>
+                      <div className="col-span-1 w-full">
+                        <Label>{t("aguinaldo.salary")} 2</Label>
+                        <SalaryInput
+                          year={year}
+                          month={month}
+                          paymentNumber={2}
+                          salary={salary2}
+                          onSave={onSave}
+                          isSaving={isSaving2}
+                        />
+                      </div>
                     </div>
                   </div>
                   <p
@@ -105,9 +121,9 @@ export function SalaryTable({
                       salary1 && salary2
                         ? "text-green-600 dark:text-green-400"
                         : (!salary1 || salary1.gross_amount == 0) &&
-                            (!salary2 || salary2.gross_amount == 0)
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-yellow-600 dark:text-yellow-400",
+                          (!salary2 || salary2.gross_amount == 0)
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-yellow-600 dark:text-yellow-400",
                     )}
                   >
                     {formatCurrency(monthTotal, currency)}

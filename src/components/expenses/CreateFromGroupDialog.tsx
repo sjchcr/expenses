@@ -304,7 +304,6 @@ export function CreateFromGroupDialog({
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
                           className="h-7 text-xs"
                           onClick={() => {
                             if (
@@ -326,7 +325,7 @@ export function CreateFromGroupDialog({
                         </Button>
                       )}
                     </div>
-                    <div className="mt-1 border rounded-lg max-h-48 overflow-y-auto">
+                    <div className="mt-1 border rounded-lg max-h-48 bg-background overflow-y-auto">
                       {groupTemplates.length > 0 ? (
                         <div className="divide-y">
                           {groupTemplates.map((template) => {
@@ -439,6 +438,7 @@ export function CreateFromGroupDialog({
                 <Button
                   type="button"
                   variant="outline"
+                  className="w-full"
                   onClick={() => onOpenChange(false)}
                   disabled={isCreating}
                 >
@@ -446,6 +446,7 @@ export function CreateFromGroupDialog({
                 </Button>
                 {!hasCreationStarted && (
                   <Button
+                    className="w-full"
                     onClick={handleCreate}
                     disabled={
                       !selectedGroup ||

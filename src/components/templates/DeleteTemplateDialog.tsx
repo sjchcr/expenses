@@ -45,7 +45,11 @@ export function DeleteTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" showCloseButton={false}>
+      <DialogContent
+        className="max-w-sm"
+        showCloseButton={false}
+        fromBottom={false}
+      >
         <DialogHeader>
           <DialogTitle>{t("templates.deleteTemplate")}</DialogTitle>
           <DialogDescription>

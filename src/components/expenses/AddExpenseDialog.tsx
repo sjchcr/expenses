@@ -509,12 +509,18 @@ export function AddExpenseDialog({
             <Button
               type="button"
               variant="outline"
+              className="w-full"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
               {t("common.cancel")}
             </Button>
-            <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
               {isLoading
                 ? t("common.saving")
                 : expense

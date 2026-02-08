@@ -34,7 +34,8 @@
     "of": "of",
     "selected": "selected",
     "selectAll": "Select all",
-    "deselectAll": "Deselect all"
+    "deselectAll": "Deselect all",
+    "loadingMessage": "We are making sure all your data is available."
   },
   "months": {
     "january": "January",
@@ -361,7 +362,9 @@
     "formula": "Total annual salary / 12",
     "aguinaldoYear": "Aguinaldo year",
     "salariesFor": "Salaries for Aguinaldo {{year}}",
+    "salariesDescription": "Enter your gross salaries per payment period. The system will automatically your aguinaldo (13th salary).",
     "totalAnnualSalary": "Total annual salary",
+    "salary": "Salary",
     "salarySaved": "Salary saved",
     "salaryFailed": "Failed to save salary"
   },

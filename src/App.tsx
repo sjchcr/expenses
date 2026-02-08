@@ -48,6 +48,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboardingReminder, setShowOnboardingReminder] = useState(false);
@@ -114,8 +115,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-dvh w-full bg-background">
+      <div className="flex flex-col items-center justify-center min-h-dvh w-full bg-background">
         <Spinner className="size-12" />
+        <h2 className="font-bold text-2xl">{t("dashboard.welcomeBack")}</h2>
+        <p className="text-muted-foreground">{t("common.loadingMessage")}</p>
       </div>
     );
   }
@@ -125,18 +128,27 @@ function App() {
       <BrowserRouter>
         <Suspense
           fallback={
-            <div className="flex items-center justify-center min-h-dvh w-full bg-background">
+            <div className="flex flex-col items-center justify-center min-h-dvh w-full bg-background">
               <Spinner className="size-12" />
+              <h2 className="font-bold text-2xl">
+                {t("dashboard.welcomeBack")}
+              </h2>
+              <p className="text-muted-foreground">
+                {t("common.loadingMessage")}
+              </p>
             </div>
           }
         >
           <Routes>
-            <Route path="/login" element={user ? <Navigate to="/expenses" /> : <Login />} />
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/expenses" /> : <Login />}
+            />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* Protected routes with layout */}
-            <Route element={user ? <Layout /> : <Navigate to="/login" /> }>
+            <Route element={user ? <Layout /> : <Navigate to="/login" />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/templates" element={<Templates />} />
@@ -144,7 +156,10 @@ function App() {
               <Route path="/settings" element={<Settings />} />
             </Route>
 
-            <Route path="/" element={<Navigate to={user ? "/expenses" : "/login"} />} />
+            <Route
+              path="/"
+              element={<Navigate to={user ? "/expenses" : "/login"} />}
+            />
           </Routes>
           <OnboardingReminderModal
             open={showOnboardingReminder}

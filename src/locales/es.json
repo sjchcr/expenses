@@ -34,7 +34,8 @@
     "of": "de",
     "selected": "seleccionado",
     "selectAll": "Seleccionar todo",
-    "deselectAll": "Deseleccionar todo"
+    "deselectAll": "Deseleccionar todo",
+    "loadingMessage": "Nos estamos asegurando que todos tus datos estén disponibles."
   },
   "months": {
     "january": "Enero",
@@ -361,7 +362,9 @@
     "formula": "Salario anual total / 12",
     "aguinaldoYear": "Año del aguinaldo",
     "salariesFor": "Salarios para aguinaldo {{year}}",
+    "salariesDescription": "Ingrese sus salarios brutos por periodo de pago. El sistema calculará automáticamente tu aguinaldo.",
     "totalAnnualSalary": "Salario anual total",
+    "salary": "Salario",
     "salarySaved": "Salario guardado",
     "salaryFailed": "Error al guardar el salario"
   },

@@ -88,7 +88,9 @@ const NavItem = ({ path, labelKey, icon: Icon, isActive }: NavItemProps) => {
         className={cn(
           navigationMenuTriggerStyle(),
           "flex items-center flex-row rounded-full",
-          isActive && "bg-accent text-accent-foreground",
+          isActive
+            ? "bg-background text-accent-foreground border"
+            : "bg-transparent border border-transparent hover:bg-background hover:border-border",
         )}
       >
         <Link to={path}>
@@ -166,7 +168,7 @@ const Header = () => {
   return isMobile ? (
     <MobileNavigation currentPath={location.pathname} items={NAV_ITEMS} />
   ) : (
-    <header className="bg-background/60 backdrop-blur-2xl shadow-sm sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
+    <header className="bg-muted/60 backdrop-blur-lg border-b sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
       <div className="md:w-10/12 mx-auto sm:w-full px-4 md:px-0">
         <div className="flex justify-between items-center gap-2">
           {/* Left: App icon and title */}

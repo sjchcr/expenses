@@ -29,7 +29,11 @@ export function DeleteExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" showCloseButton={false}>
+      <DialogContent
+        className="max-w-sm"
+        showCloseButton={false}
+        fromBottom={false}
+      >
         <DialogHeader>
           <DialogTitle>{t("expenses.deleteExpense")}</DialogTitle>
           <DialogDescription>
@@ -60,6 +64,7 @@ export function DeleteExpenseDialog({
           <Button
             type="button"
             variant="outline"
+            className="w-full"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
@@ -68,6 +73,7 @@ export function DeleteExpenseDialog({
           <Button
             type="button"
             variant="destructive"
+            className="w-full"
             onClick={onConfirm}
             disabled={isDeleting}
           >

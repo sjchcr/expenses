@@ -50,11 +50,13 @@ function DialogContent({
   children,
   showCloseButton = true,
   submitOnTop = false,
+  fromBottom = true,
   style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
   submitOnTop?: boolean;
+  fromBottom?: boolean;
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -62,11 +64,14 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         data-submit-on-top={submitOnTop ? "true" : undefined}
+        data-from-bottom={fromBottom ? "true" : undefined}
         className={cn(
           // Base styles
           "group/dialog-content bg-background/90 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed z-50 grid gap-4 border p-4 shadow-lg duration-200 outline-none",
           // Mobile: bottom sheet with auto height, max height respects safe area
-          "inset-x-0 bottom-0 max-h-[calc(100dvh-env(safe-area-inset-top)-1rem)] rounded-t-3xl rounded-b-none data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          fromBottom
+            ? "inset-x-0 bottom-0 max-h-[calc(100dvh-env(safe-area-inset-top)-1rem)] rounded-t-3xl rounded-b-none data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom"
+            : "left-[50%] right-auto bottom-auto top-[50%] w-full max-h-[85vh] translate-x-[-50%] translate-y-[-50%] rounded-3xl data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-bottom-0 data-[state=open]:slide-in-from-bottom-0",
           // Desktop: centered modal
           "sm:left-[50%] sm:right-auto sm:bottom-auto sm:top-[50%] sm:w-full sm:max-w-lg sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-3xl sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0",
           className,
@@ -99,7 +104,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="dialog-header"
       className={cn(
         "flex flex-col gap-2 text-left pr-19 sm:pr-13",
-        "group-data-[submit-on-top=true]/dialog-content:pr-0 group-data-[submit-on-top=true]/dialog-content:pl-0",
+        "group-data-[submit-on-top=true]/dialog-content:pr-0 group-data-[submit-on-top=true]/dialog-content:pl-0 group-data-[submit-from-bottom=false]/dialog-content:pr-0 group-data-[submit-from-bottom=false]/dialog-content:pl-0",
         className,
       )}
       {...props}

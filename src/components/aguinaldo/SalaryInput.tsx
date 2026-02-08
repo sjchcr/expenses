@@ -56,7 +56,7 @@ export function SalaryInput({
 
   return (
     <div className="relative">
-      <InputGroup>
+      <InputGroup className="bg-background hover:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:bg-input/30">
         <InputGroupInput
           type="number"
           step="0.01"

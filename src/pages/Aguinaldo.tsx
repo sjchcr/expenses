@@ -110,6 +110,12 @@ export default function Aguinaldo() {
         onCurrencyChange={setCurrency}
       />
 
+      <AguinaldoSummary
+        grandTotal={grandTotal}
+        aguinaldo={aguinaldo}
+        currency={currency}
+      />
+
       <SalaryTable
         aguinaldoYear={aguinaldoYear}
         aguinaldoMonths={aguinaldoMonths}

@@ -154,7 +154,7 @@ export function GroupDialog({
             <Label className="mb-2 block">
               {t("groups.selectTemplates")} *
             </Label>
-            <div className="border rounded-lg max-h-64 overflow-y-auto">
+            <div className="border rounded-lg max-h-64 bg-background overflow-y-auto">
               {templates && templates.length > 0 ? (
                 <div className="divide-y">
                   {templates.map((template) => (
@@ -213,13 +213,19 @@ export function GroupDialog({
           <DialogFooter className="border-t pt-4">
             <Button
               type="button"
+              className="w-full"
               variant="outline"
               onClick={handleClose}
               disabled={isLoading}
             >
               {t("common.cancel")}
             </Button>
-            <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
               {isLoading
                 ? t("common.saving")
                 : isEditing

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Plus, Layers } from "lucide-react";
+import { Plus, LayersPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMobile } from "@/hooks/useMobile";
 
@@ -31,7 +31,7 @@ export function ExpensesHeader({
         <div className="flex flex-col sm:flex-row gap-2">
           {hasGroups && (
             <Button variant="outline" onClick={onFromGroup}>
-              <Layers className="h-4 w-4" />
+              <LayersPlus className="h-4 w-4" />
               {t("expenses.fromGroup")}
             </Button>
           )}
