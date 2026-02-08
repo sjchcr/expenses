@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useKeyboard } from "@/hooks/useKeyboard";
 
 function Dialog({
   ...props
@@ -38,7 +37,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 backdrop-blur-sm bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className,
       )}
       {...props}
@@ -57,8 +56,6 @@ function DialogContent({
   showCloseButton?: boolean;
   submitOnTop?: boolean;
 }) {
-  const { isOpen: isKeyboardOpen } = useKeyboard();
-
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -66,13 +63,15 @@ function DialogContent({
         data-slot="dialog-content"
         data-submit-on-top={submitOnTop ? "true" : undefined}
         className={cn(
-          "group/dialog-content bg-background/90 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-3xl border p-4 shadow-lg duration-200 outline-none sm:max-w-lg",
+          // Base styles
+          "group/dialog-content bg-background/90 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed z-50 grid gap-4 border p-4 shadow-lg duration-200 outline-none",
+          // Mobile: bottom sheet with auto height, max height respects safe area
+          "inset-x-0 bottom-0 max-h-[calc(100dvh-env(safe-area-inset-top)-1rem)] rounded-t-3xl rounded-b-none data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          // Desktop: centered modal
+          "sm:left-[50%] sm:right-auto sm:bottom-auto sm:top-[50%] sm:w-full sm:max-w-lg sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-3xl sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0",
           className,
         )}
-        style={{
-          marginTop: isKeyboardOpen ? "env(safe-area-inset-top)" : undefined,
-          ...style,
-        }}
+        style={style}
         {...props}
       >
         {children}
