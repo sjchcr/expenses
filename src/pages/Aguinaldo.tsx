@@ -131,7 +131,7 @@ export default function Aguinaldo() {
 
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
-      {isMobile && <CustomHeader title={t("aguinaldo.title")} />}
+      {isMobile && <CustomHeader title={t("aguinaldo.title")} hasAvatar />}
       {isMobile ? (
         <PullToRefresh
           onRefresh={async () => {
