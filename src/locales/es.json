@@ -367,5 +367,95 @@
   },
   "footer": {
     "rights": "Todos los derechos reservados."
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "description": "Tu privacidad es nuestra prioridad. No vendemos ni compartimos tus datos con terceros. Toda tu información se almacena de forma segura y solo se utiliza para brindarte la mejor experiencia posible.",
+    "intro": "Esta política de privacidad aplica a la app SJ Financial Tracker (en adelante, la \"Aplicación\") para dispositivos móviles que fue creada por Steven Jimenez (en adelante, el \"Proveedor del Servicio\") como un servicio gratuito. Este servicio está destinado para usarse \"TAL CUAL\".",
+    "sections": [
+      {
+        "id": "information",
+        "title": "Recopilación y uso de información",
+        "paragraphs": [
+          "La Aplicación recopila información cuando la descargas y la usas. Esta información puede incluir detalles como:"
+        ],
+        "list": [
+          "La dirección IP de tu dispositivo (por ejemplo, dirección IP)",
+          "Las páginas de la Aplicación que visitas, la fecha y hora de tu visita y el tiempo que pasas en esas páginas",
+          "El tiempo que pasas en la Aplicación",
+          "El sistema operativo que utilizas en tu dispositivo móvil"
+        ],
+        "afterList": [
+          "La Aplicación no recopila información precisa sobre la ubicación de tu dispositivo móvil.",
+          "El Proveedor del Servicio puede utilizar la información que proporcionas para contactarte ocasionalmente con información importante, avisos requeridos o promociones.",
+          "Para ofrecerte una mejor experiencia al usar la Aplicación, el Proveedor del Servicio puede solicitar cierta información de identificación personal, incluida, entre otros datos, correo electrónico, nombre, ID de usuario, información financiera y contenido generado por el usuario. La información solicitada se conservará y utilizará según lo descrito en esta política de privacidad."
+        ]
+      },
+      {
+        "id": "thirdParty",
+        "title": "Acceso de terceros",
+        "paragraphs": [
+          "Solo se transmite periódicamente información agregada y anonimizada a servicios externos para ayudar al Proveedor del Servicio a mejorar la Aplicación y su servicio. El Proveedor del Servicio puede compartir tu información con terceros en las formas descritas en esta declaración de privacidad."
+        ],
+        "listTitle": "El Proveedor del Servicio puede divulgar la información proporcionada por el usuario y la recopilada automáticamente:",
+        "list": [
+          "cuando lo requiera la ley, como para cumplir con una citación o un proceso legal similar;",
+          "cuando crea de buena fe que la divulgación es necesaria para proteger sus derechos, tu seguridad o la seguridad de otros, investigar fraudes o responder a una solicitud del gobierno;",
+          "con proveedores de servicios de confianza que trabajan en su nombre, no tienen un uso independiente de la información y aceptaron cumplir las reglas establecidas en esta declaración de privacidad."
+        ]
+      },
+      {
+        "id": "optOut",
+        "title": "Derechos de exclusión",
+        "paragraphs": [
+          "Puedes detener toda recopilación de información por parte de la Aplicación desinstalándola. Puedes usar los procesos de desinstalación estándar de tu dispositivo móvil o a través de la tienda de aplicaciones o red."
+        ]
+      },
+      {
+        "id": "dataRetention",
+        "title": "Política de retención de datos",
+        "paragraphs": [
+          "El Proveedor del Servicio conservará los datos proporcionados por el usuario mientras uses la Aplicación y durante un tiempo razonable después. Si deseas que eliminen los datos proporcionados a través de la Aplicación, comunícate con ellos en {{email}} y responderán en un tiempo razonable."
+        ]
+      },
+      {
+        "id": "children",
+        "title": "Menores",
+        "paragraphs": [
+          "El Proveedor del Servicio no utiliza la Aplicación para recopilar deliberadamente datos ni dirigir marketing a menores de 13 años.",
+          "El Proveedor del Servicio no recopila conscientemente información personal identificable de menores e invita a padres o tutores a supervisar el uso de Internet de sus hijos. Si crees que un menor proporcionó información a través de la Aplicación o los Servicios, comunícate con el Proveedor del Servicio en {{email}} para que se tomen las medidas necesarias. También debes tener al menos 16 años para consentir el procesamiento de tu información personal en tu país (en algunos países tu padre, madre o tutor puede hacerlo en tu nombre)."
+        ]
+      },
+      {
+        "id": "security",
+        "title": "Seguridad",
+        "paragraphs": [
+          "El Proveedor del Servicio se preocupa por proteger la confidencialidad de tu información y proporciona salvaguardas físicas, electrónicas y procedimentales para proteger la información que procesa y mantiene."
+        ]
+      },
+      {
+        "id": "changes",
+        "title": "Cambios",
+        "paragraphs": [
+          "Esta Política de Privacidad puede actualizarse periódicamente por cualquier motivo.",
+          "El Proveedor del Servicio te notificará cualquier cambio actualizando esta página con la nueva Política de Privacidad. Se recomienda revisar esta política con regularidad, ya que el uso continuo implica la aceptación de todos los cambios.",
+          "Esta política de privacidad es efectiva a partir del {{effectiveDate}}."
+        ]
+      },
+      {
+        "id": "consent",
+        "title": "Tu consentimiento",
+        "paragraphs": [
+          "Al usar la Aplicación, das tu consentimiento para el procesamiento de tu información según lo establecido en esta Política de Privacidad, ahora y según sea modificada por nosotros."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Contáctanos",
+        "paragraphs": [
+          "Si tienes preguntas sobre privacidad mientras usas la Aplicación o sobre estas prácticas, comunícate con el Proveedor del Servicio al {{email}}."
+        ]
+      }
+    ]
   }
 }
