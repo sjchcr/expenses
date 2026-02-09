@@ -49,6 +49,7 @@ const queryClient = new QueryClient({
 
 function App() {
   const { t } = useTranslation();
+  const { resolvedTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboardingReminder, setShowOnboardingReminder] = useState(false);
@@ -115,10 +116,21 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-dvh w-full bg-background">
+      <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
+        <img
+          src={
+            resolvedTheme === "dark"
+              ? "/icon-1024x1024-dark.png"
+              : "/icon-1024x1024.png"
+          }
+          alt="Financial Tracker"
+          className="h-24 w-24 animate-bounce"
+        />
         <Spinner className="size-12" />
-        <h2 className="font-bold text-2xl">{t("dashboard.welcomeBack")}</h2>
-        <p className="text-muted-foreground">{t("common.loadingMessage")}</p>
+        <div className="flex flex-col items-center justify-center gap-1">
+          <h2 className="font-bold text-2xl">{t("dashboard.welcomeBack")}</h2>
+          <p className="text-muted-foreground">{t("common.loadingMessage")}</p>
+        </div>
       </div>
     );
   }
@@ -128,14 +140,25 @@ function App() {
       <BrowserRouter>
         <Suspense
           fallback={
-            <div className="flex flex-col items-center justify-center min-h-dvh w-full bg-background">
+            <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
+              <img
+                src={
+                  resolvedTheme === "dark"
+                    ? "/icon-1024x1024-dark.png"
+                    : "/icon-1024x1024.png"
+                }
+                alt="Financial Tracker"
+                className="h-24 w-24 animate-bounce"
+              />
               <Spinner className="size-12" />
-              <h2 className="font-bold text-2xl">
-                {t("dashboard.welcomeBack")}
-              </h2>
-              <p className="text-muted-foreground">
-                {t("common.loadingMessage")}
-              </p>
+              <div className="flex flex-col items-center justify-center gap-1">
+                <h2 className="font-bold text-2xl">
+                  {t("dashboard.welcomeBack")}
+                </h2>
+                <p className="text-muted-foreground">
+                  {t("common.loadingMessage")}
+                </p>
+              </div>
             </div>
           }
         >

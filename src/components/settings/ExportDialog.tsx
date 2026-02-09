@@ -142,7 +142,7 @@ export function ExportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" submitOnTop={isMobile}>
+      <DialogContent className="max-w-md" submitOnTop={isMobile}>
         <DialogHeader>
           <DialogTitle>{t("settings.exportData")}</DialogTitle>
           <DialogDescription>{t("settings.exportDataDesc")}</DialogDescription>
