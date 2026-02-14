@@ -559,7 +559,11 @@ export default function Templates() {
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       {isMobile && (
-        <CustomHeader actions={buttons} title={t("templates.title")} />
+        <CustomHeader
+          actions={buttons}
+          title={t("templates.title")}
+          hasAvatar={true}
+        />
       )}
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>{content}</PullToRefresh>

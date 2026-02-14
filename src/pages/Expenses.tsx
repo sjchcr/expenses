@@ -258,10 +258,18 @@ export default function Expenses() {
   return (
     <div className="w-full mx-auto pb-6 sm:pt-6 md:px-[calc(100%/12)] sm:px-6">
       {isMobile && (
-        <CustomHeader actions={buttons} title={t("expenses.title")} />
+        <CustomHeader
+          actions={buttons}
+          title={t("expenses.title")}
+          hasAvatar={true}
+        />
       )}
       {isMobile ? (
-        <PullToRefresh onRefresh={async () => { await refetch(); }}>
+        <PullToRefresh
+          onRefresh={async () => {
+            await refetch();
+          }}
+        >
           {content}
         </PullToRefresh>
       ) : (

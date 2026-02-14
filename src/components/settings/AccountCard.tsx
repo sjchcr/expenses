@@ -82,7 +82,7 @@ export function AccountCard({ user, onProfileUpdate }: AccountCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <AvatarUpload user={user} onAvatarChange={onProfileUpdate} />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-2">
             <Label htmlFor="firstName">{t("settings.firstName")}</Label>
             <Input
@@ -105,7 +105,7 @@ export function AccountCard({ user, onProfileUpdate }: AccountCardProps) {
         {userEmail && (
           <div>
             <Label className="text-xs text-gray-500">Email</Label>
-            <p className="font-medium text-sm">{userEmail}</p>
+            <p className="font-medium text-sm pl-3">{userEmail}</p>
           </div>
         )}
         <Button
