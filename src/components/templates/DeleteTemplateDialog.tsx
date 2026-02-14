@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { ExpenseTemplate } from "@/types";
-import { formatAmountsDisplay } from "@/pages/Templates";
+import { formatAmountsDisplay } from "./utils";
 
 interface DeleteTemplateDialogProps {
   open: boolean;
@@ -67,7 +67,7 @@ export function DeleteTemplateDialog({
             {t("templates.currenciesAmounts")}
           </p>
           <p className="col-span-2 text-gray-600">
-            {formatAmountsDisplay(template?.amounts || [])}
+            {formatAmountsDisplay(template?.amounts || []).join(", ")}
           </p>
         </div>
         <DialogFooter>
