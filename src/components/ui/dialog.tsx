@@ -4,6 +4,10 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  useDialogRegistration,
+  useKeyboardPadding,
+} from "@/contexts/KeyboardPaddingContext";
 
 function Dialog({
   ...props
@@ -58,6 +62,14 @@ function DialogContent({
   submitOnTop?: boolean;
   fromBottom?: boolean;
 }) {
+  const { registerDialog, unregisterDialog } = useDialogRegistration();
+  const { paddingBottom } = useKeyboardPadding("dialog");
+
+  React.useEffect(() => {
+    registerDialog();
+    return () => unregisterDialog();
+  }, [registerDialog, unregisterDialog]);
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -76,7 +88,7 @@ function DialogContent({
           "sm:left-[50%] sm:right-auto sm:bottom-auto sm:top-[50%] sm:w-full sm:max-w-lg sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-3xl sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0",
           className,
         )}
-        style={style}
+        style={{ ...style, paddingBottom: paddingBottom || undefined }}
         {...props}
       >
         {children}

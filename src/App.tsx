@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { KeyboardPaddingProvider } from "@/contexts/KeyboardPaddingContext";
 import { supabase } from "@/lib/supabase";
 import { authService } from "@/services/auth.service";
 import { settingsService } from "@/services/settings.service";
@@ -137,7 +138,8 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <KeyboardPaddingProvider>
+        <BrowserRouter>
         <Suspense
           fallback={
             <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
@@ -189,8 +191,9 @@ function App() {
             onClose={() => setShowOnboardingReminder(false)}
           />
         </Suspense>
-      </BrowserRouter>
-      <ReactQueryDevtools initialIsOpen={false} />
+        </BrowserRouter>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </KeyboardPaddingProvider>
     </QueryClientProvider>
   );
 }
