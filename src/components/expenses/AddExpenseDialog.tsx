@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -265,235 +266,233 @@ export function AddExpenseDialog({
               : t("expenses.addExpenseDescription")}
           </DialogDescription>
         </DialogHeader>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4"
-        >
-          {!expense && templates && templates.length > 0 && (
-            <div className="pb-2 border-b">
-              <Label htmlFor="template" className="flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5" />
-                {t("expenses.createFromTemplate")}
-              </Label>
-              <Select
-                value={selectedTemplateId}
-                onValueChange={handleTemplateSelect}
-              >
-                <SelectTrigger id="template" className="mt-1 w-full">
-                  <SelectValue placeholder={t("expenses.selectTemplate")} />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  <SelectItem value="none">
-                    {t("expenses.noTemplate")}
-                  </SelectItem>
-                  {templates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.name} (
-                      {template.amounts.map((a) => a.currency).join(", ")})
-                      {template.is_recurring && " - Recurring"}
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            {!expense && templates && templates.length > 0 && (
+              <div className="pb-2 border-b">
+                <Label htmlFor="template" className="flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5" />
+                  {t("expenses.createFromTemplate")}
+                </Label>
+                <Select
+                  value={selectedTemplateId}
+                  onValueChange={handleTemplateSelect}
+                >
+                  <SelectTrigger id="template" className="mt-1 w-full">
+                    <SelectValue placeholder={t("expenses.selectTemplate")} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    <SelectItem value="none">
+                      {t("expenses.noTemplate")}
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <div className="relative">
-            <Label htmlFor="name">{t("common.name")} *</Label>
-            <Input
-              ref={nameInputRef}
-              id="name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setShowSuggestions(true);
-                setSelectedTemplateId("");
-              }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => {
-                // Delay hiding to allow click on suggestion
-                setTimeout(() => setShowSuggestions(false), 150);
-              }}
-              placeholder={t("expenses.namePlaceholder")}
-              required
-              autoComplete="off"
-            />
-            {/* Auto-suggest dropdown */}
-            {showSuggestions && suggestedTemplates.length > 0 && !expense && (
-              <div className="absolute z-50 w-full mt-1 bg-background/60 backdrop-blur-2xl dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
-                <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
-                  {t("expenses.suggestionsFromTemplates")}
-                </div>
-                {suggestedTemplates.map((template) => (
-                  <Button
-                    key={template.id}
-                    variant="ghost"
-                    type="button"
-                    className="w-full px-3 py-2 text-left text-sm flex items-center justify-between rounded-none!"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleSuggestionSelect(template.id);
-                    }}
-                  >
-                    <span className="font-medium">{template.name}</span>
-                    <span className="text-xs text-gray-500">
-                      {template.amounts.map((a) => a.currency).join(", ")}
-                      {template.is_recurring && " · Recurring"}
-                    </span>
-                  </Button>
-                ))}
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name} (
+                        {template.amounts.map((a) => a.currency).join(", ")})
+                        {template.is_recurring && " - Recurring"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label>{t("expenses.amounts")} *</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleAddAmount}
-                className="h-7 text-xs"
-              >
-                <Plus className="h-3 w-3" />
-                {t("expenses.addCurrency")}
-              </Button>
+            <div className="relative">
+              <Label htmlFor="name">{t("common.name")} *</Label>
+              <Input
+                ref={nameInputRef}
+                id="name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setShowSuggestions(true);
+                  setSelectedTemplateId("");
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => {
+                  // Delay hiding to allow click on suggestion
+                  setTimeout(() => setShowSuggestions(false), 150);
+                }}
+                placeholder={t("expenses.namePlaceholder")}
+                required
+                autoComplete="off"
+              />
+              {/* Auto-suggest dropdown */}
+              {showSuggestions && suggestedTemplates.length > 0 && !expense && (
+                <div className="absolute z-50 w-full mt-1 bg-background/60 backdrop-blur-2xl dark:bg-accent dark:border-accent border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                  <div className="px-2 py-1.5 text-xs text-gray-500 border-b">
+                    {t("expenses.suggestionsFromTemplates")}
+                  </div>
+                  {suggestedTemplates.map((template) => (
+                    <Button
+                      key={template.id}
+                      variant="ghost"
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm flex items-center justify-between rounded-none!"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSuggestionSelect(template.id);
+                      }}
+                    >
+                      <span className="font-medium">{template.name}</span>
+                      <span className="text-xs text-gray-500">
+                        {template.amounts.map((a) => a.currency).join(", ")}
+                        {template.is_recurring && " · Recurring"}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="space-y-3">
-              {amounts.map((amountData, index) => (
-                <div
-                  key={index}
-                  className="space-y-2 pb-3 border-b border-dashed last:border-0 last:pb-0"
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>{t("expenses.amounts")} *</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAddAmount}
+                  className="h-7 text-xs"
                 >
-                  <div className="flex items-center w-full gap-2">
-                    <ButtonGroup className="w-full">
-                      <Select
-                        value={amountData.currency}
-                        onValueChange={(value) =>
-                          handleAmountChange(index, "currency", value)
-                        }
+                  <Plus className="h-3 w-3" />
+                  {t("expenses.addCurrency")}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {amounts.map((amountData, index) => (
+                  <div
+                    key={index}
+                    className="space-y-2 pb-3 border-b border-dashed last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-center w-full gap-2">
+                      <ButtonGroup className="w-full">
+                        <Select
+                          value={amountData.currency}
+                          onValueChange={(value) =>
+                            handleAmountChange(index, "currency", value)
+                          }
+                        >
+                          <SelectTrigger className="font-mono">
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                          <SelectContent className="min-w-24">
+                            <SelectGroup>
+                              {COMMON_CURRENCIES.map((curr) => (
+                                <SelectItem key={curr} value={curr}>
+                                  {curr}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={amountData.amount}
+                          onChange={(e) =>
+                            handleAmountChange(index, "amount", e.target.value)
+                          }
+                          placeholder="0.00"
+                          required={index === 0}
+                        />
+                      </ButtonGroup>
+                      <Button
+                        type="button"
+                        variant="ghostDestructive"
+                        size="icon"
+                        onClick={() => handleRemoveAmount(index)}
+                        disabled={amounts.length === 1}
+                        className="aspect-square"
                       >
-                        <SelectTrigger className="font-mono">
-                          <SelectValue placeholder="Currency" />
-                        </SelectTrigger>
-                        <SelectContent className="min-w-24">
-                          <SelectGroup>
-                            {COMMON_CURRENCIES.map((curr) => (
-                              <SelectItem key={curr} value={curr}>
-                                {curr}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 pl-3">
+                        <Checkbox
+                          id={`paid-${index}`}
+                          checked={amountData.paid}
+                          onCheckedChange={(checked) => {
+                            const newAmounts = [...amounts];
+                            newAmounts[index] = {
+                              ...newAmounts[index],
+                              paid: checked as boolean,
+                            };
+                            setAmounts(newAmounts);
+                          }}
+                        />
+                        <Label
+                          htmlFor={`paid-${index}`}
+                          className="text-sm text-muted-foreground pl-0"
+                        >
+                          {t("common.paid")}
+                        </Label>
+                      </div>
                       <Input
                         type="number"
-                        step="0.01"
+                        step="0.0001"
                         min="0"
-                        value={amountData.amount}
+                        value={amountData.exchange_rate}
                         onChange={(e) =>
-                          handleAmountChange(index, "amount", e.target.value)
+                          handleAmountChange(
+                            index,
+                            "exchange_rate",
+                            e.target.value,
+                          )
                         }
-                        placeholder="0.00"
-                        required={index === 0}
+                        placeholder={t("expenses.exchangeRateOptional")}
+                        className="text-sm w-full"
                       />
-                    </ButtonGroup>
-                    <Button
-                      type="button"
-                      variant="ghostDestructive"
-                      size="icon"
-                      onClick={() => handleRemoveAmount(index)}
-                      disabled={amounts.length === 1}
-                      className="aspect-square"
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 pl-3">
-                      <Checkbox
-                        id={`paid-${index}`}
-                        checked={amountData.paid}
-                        onCheckedChange={(checked) => {
-                          const newAmounts = [...amounts];
-                          newAmounts[index] = {
-                            ...newAmounts[index],
-                            paid: checked as boolean,
-                          };
-                          setAmounts(newAmounts);
-                        }}
-                      />
-                      <Label
-                        htmlFor={`paid-${index}`}
-                        className="text-sm text-muted-foreground pl-0"
-                      >
-                        {t("common.paid")}
-                      </Label>
                     </div>
-                    <Input
-                      type="number"
-                      step="0.0001"
-                      min="0"
-                      value={amountData.exchange_rate}
-                      onChange={(e) =>
-                        handleAmountChange(
-                          index,
-                          "exchange_rate",
-                          e.target.value,
-                        )
-                      }
-                      placeholder={t("expenses.exchangeRateOptional")}
-                      className="text-sm w-full"
-                    />
+                    <p className="text-xs text-muted-foreground px-3">
+                      {t("expenses.exchangeRateHint")}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground px-3">
-                    {t("expenses.exchangeRateHint")}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label
-              htmlFor="due_date"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              {t("expenses.dueDate")}
-            </Label>
-            <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-full justify-between font-normal"
-                >
-                  {dueDate ? dueDate : t("expenses.selectDate")}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-fit overflow-hidden p-0"
-                align="start"
+            <div>
+              <Label
+                htmlFor="due_date"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                <Calendar
-                  mode="single"
-                  selected={parseISO(dueDate)}
-                  month={calendarMonth}
-                  onMonthChange={setCalendarMonth}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    setDueDate(format(date!, "yyyy-MM-dd"));
-                    setCalendarMonth(date!);
-                    setOpenStartDate(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-        </form>
+                {t("expenses.dueDate")}
+              </Label>
+              <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-full justify-between font-normal"
+                  >
+                    {dueDate ? dueDate : t("expenses.selectDate")}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-fit overflow-hidden p-0"
+                  align="start"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={parseISO(dueDate)}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    captionLayout="dropdown"
+                    onSelect={(date) => {
+                      setDueDate(format(date!, "yyyy-MM-dd"));
+                      setCalendarMonth(date!);
+                      setOpenStartDate(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </form>
+        </DialogBody>
         {isMobile ? (
           <Button
             type="button"

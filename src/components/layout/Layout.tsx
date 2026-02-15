@@ -3,17 +3,26 @@ import { Toaster } from "sonner";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import { useTheme } from "@/hooks/useTheme";
+import { useIsDialogOpen } from "@/contexts/KeyboardPaddingContext";
 
 export default function Layout() {
   const { resolvedTheme } = useTheme();
+  const isDialogOpen = useIsDialogOpen();
 
   return (
     <div className="min-h-dvh">
       {/* Navigation */}
       <Header />
 
-      {/* Page Content */}
-      <main className="min-h-[calc(100dvh-133px)] pb-24 md:pb-0">
+      {/* Page Content - scrollable main with keyboard padding when no dialog is open */}
+      <main
+        className="min-h-[calc(100dvh-133px)] pb-24 md:pb-0"
+        style={{
+          paddingBottom: !isDialogOpen
+            ? "calc(6rem + env(safe-area-inset-bottom) + var(--kb, 0px))"
+            : undefined,
+        }}
+      >
         <Outlet />
       </main>
 

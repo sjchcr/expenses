@@ -5,7 +5,8 @@ import { Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { AuthMode, PasswordChecks } from "./types";
+import type { AuthMode, PasswordChecks } from "@/components/login/types";
+import { DialogBody } from "@/components/ui/dialog";
 
 interface EmailAuthContentProps {
   Header: ComponentType<{ children: ReactNode; className?: string }>;
@@ -102,162 +103,167 @@ export function EmailAuthContent({
           </AnimatePresence>
         </Description>
       </Header>
-      <form
-        onSubmit={mode === "forgotPassword" ? onForgotPassword : onSubmit}
-        className={`flex flex-col gap-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4 ${formClassName}`}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          {error && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
-            >
-              {error}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence mode="wait" initial={false}>
-          {mode === "signup" && (
-            <motion.div
-              key="name-fields"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col gap-3"
-            >
-              <div className="flex flex-col items-start gap-2 w-full">
-                <Label htmlFor="firstName">{t("auth.firstName")}</Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  variant="muted"
-                  placeholder={t("auth.firstNamePlaceholder")}
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  autoComplete="given-name"
-                />
-              </div>
-              <div className="flex flex-col items-start gap-2 w-full">
-                <Label htmlFor="lastName">{t("auth.lastName")}</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  variant="muted"
-                  placeholder={t("auth.lastNamePlaceholder")}
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  autoComplete="family-name"
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="flex flex-col items-start gap-2 w-full">
-          <Label htmlFor="email">{t("auth.email")}</Label>
-          <Input
-            id="email"
-            type="email"
-            variant="muted"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
-        <AnimatePresence mode="wait" initial={false}>
-          {mode !== "forgotPassword" && (
-            <motion.div
-              key="password-field"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col items-start gap-2 w-full"
-            >
-              <div className="flex items-center justify-between w-full">
-                <Label htmlFor="password">{t("auth.password")}</Label>
-                {mode === "signin" && (
+      <DialogBody>
+        <form
+          onSubmit={mode === "forgotPassword" ? onForgotPassword : onSubmit}
+          className={`space-y-4 py-4 ${formClassName}`}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait" initial={false}>
+            {mode === "signup" && (
+              <motion.div
+                key="name-fields"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col gap-3"
+              >
+                <div className="flex flex-col items-start gap-2 w-full">
+                  <Label htmlFor="firstName">{t("auth.firstName")}</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    variant="muted"
+                    placeholder={t("auth.firstNamePlaceholder")}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    autoComplete="given-name"
+                  />
+                </div>
+                <div className="flex flex-col items-start gap-2 w-full">
+                  <Label htmlFor="lastName">{t("auth.lastName")}</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    variant="muted"
+                    placeholder={t("auth.lastNamePlaceholder")}
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    autoComplete="family-name"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div className="flex flex-col items-start gap-2 w-full">
+            <Label htmlFor="email">{t("auth.email")}</Label>
+            <Input
+              id="email"
+              type="email"
+              variant="muted"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            {mode !== "forgotPassword" && (
+              <motion.div
+                key="password-field"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col items-start gap-2 w-full"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <Label htmlFor="password">{t("auth.password")}</Label>
+                  {mode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => onChangeMode("forgotPassword")}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t("auth.forgotPassword")}
+                    </button>
+                  )}
+                </div>
+                <div className="w-full relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    variant="muted"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete={
+                      mode === "signup" ? "new-password" : "current-password"
+                    }
+                    className="pr-12"
+                  />
                   <button
                     type="button"
-                    onClick={() => onChangeMode("forgotPassword")}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={toggleShowPassword}
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
+                    aria-label={
+                      showPassword
+                        ? t("auth.hidePassword")
+                        : t("auth.showPassword")
+                    }
                   >
-                    {t("auth.forgotPassword")}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
+                </div>
+                {mode === "signup" && (
+                  <ul className="text-xs space-y-1 text-muted-foreground w-full pl-3">
+                    {[
+                      { key: "length", label: t("auth.passwordRuleLength") },
+                      {
+                        key: "uppercase",
+                        label: t("auth.passwordRuleUppercase"),
+                      },
+                      {
+                        key: "lowercase",
+                        label: t("auth.passwordRuleLowercase"),
+                      },
+                      { key: "digit", label: t("auth.passwordRuleDigit") },
+                      { key: "symbol", label: t("auth.passwordRuleSymbol") },
+                    ].map(({ key, label }) => {
+                      const passed =
+                        passwordChecks[key as keyof PasswordChecks];
+                      const Icon = passed ? CheckCircle2 : XCircle;
+                      return (
+                        <li
+                          key={key}
+                          className={`flex items-center gap-2 ${
+                            passed
+                              ? "text-emerald-600"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {label}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
-              </div>
-              <div className="w-full relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  variant="muted"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete={
-                    mode === "signup" ? "new-password" : "current-password"
-                  }
-                  className="pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={toggleShowPassword}
-                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
-                  aria-label={
-                    showPassword
-                      ? t("auth.hidePassword")
-                      : t("auth.showPassword")
-                  }
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              {mode === "signup" && (
-                <ul className="text-xs space-y-1 text-muted-foreground w-full pl-3">
-                  {[
-                    { key: "length", label: t("auth.passwordRuleLength") },
-                    {
-                      key: "uppercase",
-                      label: t("auth.passwordRuleUppercase"),
-                    },
-                    {
-                      key: "lowercase",
-                      label: t("auth.passwordRuleLowercase"),
-                    },
-                    { key: "digit", label: t("auth.passwordRuleDigit") },
-                    { key: "symbol", label: t("auth.passwordRuleSymbol") },
-                  ].map(({ key, label }) => {
-                    const passed = passwordChecks[key as keyof PasswordChecks];
-                    const Icon = passed ? CheckCircle2 : XCircle;
-                    return (
-                      <li
-                        key={key}
-                        className={`flex items-center gap-2 ${
-                          passed ? "text-emerald-600" : "text-muted-foreground"
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                        {label}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </form>
+      </DialogBody>
       <Footer className="flex flex-col sm:flex-col gap-2 border-t pt-4">
         <Button
           type="submit"
@@ -268,10 +274,10 @@ export function EmailAuthContent({
           {loading
             ? t("common.loading")
             : mode === "signup"
-              ? t("auth.createAccount")
-              : mode === "forgotPassword"
-                ? t("auth.sendResetLink")
-                : t("auth.signIn")}
+            ? t("auth.createAccount")
+            : mode === "forgotPassword"
+            ? t("auth.sendResetLink")
+            : t("auth.signIn")}
         </Button>
         <Button
           type="button"

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Check, AlertCircle, ChevronDownIcon, CheckCheck } from "lucide-react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -234,8 +235,8 @@ export function CreateFromGroupDialog({
             </p>
           </div>
         ) : (
-          <>
-            <div className="space-y-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4">
+          <DialogBody>
+            <div className="space-y-4 py-4">
               <div>
                 <Label htmlFor="group">{t("groups.selectGroup")} *</Label>
                 <Select
@@ -467,7 +468,7 @@ export function CreateFromGroupDialog({
                 )}
               </DialogFooter>
             )}
-          </>
+          </DialogBody>
         )}
       </DialogContent>
     </Dialog>

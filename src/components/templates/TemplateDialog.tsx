@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -178,145 +179,145 @@ export function TemplateDialog({
               : t("templates.createTemplateDescription")}
           </DialogDescription>
         </DialogHeader>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto p-4"
-        >
-          <div>
-            <Label htmlFor="name">{t("templates.templateName")} *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder={t("templates.templateNamePlaceholder")}
-              required
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label>{t("templates.currenciesAmounts")}</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleAddAmount}
-                className="h-7 text-xs"
-              >
-                <Plus className="h-3 w-3" />
-                {t("templates.addCurrency")}
-              </Button>
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="name">{t("templates.templateName")} *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder={t("templates.templateNamePlaceholder")}
+                required
+              />
             </div>
-            <div className="space-y-3">
-              {formData.amounts.map((amountData, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between gap-2"
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>{t("templates.currenciesAmounts")}</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAddAmount}
+                  className="h-7 text-xs"
                 >
-                  <div className="grid w-full gap-4">
-                    <ButtonGroup className="w-full">
-                      <Select
-                        value={amountData.currency}
-                        onValueChange={(value) =>
-                          handleAmountChange(index, "currency", value)
-                        }
-                      >
-                        <SelectTrigger className="font-mono">
-                          <SelectValue placeholder="Currency" />
-                        </SelectTrigger>
-                        <SelectContent className="min-w-24">
-                          <SelectGroup>
-                            {COMMON_CURRENCIES.map((curr) => (
-                              <SelectItem key={curr} value={curr}>
-                                {curr}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={amountData.amount}
-                        onChange={(e) =>
-                          handleAmountChange(index, "amount", e.target.value)
-                        }
-                        placeholder={t("templates.amountOptional")}
-                      />
-                    </ButtonGroup>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghostDestructive"
-                    size="icon"
-                    onClick={() => handleRemoveAmount(index)}
-                    disabled={formData.amounts.length === 1}
-                    className="aspect-square"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-2 pl-3">
-              {t("templates.amountOptionalHint")}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 pl-3">
-            <Checkbox
-              id="is_recurring"
-              checked={formData.is_recurring}
-              onCheckedChange={(checked) =>
-                setFormData({
-                  ...formData,
-                  is_recurring: checked as boolean,
-                  recurrence_day: checked ? formData.recurrence_day || 1 : null,
-                })
-              }
-            />
-            <Label htmlFor="is_recurring" className="pl-0">
-              {t("templates.isRecurring")}
-            </Label>
-          </div>
-
-          {formData.is_recurring && (
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="recurrence_day">
-                  {t("templates.recurrenceDay")} *
-                </Label>
-                <p className="text-xs text-gray-500 mt-1 pl-3">
-                  {t("templates.recurrenceDayHint")}
-                </p>
+                  <Plus className="h-3 w-3" />
+                  {t("templates.addCurrency")}
+                </Button>
               </div>
-              <Select
-                value={String(formData.recurrence_day || 1)}
-                onValueChange={(value) =>
+              <div className="space-y-3">
+                {formData.amounts.map((amountData, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <div className="grid w-full gap-4">
+                      <ButtonGroup className="w-full">
+                        <Select
+                          value={amountData.currency}
+                          onValueChange={(value) =>
+                            handleAmountChange(index, "currency", value)
+                          }
+                        >
+                          <SelectTrigger className="font-mono">
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                          <SelectContent className="min-w-24">
+                            <SelectGroup>
+                              {COMMON_CURRENCIES.map((curr) => (
+                                <SelectItem key={curr} value={curr}>
+                                  {curr}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={amountData.amount}
+                          onChange={(e) =>
+                            handleAmountChange(index, "amount", e.target.value)
+                          }
+                          placeholder={t("templates.amountOptional")}
+                        />
+                      </ButtonGroup>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghostDestructive"
+                      size="icon"
+                      onClick={() => handleRemoveAmount(index)}
+                      disabled={formData.amounts.length === 1}
+                      className="aspect-square"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2 pl-3">
+                {t("templates.amountOptionalHint")}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pl-3">
+              <Checkbox
+                id="is_recurring"
+                checked={formData.is_recurring}
+                onCheckedChange={(checked) =>
                   setFormData({
                     ...formData,
-                    recurrence_day: parseInt(value, 10),
+                    is_recurring: checked as boolean,
+                    recurrence_day: checked
+                      ? formData.recurrence_day || 1
+                      : null,
                   })
                 }
-              >
-                <SelectTrigger id="recurrence_day" className="w-full">
-                  <SelectValue placeholder="Select day" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                    <SelectItem key={day} value={String(day)}>
-                      {t("common.day")} {day}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
+              <Label htmlFor="is_recurring" className="pl-0">
+                {t("templates.isRecurring")}
+              </Label>
             </div>
-          )}
-        </form>
+
+            {formData.is_recurring && (
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="recurrence_day">
+                    {t("templates.recurrenceDay")} *
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1 pl-3">
+                    {t("templates.recurrenceDayHint")}
+                  </p>
+                </div>
+                <Select
+                  value={String(formData.recurrence_day || 1)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      recurrence_day: parseInt(value, 10),
+                    })
+                  }
+                >
+                  <SelectTrigger id="recurrence_day" className="w-full">
+                    <SelectValue placeholder="Select day" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                      <SelectItem key={day} value={String(day)}>
+                        {t("common.day")} {day}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </form>
+        </DialogBody>
         {isMobile ? (
           <Button
             type="button"
