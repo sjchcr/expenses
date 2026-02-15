@@ -1,12 +1,13 @@
 import type { ComponentType, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "motion/react";
-import { Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, XCircle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AuthMode, PasswordChecks } from "@/components/login/types";
 import { DialogBody } from "@/components/ui/dialog";
+import { useMobile } from "@/hooks/useMobile";
 
 interface EmailAuthContentProps {
   Header: ComponentType<{ children: ReactNode; className?: string }>;
@@ -60,6 +61,7 @@ export function EmailAuthContent({
   buttonClassName = "",
 }: EmailAuthContentProps) {
   const { t } = useTranslation();
+  const isMobile = useMobile();
 
   const titles: Record<AuthMode, string> = {
     signin: t("auth.signInWithEmail"),
@@ -73,8 +75,20 @@ export function EmailAuthContent({
     forgotPassword: t("auth.forgotPasswordDesc"),
   };
 
+  const canSwipeBack = isMobile && (mode === "forgotPassword" || mode === "signup");
+
   return (
-    <>
+    <motion.div
+      drag={canSwipeBack ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={{ left: 0, right: 0.5 }}
+      onDragEnd={(_, info) => {
+        if (canSwipeBack && (info.offset.x > 100 || info.velocity.x > 500)) {
+          onChangeMode("signin");
+        }
+      }}
+      style={{ x: 0 }}
+    >
       <Header className="border-b pb-4">
         <Title className="text-xl">
           <AnimatePresence mode="wait" initial={false}>
@@ -279,25 +293,38 @@ export function EmailAuthContent({
             ? t("auth.sendResetLink")
             : t("auth.signIn")}
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => onChangeMode(mode === "signup" ? "signin" : "signup")}
-          className={buttonClassName}
-        >
-          {mode === "signup" ? t("auth.haveAccount") : t("auth.noAccount")}
-        </Button>
-        {mode === "forgotPassword" && (
+        {mode === "signin" && (
           <Button
             type="button"
             variant="ghost"
-            onClick={() => onChangeMode("signin")}
+            onClick={() => onChangeMode("signup")}
             className={buttonClassName}
           >
-            {t("auth.backToSignIn")}
+            {t("auth.noAccount")}
           </Button>
         )}
+        {(mode === "forgotPassword" || mode === "signup") &&
+          (isMobile ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              onClick={() => onChangeMode("signin")}
+              className="absolute top-4 left-4 bg-muted/50"
+            >
+              <ChevronLeft />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onChangeMode("signin")}
+              className={buttonClassName}
+            >
+              {t("auth.backToSignIn")}
+            </Button>
+          ))}
       </Footer>
-    </>
+    </motion.div>
   );
 }

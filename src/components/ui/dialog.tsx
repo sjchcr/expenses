@@ -51,12 +51,14 @@ function DialogContent({
   children,
   showCloseButton = true,
   submitOnTop = false,
+  backButton = false,
   fromBottom = true,
   style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
   submitOnTop?: boolean;
+  backButton?: boolean;
   fromBottom?: boolean;
 }) {
   const { registerDialog, unregisterDialog } = useDialogRegistration();
@@ -72,6 +74,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         data-submit-on-top={submitOnTop ? "true" : undefined}
+        data-back-button={backButton ? "true" : undefined}
         data-from-bottom={fromBottom ? "true" : undefined}
         className={cn(
           // Base styles
@@ -112,7 +115,8 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="dialog-header"
       className={cn(
         "flex flex-col gap-2 text-left pr-19 sm:pr-13 shrink-0",
-        "group-data-[submit-on-top=true]/dialog-content:pr-0 group-data-[submit-on-top=true]/dialog-content:pl-0 group-data-[submit-from-bottom=false]/dialog-content:pr-0 group-data-[submit-from-bottom=false]/dialog-content:pl-0",
+        "group-data-[submit-on-top=true]/dialog-content:pr-0 group-data-[submit-on-top=true]/dialog-content:pl-0",
+        "group-data-[back-button=true]/dialog-content:pl-0 group-data-[back-button=true]/dialog-content:pr-0",
         className,
       )}
       {...props}
@@ -158,6 +162,7 @@ function DialogTitle({
       className={cn(
         "text-lg leading-none font-semibold",
         "group-data-[submit-on-top=true]/dialog-content:h-11 group-data-[submit-on-top=true]/dialog-content:flex group-data-[submit-on-top=true]/dialog-content:items-center group-data-[submit-on-top=true]/dialog-content:justify-center group-data-[submit-on-top=true]/dialog-content:pl-19 group-data-[submit-on-top=true]/dialog-content:pr-19 group-data-[submit-on-top=true]/dialog-content:sm:justify-start group-data-[submit-on-top=true]/dialog-content:sm:pl-0 group-data-[submit-on-top=true]/dialog-content:sm:text-left",
+        "group-data-[back-button=true]/dialog-content:h-11 group-data-[back-button=true]/dialog-content:flex group-data-[back-button=true]/dialog-content:items-center group-data-[back-button=true]/dialog-content:justify-center group-data-[back-button=true]/dialog-content:pl-19 group-data-[back-button=true]/dialog-content:pr-19 group-data-[back-button=true]/dialog-content:sm:justify-start group-data-[back-button=true]/dialog-content:sm:pl-0 group-data-[back-button=true]/dialog-content:sm:text-left",
         className,
       )}
       {...props}

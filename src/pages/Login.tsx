@@ -105,8 +105,7 @@ export default function Login() {
   };
 
   const isCancellationError = (err: unknown): boolean => {
-    const message =
-      (err as { message?: string })?.message?.toLowerCase() || "";
+    const message = (err as { message?: string })?.message?.toLowerCase() || "";
     return (
       message.includes("cancel") ||
       message.includes("cancelled") ||
@@ -164,7 +163,10 @@ export default function Login() {
       </Card>
 
       <Dialog open={emailDrawerOpen} onOpenChange={setEmailDrawerOpen}>
-        <DialogContent className="bg-background/90 backdrop-blur-lg p-4 max-w-md gap-0">
+        <DialogContent
+          className="bg-background/90 backdrop-blur-lg p-4 max-w-md gap-0"
+          backButton={authMode != "signin"}
+        >
           <EmailAuthContent
             Header={DialogHeader}
             Title={DialogTitle}

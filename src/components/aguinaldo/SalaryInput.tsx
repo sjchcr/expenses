@@ -102,10 +102,10 @@ export function SalaryInput({
             aria-label="Copy"
             title="Copy"
             variant={
-              hasAmount && !isFocused
-                ? "ghostDestructive"
-                : isSaving
+              isSaving
                 ? "ghost"
+                : hasAmount && !isFocused
+                ? "ghostDestructive"
                 : "ghostSuccess"
             }
             size="iconXs"
@@ -115,10 +115,10 @@ export function SalaryInput({
             }
             disabled={isSaving}
           >
-            {hasAmount && !isFocused ? (
-              <Trash2 />
-            ) : isSaving ? (
+            {isSaving ? (
               <Spinner />
+            ) : hasAmount && !isFocused ? (
+              <Trash2 />
             ) : (
               <Check />
             )}
