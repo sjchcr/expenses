@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MONTH_KEYS } from "./constants";
+import { MONTH_KEYS } from "@/components/expenses/constants";
+import { Label } from "@/components/ui/label";
 
 interface ExpensesFiltersProps {
   selectedMonth: number;
@@ -77,9 +78,9 @@ export function ExpensesFilters({
         </ButtonGroup>
       </div>
       <div className="flex flex-col gap-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <Label className="block text-sm font-medium text-gray-700 mb-1">
           {t("common.year")}
-        </label>
+        </Label>
         <ButtonGroup className="w-full">
           <Button
             variant="outline"

@@ -205,6 +205,66 @@ export type Database = {
         }
         Relationships: []
       }
+      stocks_settings: {
+        Row: {
+          user_id: string
+          us_tax_percentage: number
+          local_tax_percentage: number
+          broker_cost_usd: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          user_id: string
+          us_tax_percentage?: number
+          local_tax_percentage?: number
+          broker_cost_usd?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          us_tax_percentage?: number
+          local_tax_percentage?: number
+          broker_cost_usd?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      stock_periods: {
+        Row: {
+          id: string
+          user_id: string
+          vesting_date: string
+          quantity: number
+          stock_price_usd: number
+          notes: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          vesting_date: string
+          quantity: number
+          stock_price_usd: number
+          notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          vesting_date?: string
+          quantity?: number
+          stock_price_usd?: number
+          notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

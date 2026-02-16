@@ -13,7 +13,6 @@ import { supabase } from "@/lib/supabase";
 import { authService } from "@/services/auth.service";
 import { settingsService } from "@/services/settings.service";
 import Layout from "@/components/layout/Layout";
-import { Spinner } from "@/components/ui/spinner";
 import { avatarService } from "@/services/avatar.service";
 import { useTheme } from "@/hooks/useTheme";
 import { useTranslation } from "react-i18next";
@@ -36,6 +35,7 @@ const Aguinaldo = lazy(() => import("@/pages/Aguinaldo"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const Stocks = lazy(() => import("@/pages/Stocks"));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -127,7 +127,6 @@ function App() {
           alt="Financial Tracker"
           className="h-24 w-24 animate-bounce"
         />
-        <Spinner className="size-12" />
         <div className="flex flex-col items-center justify-center gap-1">
           <h2 className="font-bold text-2xl">{t("dashboard.welcomeBack")}</h2>
           <p className="text-muted-foreground">{t("common.loadingMessage")}</p>
@@ -140,57 +139,57 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <KeyboardPaddingProvider>
         <BrowserRouter>
-        <Suspense
-          fallback={
-            <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
-              <img
-                src={
-                  resolvedTheme === "dark"
-                    ? "/icon-1024x1024-dark.png"
-                    : "/icon-1024x1024.png"
-                }
-                alt="Financial Tracker"
-                className="h-24 w-24 animate-bounce"
-              />
-              <Spinner className="size-12" />
-              <div className="flex flex-col items-center justify-center gap-1">
-                <h2 className="font-bold text-2xl">
-                  {t("dashboard.welcomeBack")}
-                </h2>
-                <p className="text-muted-foreground">
-                  {t("common.loadingMessage")}
-                </p>
+          <Suspense
+            fallback={
+              <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
+                <img
+                  src={
+                    resolvedTheme === "dark"
+                      ? "/icon-1024x1024-dark.png"
+                      : "/icon-1024x1024.png"
+                  }
+                  alt="Financial Tracker"
+                  className="h-24 w-24 animate-bounce"
+                />
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <h2 className="font-bold text-2xl">
+                    {t("dashboard.welcomeBack")}
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {t("common.loadingMessage")}
+                  </p>
+                </div>
               </div>
-            </div>
-          }
-        >
-          <Routes>
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/expenses" /> : <Login />}
-            />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
+            }
+          >
+            <Routes>
+              <Route
+                path="/login"
+                element={user ? <Navigate to="/expenses" /> : <Login />}
+              />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
 
-            {/* Protected routes with layout */}
-            <Route element={user ? <Layout /> : <Navigate to="/login" />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/expenses" element={<Expenses />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/aguinaldo" element={<Aguinaldo />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
+              {/* Protected routes with layout */}
+              <Route element={user ? <Layout /> : <Navigate to="/login" />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/expenses" element={<Expenses />} />
+                <Route path="/templates" element={<Templates />} />
+                <Route path="/aguinaldo" element={<Aguinaldo />} />
+                <Route path="/stocks" element={<Stocks />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
 
-            <Route
-              path="/"
-              element={<Navigate to={user ? "/expenses" : "/login"} />}
+              <Route
+                path="/"
+                element={<Navigate to={user ? "/expenses" : "/login"} />}
+              />
+            </Routes>
+            <OnboardingReminderModal
+              open={showOnboardingReminder}
+              onClose={() => setShowOnboardingReminder(false)}
             />
-          </Routes>
-          <OnboardingReminderModal
-            open={showOnboardingReminder}
-            onClose={() => setShowOnboardingReminder(false)}
-          />
-        </Suspense>
+          </Suspense>
         </BrowserRouter>
         <ReactQueryDevtools initialIsOpen={false} />
       </KeyboardPaddingProvider>

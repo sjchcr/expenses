@@ -7,8 +7,8 @@ import {
   Sun,
   type LucideIcon,
 } from "lucide-react";
-import { ButtonGroup } from "../ui/button-group";
-import { Button } from "../ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -18,9 +18,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import type { User } from "@supabase/supabase-js";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/hooks/useTheme";
 import { authService } from "@/services/auth.service";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";

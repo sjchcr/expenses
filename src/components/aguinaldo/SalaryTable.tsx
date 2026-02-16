@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import type { Salary } from "@/types";
 import { SalaryInput } from "./SalaryInput";
 import { formatCurrency, type AguinaldoMonth } from "./utils";
-import { Label } from "../ui/label";
+import { Label } from "@/components/ui/label";
 
 interface SalaryTableProps {
   aguinaldoYear: number;

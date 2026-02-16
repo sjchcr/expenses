@@ -112,3 +112,38 @@ export interface TemplateGroupUpdate
 export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];
 export type SalaryUpdate = Database["public"]["Tables"]["salaries"]["Update"];
+
+// Stocks Settings types
+// Tax percentages are stored as decimals (e.g., 0.30 = 30%)
+export type StocksSettings =
+  Database["public"]["Tables"]["stocks_settings"]["Row"];
+export type StocksSettingsInsert =
+  Database["public"]["Tables"]["stocks_settings"]["Insert"];
+export type StocksSettingsUpdate =
+  Database["public"]["Tables"]["stocks_settings"]["Update"];
+
+// Stock Period types
+export type StockPeriod = Database["public"]["Tables"]["stock_periods"]["Row"];
+export type StockPeriodInsert =
+  Database["public"]["Tables"]["stock_periods"]["Insert"];
+export type StockPeriodUpdate =
+  Database["public"]["Tables"]["stock_periods"]["Update"];
+
+// Stock calculation result types
+export interface StockPeriodBreakdown {
+  grossUsd: number;
+  usTaxUsd: number;
+  localTaxUsd: number;
+  brokerCostUsd: number;
+  netUsd: number;
+  warning?: string;
+}
+
+export interface StockYearTotals {
+  grossUsd: number;
+  usTaxUsd: number;
+  localTaxUsd: number;
+  brokerCostUsd: number;
+  netUsd: number;
+  periodCount: number;
+}
