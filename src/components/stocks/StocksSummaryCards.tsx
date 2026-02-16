@@ -74,12 +74,17 @@ export function StocksSummaryCards({
       description: t("stocks.netTotalDesc"),
     },
     {
-      id: "totalTaxes",
+      id: "totalDeductions",
       variant: "destructive",
-      title: t("stocks.totalTaxes"),
-      value: formatUsd(totals.usTaxUsd + totals.localTaxUsd),
+      title: t("stocks.totalDeductions"),
+      value: formatUsd(
+        totals.usTaxUsd +
+          totals.localTaxUsd +
+          totals.brokerCostUsd +
+          totals.otherDeductionsUsd,
+      ),
       icon: Landmark,
-      description: t("stocks.totalTaxesDesc"),
+      description: t("stocks.totalDeductionsDesc"),
     },
     {
       id: "totalBrokerCosts",

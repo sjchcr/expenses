@@ -404,8 +404,8 @@
     "grossTotalDesc": "{{count}} periodo(s) de vesting",
     "netTotal": "Total neto",
     "netTotalDesc": "Después de impuestos y costos",
-    "totalTaxes": "Total impuestos",
-    "totalTaxesDesc": "Impuestos EE.UU. + locales",
+    "totalDeductions": "Total deducciones",
+    "totalDeductionsDesc": "Impuestos, costos y otras deducciones",
     "totalBrokerCosts": "Costos de corredor",
     "totalBrokerCostsDesc": "Total de comisiones",
     "deductionsExceedGross": "Advertencia: Los impuestos y costos exceden el monto bruto",
@@ -413,7 +413,16 @@
     "netBreakdown": "Desglose neto",
     "usTax": "Impuesto EE.UU.",
     "localTax": "Impuesto local",
-    "brokerCost": "Costo de corredor"
+    "brokerCost": "Costo de corredor",
+    "afterUsTax": "Después de impuestos EE.UU.",
+    "afterAllDeductions": "Después de todas las deducciones",
+    "otherDeductions": "Otras deducciones",
+    "otherDeductionsDescription": "Aplicadas al bruto menos impuestos EE.UU. y costo de corredor.",
+    "addDeduction": "Agregar deducción",
+    "deductionNamePlaceholder": "ej., Seguro social",
+    "deductionNameRequired": "Cada deducción debe tener un nombre.",
+    "invalidDeductionAmount": "El monto de la deducción debe ser 0 o mayor.",
+    "invalidDeductionPercentage": "La deducción porcentual debe estar entre 0 y 100."
   },
   "aguinaldo": {
     "title": "Aguinaldo",

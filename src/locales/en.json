@@ -404,8 +404,8 @@
     "grossTotalDesc": "{{count}} vesting period(s)",
     "netTotal": "Net total",
     "netTotalDesc": "After taxes and costs",
-    "totalTaxes": "Total taxes",
-    "totalTaxesDesc": "US + local taxes",
+    "totalDeductions": "Total deductions",
+    "totalDeductionsDesc": "Taxes, costs, and other deductions",
     "totalBrokerCosts": "Broker costs",
     "totalBrokerCostsDesc": "Total broker fees",
     "deductionsExceedGross": "Warning: Taxes and costs exceed gross amount",
@@ -413,7 +413,16 @@
     "netBreakdown": "Net breakdown",
     "usTax": "US tax",
     "localTax": "Local tax",
-    "brokerCost": "Broker cost"
+    "brokerCost": "Broker cost",
+    "afterUsTax": "After US taxes",
+    "afterAllDeductions": "After all deductions",
+    "otherDeductions": "Other deductions",
+    "otherDeductionsDescription": "Applied to gross minus US taxes and broker cost.",
+    "addDeduction": "Add deduction",
+    "deductionNamePlaceholder": "e.g., Social security",
+    "deductionNameRequired": "Each deduction must have a name.",
+    "invalidDeductionAmount": "Deduction amount must be 0 or greater.",
+    "invalidDeductionPercentage": "Percentage deduction must be between 0 and 100."
   },
   "aguinaldo": {
     "title": "Aguinaldo",

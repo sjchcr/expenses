@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Check } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useStocksSettings, useUpsertStocksSettings } from "@/hooks/useStocks";
 import { Button } from "@/components/ui/button";
@@ -15,17 +15,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useMobile } from "@/hooks/useMobile";
+import type { StockDeduction } from "@/types";
 import {
   decimalToPercentage,
   percentageToDecimal,
 } from "@/lib/stockCalculations";
 
+interface DeductionFormItem {
+  id: string;
+  name: string;
+  type: "percentage" | "nominal";
+  amount: string;
+}
+
 interface SettingsFormData {
   us_tax_percentage: string;
   local_tax_percentage: string;
   broker_cost_usd: string;
+  other_deductions: DeductionFormItem[];
 }
 
 interface StocksSettingsDialogProps {
@@ -37,7 +47,32 @@ const createEmptyFormData = (): SettingsFormData => ({
   us_tax_percentage: "25.67",
   local_tax_percentage: "15",
   broker_cost_usd: "7.5",
+  other_deductions: [],
 });
+
+function deductionsToForm(deductions: StockDeduction[]): DeductionFormItem[] {
+  return deductions.map((d) => ({
+    id: d.id,
+    name: d.name,
+    type: d.type,
+    amount:
+      d.type === "percentage"
+        ? decimalToPercentage(d.amount).toString()
+        : d.amount.toString(),
+  }));
+}
+
+function formToDeductions(items: DeductionFormItem[]): StockDeduction[] {
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    amount:
+      item.type === "percentage"
+        ? percentageToDecimal(parseFloat(item.amount) || 0)
+        : parseFloat(item.amount) || 0,
+  }));
+}
 
 export function StocksSettingsDialog({
   open,
@@ -61,6 +96,7 @@ export function StocksSettingsDialog({
           settings.local_tax_percentage,
         ).toString(),
         broker_cost_usd: settings.broker_cost_usd.toString(),
+        other_deductions: deductionsToForm(settings.other_deductions ?? []),
       });
     } else if (open && !settings) {
       setFormData(createEmptyFormData());
@@ -69,6 +105,41 @@ export function StocksSettingsDialog({
 
   const handleClose = () => {
     onOpenChange(false);
+  };
+
+  const handleAddDeduction = () => {
+    setFormData({
+      ...formData,
+      other_deductions: [
+        ...formData.other_deductions,
+        {
+          id: crypto.randomUUID(),
+          name: "",
+          type: "percentage",
+          amount: "",
+        },
+      ],
+    });
+  };
+
+  const handleRemoveDeduction = (id: string) => {
+    setFormData({
+      ...formData,
+      other_deductions: formData.other_deductions.filter((d) => d.id !== id),
+    });
+  };
+
+  const handleDeductionChange = (
+    id: string,
+    field: keyof DeductionFormItem,
+    value: string,
+  ) => {
+    setFormData({
+      ...formData,
+      other_deductions: formData.other_deductions.map((d) =>
+        d.id === id ? { ...d, [field]: value } : d,
+      ),
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,11 +172,29 @@ export function StocksSettingsDialog({
       return;
     }
 
+    // Validate deductions
+    for (const d of formData.other_deductions) {
+      if (!d.name.trim()) {
+        toast.error(t("stocks.deductionNameRequired"));
+        return;
+      }
+      const amount = parseFloat(d.amount);
+      if (isNaN(amount) || amount < 0) {
+        toast.error(t("stocks.invalidDeductionAmount"));
+        return;
+      }
+      if (d.type === "percentage" && amount > 100) {
+        toast.error(t("stocks.invalidDeductionPercentage"));
+        return;
+      }
+    }
+
     try {
       await upsertMutation.mutateAsync({
         us_tax_percentage: percentageToDecimal(usTaxPercentage),
         local_tax_percentage: percentageToDecimal(localTaxPercentage),
         broker_cost_usd: brokerCostUsd,
+        other_deductions: formToDeductions(formData.other_deductions),
       });
       toast.success(t("stocks.settingsSaved"));
       handleClose();
@@ -214,6 +303,87 @@ export function StocksSettingsDialog({
               <p className="text-xs text-muted-foreground pl-3">
                 {t("stocks.brokerCostHint")}
               </p>
+            </div>
+
+            <Separator />
+
+            {/* Other Deductions */}
+            <div className="flex flex-col gap-3">
+              <Label>{t("stocks.otherDeductions")}</Label>
+              <p className="text-xs text-muted-foreground pl-3">
+                {t("stocks.otherDeductionsDescription")}
+              </p>
+              {formData.other_deductions.map((deduction) => (
+                <div key={deduction.id} className="flex items-center gap-2">
+                  <Input
+                    value={deduction.name}
+                    onChange={(e) =>
+                      handleDeductionChange(
+                        deduction.id,
+                        "name",
+                        e.target.value,
+                      )
+                    }
+                    placeholder={t("stocks.deductionNamePlaceholder")}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant={
+                      deduction.type === "percentage" ? "default" : "outline"
+                    }
+                    size="icon"
+                    className="shrink-0 w-9 h-9 text-xs font-semibold"
+                    onClick={() =>
+                      handleDeductionChange(
+                        deduction.id,
+                        "type",
+                        deduction.type === "percentage"
+                          ? "nominal"
+                          : "percentage",
+                      )
+                    }
+                  >
+                    {deduction.type === "percentage" ? "%" : "$"}
+                  </Button>
+                  <div className="relative w-24 shrink-0">
+                    <Input
+                      type="number"
+                      step={deduction.type === "percentage" ? "0.1" : "0.01"}
+                      min="0"
+                      max={deduction.type === "percentage" ? "100" : undefined}
+                      value={deduction.amount}
+                      onChange={(e) =>
+                        handleDeductionChange(
+                          deduction.id,
+                          "amount",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 w-9 h-9 text-muted-foreground hover:text-destructive"
+                    onClick={() => handleRemoveDeduction(deduction.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddDeduction}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4" />
+                {t("stocks.addDeduction")}
+              </Button>
             </div>
           </form>
         </DialogBody>

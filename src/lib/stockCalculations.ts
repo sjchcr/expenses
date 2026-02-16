@@ -1,6 +1,7 @@
 import type {
   StockPeriod,
   StocksSettings,
+  StockDeduction,
   StockPeriodBreakdown,
   StockYearTotals,
 } from "@/types";
@@ -16,6 +17,7 @@ export const DEFAULT_STOCKS_SETTINGS: Omit<
   us_tax_percentage: 0,
   local_tax_percentage: 0,
   broker_cost_usd: 0,
+  other_deductions: [],
 };
 
 /**
@@ -43,26 +45,37 @@ export function calcPeriodBreakdown(
   period: StockPeriod,
   settings: Pick<
     StocksSettings,
-    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd"
+    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd" | "other_deductions"
   > | null | undefined,
 ): StockPeriodBreakdown {
   const effectiveSettings = settings ?? DEFAULT_STOCKS_SETTINGS;
 
   const grossUsd = period.quantity * period.stock_price_usd;
   const usTaxUsd = grossUsd * effectiveSettings.us_tax_percentage;
+  const afterUsTaxUsd = grossUsd - usTaxUsd;
   const brokerCostUsd = effectiveSettings.broker_cost_usd;
 
   // Local tax is applied to (gross - US tax - broker cost)
-  const taxableForLocal = grossUsd - usTaxUsd - brokerCostUsd;
+  const taxableForLocal = afterUsTaxUsd - brokerCostUsd;
   const localTaxUsd = Math.max(0, taxableForLocal) * effectiveSettings.local_tax_percentage;
 
-  const totalDeductions = usTaxUsd + localTaxUsd + brokerCostUsd;
-  const rawNet = grossUsd - totalDeductions;
+  // Other deductions applied to (gross - US tax - broker cost)
+  const otherDeductionBase = Math.max(0, afterUsTaxUsd - brokerCostUsd);
+  const deductions = effectiveSettings.other_deductions ?? [];
+  const otherDeductions = deductions.map((d: StockDeduction) => ({
+    name: d.name,
+    type: d.type,
+    rate: d.amount,
+    amount: roundToTwoDecimals(
+      d.type === "percentage" ? otherDeductionBase * d.amount : d.amount,
+    ),
+  }));
+  const otherDeductionsUsd = otherDeductions.reduce((sum, d) => sum + d.amount, 0);
 
-  // Clamp net to 0 if deductions exceed gross
+  const totalDeductions = usTaxUsd + localTaxUsd + brokerCostUsd + otherDeductionsUsd;
+  const rawNet = grossUsd - totalDeductions;
   const netUsd = Math.max(0, rawNet);
 
-  // Warning if taxes + costs exceed gross
   let warning: string | undefined;
   if (totalDeductions > grossUsd) {
     warning = "Taxes and costs exceed gross amount";
@@ -71,8 +84,11 @@ export function calcPeriodBreakdown(
   return {
     grossUsd: roundToTwoDecimals(grossUsd),
     usTaxUsd: roundToTwoDecimals(usTaxUsd),
+    afterUsTaxUsd: roundToTwoDecimals(afterUsTaxUsd),
     localTaxUsd: roundToTwoDecimals(localTaxUsd),
     brokerCostUsd: roundToTwoDecimals(brokerCostUsd),
+    otherDeductions,
+    otherDeductionsUsd: roundToTwoDecimals(otherDeductionsUsd),
     netUsd: roundToTwoDecimals(netUsd),
     warning,
   };
@@ -89,7 +105,7 @@ export function calcYearTotals(
   periods: StockPeriod[],
   settings: Pick<
     StocksSettings,
-    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd"
+    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd" | "other_deductions"
   > | null | undefined,
 ): StockYearTotals {
   if (periods.length === 0) {
@@ -98,6 +114,7 @@ export function calcYearTotals(
       usTaxUsd: 0,
       localTaxUsd: 0,
       brokerCostUsd: 0,
+      otherDeductionsUsd: 0,
       netUsd: 0,
       periodCount: 0,
     };
@@ -113,6 +130,7 @@ export function calcYearTotals(
       usTaxUsd: acc.usTaxUsd + breakdown.usTaxUsd,
       localTaxUsd: acc.localTaxUsd + breakdown.localTaxUsd,
       brokerCostUsd: acc.brokerCostUsd + breakdown.brokerCostUsd,
+      otherDeductionsUsd: acc.otherDeductionsUsd + breakdown.otherDeductionsUsd,
       netUsd: acc.netUsd + breakdown.netUsd,
     }),
     {
@@ -120,6 +138,7 @@ export function calcYearTotals(
       usTaxUsd: 0,
       localTaxUsd: 0,
       brokerCostUsd: 0,
+      otherDeductionsUsd: 0,
       netUsd: 0,
     },
   );
@@ -129,6 +148,7 @@ export function calcYearTotals(
     usTaxUsd: roundToTwoDecimals(totals.usTaxUsd),
     localTaxUsd: roundToTwoDecimals(totals.localTaxUsd),
     brokerCostUsd: roundToTwoDecimals(totals.brokerCostUsd),
+    otherDeductionsUsd: roundToTwoDecimals(totals.otherDeductionsUsd),
     netUsd: roundToTwoDecimals(totals.netUsd),
     periodCount: periods.length,
   };

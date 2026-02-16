@@ -211,6 +211,7 @@ export type Database = {
           us_tax_percentage: number
           local_tax_percentage: number
           broker_cost_usd: number
+          other_deductions: Json
           created_at: string | null
           updated_at: string | null
         }
@@ -219,6 +220,7 @@ export type Database = {
           us_tax_percentage?: number
           local_tax_percentage?: number
           broker_cost_usd?: number
+          other_deductions?: Json
           created_at?: string | null
           updated_at?: string | null
         }
@@ -227,6 +229,7 @@ export type Database = {
           us_tax_percentage?: number
           local_tax_percentage?: number
           broker_cost_usd?: number
+          other_deductions?: Json
           created_at?: string | null
           updated_at?: string | null
         }

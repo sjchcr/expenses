@@ -113,14 +113,37 @@ export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];
 export type SalaryUpdate = Database["public"]["Tables"]["salaries"]["Update"];
 
+// Stock Deduction interface for custom deductions stored as JSONB
+export interface StockDeduction {
+  id: string;
+  name: string;
+  type: "percentage" | "nominal";
+  amount: number; // percentage as decimal (0.15 = 15%), nominal as USD
+}
+
 // Stocks Settings types
 // Tax percentages are stored as decimals (e.g., 0.30 = 30%)
-export type StocksSettings =
+type StocksSettingsRow =
   Database["public"]["Tables"]["stocks_settings"]["Row"];
-export type StocksSettingsInsert =
+type StocksSettingsInsertBase =
   Database["public"]["Tables"]["stocks_settings"]["Insert"];
-export type StocksSettingsUpdate =
+type StocksSettingsUpdateBase =
   Database["public"]["Tables"]["stocks_settings"]["Update"];
+
+export interface StocksSettings
+  extends Omit<StocksSettingsRow, "other_deductions"> {
+  other_deductions: StockDeduction[];
+}
+
+export interface StocksSettingsInsert
+  extends Omit<StocksSettingsInsertBase, "other_deductions"> {
+  other_deductions?: StockDeduction[];
+}
+
+export interface StocksSettingsUpdate
+  extends Omit<StocksSettingsUpdateBase, "other_deductions"> {
+  other_deductions?: StockDeduction[];
+}
 
 // Stock Period types
 export type StockPeriod = Database["public"]["Tables"]["stock_periods"]["Row"];
@@ -133,8 +156,11 @@ export type StockPeriodUpdate =
 export interface StockPeriodBreakdown {
   grossUsd: number;
   usTaxUsd: number;
+  afterUsTaxUsd: number;
   localTaxUsd: number;
   brokerCostUsd: number;
+  otherDeductions: { name: string; type: "percentage" | "nominal"; rate: number; amount: number }[];
+  otherDeductionsUsd: number;
   netUsd: number;
   warning?: string;
 }
@@ -144,6 +170,7 @@ export interface StockYearTotals {
   usTaxUsd: number;
   localTaxUsd: number;
   brokerCostUsd: number;
+  otherDeductionsUsd: number;
   netUsd: number;
   periodCount: number;
 }
