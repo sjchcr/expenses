@@ -56,7 +56,8 @@
     "expenses": "Expenses",
     "templates": "Templates",
     "aguinaldo": "Aguinaldo",
-    "settings": "Settings"
+    "settings": "Settings",
+    "stocks": "Stocks"
   },
   "auth": {
     "signIn": "Sign in",

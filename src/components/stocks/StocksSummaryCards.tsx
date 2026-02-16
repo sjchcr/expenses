@@ -113,7 +113,7 @@ export function StocksSummaryCards({
             <CardTitle className="text-base">{card.title}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{card.value}</div>
+            <div className="text-2xl sm:text-3xl font-bold">{card.value}</div>
             <p className="text-muted-foreground text-sm mt-1">
               {card.description}
             </p>

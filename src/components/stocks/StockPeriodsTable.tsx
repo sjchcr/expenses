@@ -3,10 +3,10 @@ import { format, parseISO } from "date-fns";
 import {
   Ellipsis,
   AlertTriangle,
-  Pencil,
   Trash2,
   Calculator,
   CircleOff,
+  SquarePen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -199,7 +199,7 @@ export function StockPeriodsTable({
                               {t("stocks.viewBreakdown")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit(period)}>
-                              <Pencil />
+                              <SquarePen />
                               {t("common.edit")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -222,7 +222,11 @@ export function StockPeriodsTable({
       </Card>
 
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <DialogContent>
+        <DialogContent
+          className="max-w-sm"
+          showCloseButton={false}
+          fromBottom={false}
+        >
           <DialogHeader>
             <DialogTitle>{t("stocks.deletePeriod")}</DialogTitle>
             <DialogDescription>
@@ -241,7 +245,6 @@ export function StockPeriodsTable({
               variant="destructive"
               className="w-full"
               onClick={handleDelete}
-              //disabled={isDeleting}
             >
               {deleteMutation.isPending
                 ? t("common.deleting")
@@ -255,8 +258,8 @@ export function StockPeriodsTable({
         open={!!breakdownPeriod}
         onOpenChange={() => setBreakdownPeriod(null)}
       >
-        <DialogContent className="max-w-md gap-0">
-          <DialogHeader className="border-b pb-4">
+        <DialogContent className="max-w-lg gap-2">
+          <DialogHeader>
             <DialogTitle>{t("stocks.netBreakdown")}</DialogTitle>
             <DialogDescription>
               {breakdownPeriod &&

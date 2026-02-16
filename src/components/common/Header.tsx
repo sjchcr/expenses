@@ -11,6 +11,7 @@ import {
   Moon,
   Home,
   MonitorSmartphone,
+  TrendingUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,7 +35,7 @@ const NAV_ITEMS = [
   { path: "/expenses", labelKey: "nav.expenses", icon: Receipt },
   { path: "/templates", labelKey: "nav.templates", icon: FileText },
   { path: "/aguinaldo", labelKey: "nav.aguinaldo", icon: Gift },
-  { path: "/settings", labelKey: "nav.settings", icon: Settings },
+  { path: "/stocks", labelKey: "nav.stocks", icon: TrendingUpDown },
 ];
 
 const getInitials = (user: User | null): string => {
@@ -212,6 +213,11 @@ const Header = () => {
               <UserAvatar user={user} />
             </div>
             <ThemeToggle />
+            <Button className="rounded-full" variant="ghost" size="icon">
+              <Link to="/settings">
+                <Settings />
+              </Link>
+            </Button>
             <Button
               className="rounded-full"
               variant="ghostDestructive"

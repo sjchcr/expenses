@@ -56,7 +56,8 @@
     "expenses": "Gastos",
     "templates": "Plantillas",
     "aguinaldo": "Aguinaldo",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "stocks": "Stocks"
   },
   "auth": {
     "signIn": "Iniciar sesión",

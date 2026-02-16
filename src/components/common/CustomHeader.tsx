@@ -1,9 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LogOut,
   MonitorSmartphone,
   Moon,
   Plus,
+  Settings,
   Sun,
   type LucideIcon,
 } from "lucide-react";
@@ -25,6 +26,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { authService } from "@/services/auth.service";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useTranslation } from "react-i18next";
 
 interface CustomHeaderProps {
   title: string;
@@ -94,6 +96,7 @@ const CustomHeader = ({
 }: CustomHeaderProps) => {
   const { user } = useCurrentUser();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -165,6 +168,13 @@ const CustomHeader = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">
+                    <Settings />
+                    {t("nav.settings")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>Theme</DropdownMenuLabel>
                   {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -184,7 +194,7 @@ const CustomHeader = ({
                     onClick={handleSignOut}
                   >
                     <LogOut />
-                    Sign Out
+                    {t("auth.signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
