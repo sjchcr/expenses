@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { Json } from "@/types/database";
 import type {
   StocksSettings,
   StocksSettingsInsert,
@@ -29,7 +30,7 @@ export const stocksService = {
       .maybeSingle();
 
     if (error) throw error;
-    return data as StocksSettings | null;
+    return data as unknown as StocksSettings | null;
   },
 
   /**
@@ -44,11 +45,13 @@ export const stocksService = {
     } = await supabase.auth.getUser();
     if (!user) throw new Error("Not authenticated");
 
+    const { other_deductions, ...rest } = settings;
     const { data, error } = await supabase
       .from("stocks_settings")
       .upsert(
         {
-          ...settings,
+          ...rest,
+          other_deductions: other_deductions as unknown as Json,
           user_id: user.id,
           updated_at: new Date().toISOString(),
         },
@@ -60,7 +63,7 @@ export const stocksService = {
       .single();
 
     if (error) throw error;
-    return data as StocksSettings;
+    return data as unknown as StocksSettings;
   },
 
   // ============================================================================
