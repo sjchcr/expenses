@@ -8,7 +8,6 @@ import {
   CircleOff,
   SquarePen,
 } from "lucide-react";
-import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,24 +26,10 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
-import { useDeleteStockPeriod } from "@/hooks/useStocks";
-import type { StockPeriod, StocksSettings, StockPeriodBreakdown } from "@/types";
-import {
-  calcPeriodBreakdown,
-  formatUsd,
-  formatPercentage,
-} from "@/lib/stockCalculations";
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { DeleteStockPeriodDialog } from "./DeleteStockPeriodDialog";
+import { StockBreakdownDialog } from "./StockBreakdownDialog";
+import type { StockPeriod, StocksSettings } from "@/types";
+import { calcPeriodBreakdown, formatUsd } from "@/lib/stockCalculations";
 import { cn } from "@/lib/utils";
 
 interface StockPeriodsTableProps {
@@ -52,115 +37,6 @@ interface StockPeriodsTableProps {
   settings: StocksSettings | null;
   isLoading: boolean;
   onEdit: (period: StockPeriod) => void;
-}
-
-function BreakdownContent({
-  data,
-  period,
-  settings,
-  t,
-}: {
-  data: StockPeriodBreakdown;
-  period: StockPeriod | null;
-  settings: StocksSettings | null;
-  t: (key: string) => string;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      {/* Gross */}
-      <div className="grid grid-cols-3 px-4">
-        <span>{t("stocks.gross")}</span>
-        {period && (
-          <span className="text-sm font-mono text-right">
-            {period.quantity} x {formatUsd(period.stock_price_usd)}
-          </span>
-        )}
-        <span className="font-mono font-medium text-right">
-          {formatUsd(data.grossUsd)}
-        </span>
-      </div>
-
-      {/* US Tax */}
-      <div className="grid grid-cols-3 px-4">
-        <span>{t("stocks.usTax")}</span>
-        {settings && (
-          <span className="text-sm font-mono text-right">
-            {formatPercentage(settings.us_tax_percentage)}
-          </span>
-        )}
-        <span className="font-mono text-right text-red-500">
-          -{formatUsd(data.usTaxUsd)}
-        </span>
-      </div>
-
-      {/* After US taxes subtotal */}
-      <Separator />
-      <div className="grid grid-cols-3 px-4 font-semibold">
-        <span className="col-span-2">{t("stocks.afterUsTax")}</span>
-        <span className="font-mono text-right">
-          {formatUsd(data.afterUsTaxUsd)}
-        </span>
-      </div>
-      <Separator />
-
-      {/* Broker cost */}
-      <div className="grid grid-cols-3 px-4">
-        <span>{t("stocks.brokerCost")}</span>
-        {settings && (
-          <span className="text-sm font-mono text-right">
-            {formatUsd(settings.broker_cost_usd)}
-          </span>
-        )}
-        <span className="font-mono text-right text-red-500">
-          -{formatUsd(data.brokerCostUsd)}
-        </span>
-      </div>
-
-      {/* Local tax */}
-      <div className="grid grid-cols-3 px-4">
-        <span>{t("stocks.localTax")}</span>
-        {settings && (
-          <span className="text-sm font-mono text-right">
-            {formatPercentage(settings.local_tax_percentage)}
-          </span>
-        )}
-        <span className="font-mono text-right text-red-500">
-          -{formatUsd(data.localTaxUsd)}
-        </span>
-      </div>
-
-      {/* Other deductions */}
-      {data.otherDeductions.map((d, i) => (
-        <div key={i} className="grid grid-cols-3 px-4">
-          <span>{d.name}</span>
-          <span className="text-sm font-mono text-right">
-            {d.type === "percentage"
-              ? formatPercentage(d.rate)
-              : formatUsd(d.rate)}
-          </span>
-          <span className="font-mono text-right text-red-500">
-            -{formatUsd(d.amount)}
-          </span>
-        </div>
-      ))}
-
-      {/* After all deductions */}
-      <Separator />
-      <div className="grid grid-cols-3 px-4 font-semibold">
-        <span className="col-span-2">{t("stocks.afterAllDeductions")}</span>
-        <span className="font-mono text-green-600 text-right">
-          {formatUsd(data.netUsd)}
-        </span>
-      </div>
-
-      {data.warning && (
-        <div className="flex items-center gap-2 text-yellow-600 text-sm mt-2 px-4">
-          <AlertTriangle className="h-4 w-4" />
-          <span>{t("stocks.deductionsExceedGross")}</span>
-        </div>
-      )}
-    </div>
-  );
 }
 
 export function StockPeriodsTable({
@@ -174,26 +50,6 @@ export function StockPeriodsTable({
   const [breakdownPeriod, setBreakdownPeriod] = useState<StockPeriod | null>(
     null,
   );
-  const deleteMutation = useDeleteStockPeriod();
-
-  const breakdownData = breakdownPeriod
-    ? calcPeriodBreakdown(breakdownPeriod, settings)
-    : null;
-
-  console.log(breakdownPeriod);
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      await deleteMutation.mutateAsync(deleteId);
-      toast.success(t("stocks.periodDeleted"));
-    } catch {
-      toast.error(t("stocks.periodDeleteFailed"));
-    } finally {
-      setDeleteId(null);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -330,63 +186,16 @@ export function StockPeriodsTable({
         </CardContent>
       </Card>
 
-      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <DialogContent
-          className="max-w-sm"
-          showCloseButton={false}
-          fromBottom={false}
-        >
-          <DialogHeader>
-            <DialogTitle>{t("stocks.deletePeriod")}</DialogTitle>
-            <DialogDescription>
-              {t("stocks.deletePeriodConfirm")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" className="w-full">
-                {t("common.cancel")}
-              </Button>
-            </DialogClose>
+      <DeleteStockPeriodDialog
+        periodId={deleteId}
+        onClose={() => setDeleteId(null)}
+      />
 
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full"
-              onClick={handleDelete}
-            >
-              {deleteMutation.isPending
-                ? t("common.deleting")
-                : t("common.delete")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {/* Breakdown Dialog */}
-      <Dialog
-        open={!!breakdownPeriod}
-        onOpenChange={() => setBreakdownPeriod(null)}
-      >
-        <DialogContent className="max-w-lg gap-2">
-          <DialogHeader>
-            <DialogTitle>{t("stocks.netBreakdown")}</DialogTitle>
-            <DialogDescription>
-              {breakdownPeriod &&
-                format(parseISO(breakdownPeriod.vesting_date), "MMMM d, yyyy")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogBody className="px-0">
-            {breakdownData && (
-              <BreakdownContent
-                data={breakdownData}
-                period={breakdownPeriod}
-                settings={settings}
-                t={t}
-              />
-            )}
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
+      <StockBreakdownDialog
+        period={breakdownPeriod}
+        settings={settings}
+        onClose={() => setBreakdownPeriod(null)}
+      />
     </>
   );
 }

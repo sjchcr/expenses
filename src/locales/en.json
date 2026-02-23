@@ -422,7 +422,10 @@
     "deductionNamePlaceholder": "e.g., Social security",
     "deductionNameRequired": "Each deduction must have a name.",
     "invalidDeductionAmount": "Deduction amount must be 0 or greater.",
-    "invalidDeductionPercentage": "Percentage deduction must be between 0 and 100."
+    "invalidDeductionPercentage": "Percentage deduction must be between 0 and 100.",
+    "downloadBreakdown": "Download as image",
+    "downloadFailed": "Failed to download breakdown image.",
+    "downloadSuccess": "Breakdown image downloaded."
   },
   "aguinaldo": {
     "title": "Aguinaldo",

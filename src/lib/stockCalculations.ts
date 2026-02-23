@@ -43,24 +43,31 @@ export function roundToTwoDecimals(value: number): number {
  */
 export function calcPeriodBreakdown(
   period: StockPeriod,
-  settings: Pick<
-    StocksSettings,
-    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd" | "other_deductions"
-  > | null | undefined,
+  settings:
+    | Pick<
+        StocksSettings,
+        | "us_tax_percentage"
+        | "local_tax_percentage"
+        | "broker_cost_usd"
+        | "other_deductions"
+      >
+    | null
+    | undefined,
 ): StockPeriodBreakdown {
   const effectiveSettings = settings ?? DEFAULT_STOCKS_SETTINGS;
 
   const grossUsd = period.quantity * period.stock_price_usd;
   const usTaxUsd = grossUsd * effectiveSettings.us_tax_percentage;
-  const afterUsTaxUsd = grossUsd - usTaxUsd;
   const brokerCostUsd = effectiveSettings.broker_cost_usd;
+  const afterUsTaxUsd = grossUsd - usTaxUsd - brokerCostUsd;
 
   // Local tax is applied to (gross - US tax - broker cost)
-  const taxableForLocal = afterUsTaxUsd - brokerCostUsd;
-  const localTaxUsd = Math.max(0, taxableForLocal) * effectiveSettings.local_tax_percentage;
+  const taxableForLocal = afterUsTaxUsd;
+  const localTaxUsd =
+    Math.max(0, taxableForLocal) * effectiveSettings.local_tax_percentage;
 
   // Other deductions applied to (gross - US tax - broker cost)
-  const otherDeductionBase = Math.max(0, afterUsTaxUsd - brokerCostUsd);
+  const otherDeductionBase = Math.max(0, afterUsTaxUsd);
   const deductions = effectiveSettings.other_deductions ?? [];
   const otherDeductions = deductions.map((d: StockDeduction) => ({
     name: d.name,
@@ -70,9 +77,13 @@ export function calcPeriodBreakdown(
       d.type === "percentage" ? otherDeductionBase * d.amount : d.amount,
     ),
   }));
-  const otherDeductionsUsd = otherDeductions.reduce((sum, d) => sum + d.amount, 0);
+  const otherDeductionsUsd = otherDeductions.reduce(
+    (sum, d) => sum + d.amount,
+    0,
+  );
 
-  const totalDeductions = usTaxUsd + localTaxUsd + brokerCostUsd + otherDeductionsUsd;
+  const totalDeductions =
+    usTaxUsd + localTaxUsd + brokerCostUsd + otherDeductionsUsd;
   const rawNet = grossUsd - totalDeductions;
   const netUsd = Math.max(0, rawNet);
 
@@ -103,10 +114,16 @@ export function calcPeriodBreakdown(
  */
 export function calcYearTotals(
   periods: StockPeriod[],
-  settings: Pick<
-    StocksSettings,
-    "us_tax_percentage" | "local_tax_percentage" | "broker_cost_usd" | "other_deductions"
-  > | null | undefined,
+  settings:
+    | Pick<
+        StocksSettings,
+        | "us_tax_percentage"
+        | "local_tax_percentage"
+        | "broker_cost_usd"
+        | "other_deductions"
+      >
+    | null
+    | undefined,
 ): StockYearTotals {
   if (periods.length === 0) {
     return {
@@ -170,7 +187,7 @@ export function formatUsd(amount: number): string {
  * Formats a percentage for display (e.g., 0.30 -> "30%").
  */
 export function formatPercentage(decimal: number): string {
-  return `${(decimal * 100).toFixed(1)}%`;
+  return `${(decimal * 100).toFixed(2)}%`;
 }
 
 /**

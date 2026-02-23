@@ -422,7 +422,10 @@
     "deductionNamePlaceholder": "ej., Seguro social",
     "deductionNameRequired": "Cada deducción debe tener un nombre.",
     "invalidDeductionAmount": "El monto de la deducción debe ser 0 o mayor.",
-    "invalidDeductionPercentage": "La deducción porcentual debe estar entre 0 y 100."
+    "invalidDeductionPercentage": "La deducción porcentual debe estar entre 0 y 100.",
+    "downloadBreakdown": "Descargar como imagen",
+    "downloadFailed": "Error al descargar la imagen del desglose.",
+    "downloadSuccess": "Imagen descargada correctamente."
   },
   "aguinaldo": {
     "title": "Aguinaldo",
