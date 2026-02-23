@@ -411,6 +411,7 @@
     "deductionsExceedGross": "Warning: Taxes and costs exceed gross amount",
     "viewBreakdown": "View breakdown",
     "netBreakdown": "Net breakdown",
+    "breakdownReceiptTitle": "Stock period breakdown",
     "usTax": "US tax",
     "localTax": "Local tax",
     "brokerCost": "Broker cost",

@@ -411,6 +411,7 @@
     "deductionsExceedGross": "Advertencia: Los impuestos y costos exceden el monto bruto",
     "viewBreakdown": "Ver desglose",
     "netBreakdown": "Desglose neto",
+    "breakdownReceiptTitle": "Desglose de periodo de acciones",
     "usTax": "Impuesto EE.UU.",
     "localTax": "Impuesto local",
     "brokerCost": "Costo de corredor",

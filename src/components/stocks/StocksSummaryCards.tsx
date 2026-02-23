@@ -99,7 +99,7 @@ export function StocksSummaryCards({
   return (
     <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.id} variant={card.variant}>
+        <Card key={card.id} variant={card.variant} hoverShadow={true}>
           <CardHeader className="flex items-center gap-2">
             {card.icon && (
               <card.icon

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import { AlertTriangle, Download } from "lucide-react";
 import { toast } from "sonner";
-import { useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,15 +31,31 @@ function BreakdownContent({
   data,
   period,
   settings,
+  showHeader = false,
   t,
 }: {
   data: StockPeriodBreakdown;
   period: StockPeriod | null;
   settings: StocksSettings | null;
+  showHeader?: boolean;
   t: (key: string) => string;
 }) {
   return (
     <div className="flex flex-col gap-2 bg-background dark:bg-accent/50 shadow-md inset-shadow-sm zigzag-border">
+      {/* Receipt header (only shown in exported PNG) */}
+      {showHeader && period && (
+        <>
+          <div className="flex flex-col items-start gap-0.5 px-4 pt-2 pb-1">
+            <span className="text-lg font-semibold">
+              {t("stocks.breakdownReceiptTitle")}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {format(parseISO(period.vesting_date), "MMMM d, yyyy")}
+            </span>
+          </div>
+          <Separator />
+        </>
+      )}
       {/* Gross */}
       <div className="grid grid-cols-3 px-4">
         <span>{t("stocks.gross")}</span>
@@ -150,18 +166,26 @@ export function StockBreakdownDialog({
   const { t } = useTranslation();
   const isMobile = useMobile();
   const breakdownRef = useRef<HTMLDivElement>(null);
+  const [showHeader, setShowHeader] = useState(false);
   const breakdownData = period ? calcPeriodBreakdown(period, settings) : null;
 
   const handleDownloadBreakdown = useCallback(async () => {
     if (!breakdownRef.current || !period) return;
     try {
+      setShowHeader(true);
+      // Wait for React to render the header
+      await new Promise((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(r)),
+      );
       const dataUrl = await toPng(breakdownRef.current, { pixelRatio: 3 });
+      setShowHeader(false);
       const link = document.createElement("a");
       link.download = `breakdown-${period.vesting_date}.png`;
       link.href = dataUrl;
       link.click();
       toast.success(t("stocks.downloadSuccess"));
     } catch {
+      setShowHeader(false);
       toast.error(t("stocks.downloadFailed"));
     }
   }, [period, t]);
@@ -172,8 +196,7 @@ export function StockBreakdownDialog({
         <DialogHeader>
           <DialogTitle>{t("stocks.netBreakdown")}</DialogTitle>
           <DialogDescription>
-            {period &&
-              format(parseISO(period.vesting_date), "MMMM d, yyyy")}
+            {period && format(parseISO(period.vesting_date), "MMMM d, yyyy")}
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="px-0">
@@ -183,6 +206,7 @@ export function StockBreakdownDialog({
                 data={breakdownData}
                 period={period}
                 settings={settings}
+                showHeader={showHeader}
                 t={t}
               />
             </div>
@@ -197,7 +221,7 @@ export function StockBreakdownDialog({
             <Download />
           </Button>
         ) : (
-          <DialogFooter className="border-t pt-4">
+          <DialogFooter className="border-t">
             <Button
               type="button"
               className="w-full"
