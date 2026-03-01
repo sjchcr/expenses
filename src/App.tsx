@@ -36,6 +36,7 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Stocks = lazy(() => import("@/pages/Stocks"));
+const Salary = lazy(() => import("@/pages/Salary"));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -178,6 +179,7 @@ function App() {
                 <Route path="/aguinaldo" element={<Aguinaldo />} />
                 <Route path="/stocks" element={<Stocks />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/salary" element={<Salary />} />
               </Route>
 
               <Route

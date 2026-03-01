@@ -333,7 +333,7 @@ export function StocksSettingsDialog({
                       deduction.type === "percentage" ? "default" : "outline"
                     }
                     size="icon"
-                    className="shrink-0 w-9 h-9 text-xs font-semibold"
+                    className="shrink-0 text-xs font-semibold"
                     onClick={() =>
                       handleDeductionChange(
                         deduction.id,
@@ -367,7 +367,7 @@ export function StocksSettingsDialog({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 w-9 h-9 text-muted-foreground hover:text-destructive"
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => handleRemoveDeduction(deduction.id)}
                   >
                     <X className="h-4 w-4" />

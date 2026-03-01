@@ -235,6 +235,69 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_settings: {
+        Row: {
+          id: string
+          user_id: string
+          deductions: Json
+          rent_tax_brackets: Json
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          deductions?: Json
+          rent_tax_brackets?: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          deductions?: Json
+          rent_tax_brackets?: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      salary_records: {
+        Row: {
+          id: string
+          user_id: string
+          label: string
+          gross_amount: number
+          currency: string
+          effective_date: string
+          deductions: Json
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          label: string
+          gross_amount: number
+          currency: string
+          effective_date: string
+          deductions?: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          label?: string
+          gross_amount?: number
+          currency?: string
+          effective_date?: string
+          deductions?: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       stock_periods: {
         Row: {
           id: string

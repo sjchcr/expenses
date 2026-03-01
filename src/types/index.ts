@@ -108,10 +108,100 @@ export interface TemplateGroupUpdate
   template_ids?: string[];
 }
 
-// Salary types
+// Salary types (existing aguinaldo table)
 export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];
 export type SalaryUpdate = Database["public"]["Tables"]["salaries"]["Update"];
+
+// Salary section types
+export interface SalaryDeduction {
+  id: string;
+  name: string;
+  type: "percentage" | "nominal";
+  amount: number; // percentage as decimal (0.1083 = 10.83%), nominal in native currency
+  active: boolean;
+}
+
+export interface RentTaxBracket {
+  id: string;
+  min: number;        // CRC amount
+  max: number | null; // null = no upper limit
+  rate: number;       // decimal (0.10 = 10%)
+}
+
+type SalarySettingsRow = Database["public"]["Tables"]["salary_settings"]["Row"];
+type SalarySettingsInsertBase = Database["public"]["Tables"]["salary_settings"]["Insert"];
+type SalarySettingsUpdateBase = Database["public"]["Tables"]["salary_settings"]["Update"];
+
+export interface SalarySettings
+  extends Omit<SalarySettingsRow, "deductions" | "rent_tax_brackets"> {
+  deductions: SalaryDeduction[];
+  rent_tax_brackets: RentTaxBracket[];
+}
+
+export interface SalarySettingsInsert
+  extends Omit<SalarySettingsInsertBase, "deductions" | "rent_tax_brackets"> {
+  deductions?: SalaryDeduction[];
+  rent_tax_brackets?: RentTaxBracket[];
+}
+
+export interface SalarySettingsUpdate
+  extends Omit<SalarySettingsUpdateBase, "deductions" | "rent_tax_brackets"> {
+  deductions?: SalaryDeduction[];
+  rent_tax_brackets?: RentTaxBracket[];
+}
+
+type SalaryRecordRow = Database["public"]["Tables"]["salary_records"]["Row"];
+type SalaryRecordInsertBase = Database["public"]["Tables"]["salary_records"]["Insert"];
+type SalaryRecordUpdateBase = Database["public"]["Tables"]["salary_records"]["Update"];
+
+export interface SalaryRecord extends Omit<SalaryRecordRow, "deductions"> {
+  deductions: SalaryDeduction[];
+}
+
+export interface SalaryRecordInsert
+  extends Omit<SalaryRecordInsertBase, "deductions"> {
+  deductions?: SalaryDeduction[];
+}
+
+export interface SalaryRecordUpdate
+  extends Omit<SalaryRecordUpdateBase, "deductions"> {
+  deductions?: SalaryDeduction[];
+}
+
+export interface SalaryBreakdown {
+  grossMonthly: number;
+  grossFortnightly: number;
+  currency: string;
+  deductions: {
+    id: string;
+    name: string;
+    type: "percentage" | "nominal";
+    rate: number;
+    monthlyAmount: number;
+    fortnightlyAmount: number;
+  }[];
+  rentTax: {
+    brackets: {
+      label: string;
+      rate: number;
+      taxableAmount: number;
+      monthlyAmount: number;
+      fortnightlyAmount: number;
+    }[];
+    monthlyTotal: number;
+    fortnightlyTotal: number;
+    appliedToCrc: boolean;
+  };
+  totalDeductionsMonthly: number;
+  totalDeductionsFortnightly: number;
+  netMonthly: number;
+  netFortnightly: number;
+  convertedCurrency: string | null;
+  exchangeRate: number | null;
+  netMonthlyConverted: number | null;
+  netFortnightlyConverted: number | null;
+}
 
 // Stock Deduction interface for custom deductions stored as JSONB
 export interface StockDeduction {
