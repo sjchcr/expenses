@@ -30,7 +30,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "../ui/input-group";
+} from "@/components/ui/input-group";
 
 // ── Deduction form helpers ──────────────────────────────────────────────────
 
