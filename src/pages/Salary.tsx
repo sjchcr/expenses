@@ -1,13 +1,7 @@
 import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CircleOff,
-  Plus,
-  Settings,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleOff, Plus } from "lucide-react";
 import { useSalaryRecords, useSalarySettings } from "@/hooks/useSalary";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
 import { useMobile } from "@/hooks/useMobile";
