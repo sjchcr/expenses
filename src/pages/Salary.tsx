@@ -25,7 +25,6 @@ import {
   SalaryConfigPanel,
   SalaryDialog,
   DeleteSalaryDialog,
-  SalarySettingsDialog,
 } from "@/components/salary";
 import type { SalaryRecord } from "@/types";
 
@@ -63,7 +62,6 @@ export default function Salary() {
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<SalaryRecord | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleAdd = useCallback(() => {
@@ -106,7 +104,7 @@ export default function Salary() {
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
       {/* Header */}
-      {!isMobile && <SalaryHeader onAdd={handleAdd} />}
+      <SalaryHeader onAdd={handleAdd} />
 
       {/* Navigation */}
       {records.length > 0 && (
@@ -153,35 +151,35 @@ export default function Salary() {
       {/* Main content */}
       {isLoading ? (
         <SalaryLoadingSkeleton />
-      ) : records.length === 0 ? (
-        <div className="w-full flex flex-col items-center justify-center gap-2 p-12 text-sm text-gray-500">
-          <CircleOff className="h-6 w-6" />
-          <p className="text-center max-w-xs">{t("salary.noSalaries")}</p>
-          <Button onClick={handleAdd} className="mt-2">
-            <Plus className="h-4 w-4" />
-            {t("salary.addSalary")}
-          </Button>
-        </div>
-      ) : selectedRecord ? (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
-            <SalaryBreakdownCard
-              record={selectedRecord}
-              settings={settings ?? null}
-              exchangeRate={exchangeRate}
-              onEdit={() => handleEdit(selectedRecord)}
-              onDelete={() => setDeleteId(selectedRecord.id)}
-            />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          {records.length === 0 ? (
+            <div className="w-full flex flex-col items-center justify-center gap-2 p-12 text-sm text-gray-500">
+              <CircleOff className="h-6 w-6" />
+              <p className="text-center max-w-xs">{t("salary.noSalaries")}</p>
+              <Button onClick={handleAdd} className="mt-2">
+                <Plus className="h-4 w-4" />
+                {t("salary.addSalary")}
+              </Button>
+            </div>
+          ) : (
+            <div className="lg:col-span-4">
+              {selectedRecord ? (
+                <SalaryBreakdownCard
+                  record={selectedRecord}
+                  settings={settings ?? null}
+                  exchangeRate={exchangeRate}
+                  onEdit={() => handleEdit(selectedRecord)}
+                  onDelete={() => setDeleteId(selectedRecord.id)}
+                />
+              ) : null}
+            </div>
+          )}
+          <div className="lg:col-span-2">
+            <SalaryConfigPanel />
           </div>
-          <div className="lg:col-span-1">
-            <SalaryConfigPanel
-              record={selectedRecord}
-              settings={settings ?? null}
-              onOpenSettings={() => setIsSettingsOpen(true)}
-            />
-          </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 
@@ -219,11 +217,6 @@ export default function Salary() {
       <DeleteSalaryDialog
         recordId={deleteId}
         onClose={() => setDeleteId(null)}
-      />
-
-      <SalarySettingsDialog
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
       />
     </div>
   );

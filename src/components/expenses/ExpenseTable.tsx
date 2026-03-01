@@ -299,11 +299,7 @@ export function ExpenseTable({
                               key={currency}
                               className="flex justify-start items-center gap-1.5 text-accent-foreground/50 px-1 py-0.5 col-span-1  h-11 sm:h-auto"
                             >
-                              <Checkbox
-                                checked={false}
-                                disabled
-                                className="h-3.5 w-3.5"
-                              />
+                              <Checkbox size="small" checked={false} disabled />
                               {getCurrencySymbol(currency)}-
                             </span>
                           );
@@ -331,11 +327,11 @@ export function ExpenseTable({
                             )}
                           >
                             {isToggling ? (
-                              <Spinner className="h-3.5 w-3.5" />
+                              <Spinner className="sm:h-5 sm:w-5 h-7 w-7" />
                             ) : (
                               <Checkbox
+                                size="small"
                                 checked={amountData.paid}
-                                className="h-3.5 w-3.5"
                               />
                             )}
                             <span

@@ -17,7 +17,8 @@ import {
   formatUsd,
 } from "@/lib/salaryCalculations";
 import { Button } from "../ui/button";
-import { Edit, X } from "lucide-react";
+import { BanknoteArrowUp, Edit, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SalaryBreakdownCardProps {
   record: SalaryRecord;
@@ -35,7 +36,7 @@ function AmountCell({
   className?: string;
 }) {
   return (
-    <span className={`font-mono text-right tabular-nums ${className ?? ""}`}>
+    <span className={cn("font-mono text-right tabular-nums", className)}>
       {value}
     </span>
   );
@@ -64,7 +65,10 @@ export function SalaryBreakdownCard({
   return (
     <Card variant="defaultGradient" className="gap-0">
       <CardHeader className="pb-3">
-        <CardTitle>{record.label}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <BanknoteArrowUp className="h-4 w-4" />
+          {record.label}
+        </CardTitle>
         <CardDescription>
           {t("salary.salaryBreakdownDescription")}
         </CardDescription>
@@ -89,17 +93,19 @@ export function SalaryBreakdownCard({
       </CardHeader>
 
       {/* Column headers */}
-      <div className="grid grid-cols-4 px-6 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-        <span className="col-span-2" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 px-6 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <span className="hidden sm:col-span-1" />
         <span className="text-right">{t("salary.monthly")}</span>
         <span className="text-right">{t("salary.fortnightly")}</span>
       </div>
 
       <Separator />
-      <CardContent className="px-0 pb-4">
+      <CardContent className="px-0">
         {/* Gross */}
-        <div className="grid grid-cols-4 px-6 py-2 font-medium">
-          <span className="col-span-2">{t("salary.grossSalary")}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 px-4 py-2 font-medium">
+          <span className="col-span-3 sm:col-span-1">
+            {t("salary.grossSalary")}
+          </span>
           <AmountCell value={fmt(breakdown.grossMonthly)} />
           <AmountCell value={fmt(breakdown.grossFortnightly)} />
         </div>
@@ -108,12 +114,15 @@ export function SalaryBreakdownCard({
         {breakdown.deductions.length > 0 && (
           <>
             <Separator className="my-1" />
-            <div className="px-6 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="px-4 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {t("salary.deductions")}
             </div>
             {breakdown.deductions.map((d) => (
-              <div key={d.id} className="grid grid-cols-4 px-6 py-1.5 text-sm">
-                <span className="col-span-2 flex gap-2 items-center">
+              <div
+                key={d.id}
+                className="grid grid-cols-2 sm:grid-cols-3 px-4 py-1.5 text-sm"
+              >
+                <span className="col-span-3 sm:col-span-1 flex sm:flex-col gap-1 justify-between items-center sm:items-start">
                   {d.name}
                   <span className="text-xs text-muted-foreground font-mono">
                     {d.type === "percentage"
@@ -139,12 +148,15 @@ export function SalaryBreakdownCard({
           breakdown.rentTax.brackets.length > 0 && (
             <>
               <Separator className="my-1" />
-              <div className="px-6 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="px-4 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 {t("salary.rentTax")}
               </div>
               {breakdown.rentTax.brackets.map((b, i) => (
-                <div key={i} className="grid grid-cols-4 px-6 py-1.5 text-sm">
-                  <span className="col-span-2 flex gap-2 items-center">
+                <div
+                  key={i}
+                  className="grid grid-cols-2 sm:grid-cols-3 px-4 py-1.5 text-sm"
+                >
+                  <span className="col-span-3 sm:col-span-1 flex sm:flex-col gap-1 justify-between items-center sm:items-start">
                     {b.label}
                     {b.rate > 0 && (
                       <span className="text-xs text-muted-foreground font-mono">
@@ -171,8 +183,10 @@ export function SalaryBreakdownCard({
 
         {/* Total deductions */}
         <Separator className="my-2" />
-        <div className="grid grid-cols-4 px-6 py-2 font-semibold text-sm">
-          <span className="col-span-2">{t("salary.totalDeductions")}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 px-4 py-2 font-semibold text-sm">
+          <span className="col-span-3 sm:col-span-1">
+            {t("salary.totalDeductions")}
+          </span>
           <AmountCell
             value={`-${fmt(breakdown.totalDeductionsMonthly)}`}
             className="text-red-500"
@@ -185,8 +199,10 @@ export function SalaryBreakdownCard({
 
         {/* Net salary */}
         <Separator className="my-2" />
-        <div className="grid grid-cols-4 px-6 py-2 font-bold">
-          <span className="col-span-2">{t("salary.netSalary")}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 px-4 py-2 font-bold">
+          <span className="col-span-3 sm:col-span-1">
+            {t("salary.netSalary")}
+          </span>
           <AmountCell
             value={fmt(breakdown.netMonthly)}
             className="text-green-600"
@@ -201,8 +217,8 @@ export function SalaryBreakdownCard({
         {breakdown.convertedCurrency &&
           breakdown.netMonthlyConverted !== null &&
           breakdown.netFortnightlyConverted !== null && (
-            <div className="grid grid-cols-4 px-6 py-1.5 text-sm text-muted-foreground">
-              <span className="col-span-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 px-4 py-1.5 text-sm text-muted-foreground">
+              <span className="col-span-3 sm:col-span-1">
                 ≈ {breakdown.convertedCurrency}
               </span>
               <AmountCell value={fmtConverted(breakdown.netMonthlyConverted)} />
@@ -212,7 +228,7 @@ export function SalaryBreakdownCard({
             </div>
           )}
         {!breakdown.convertedCurrency && (
-          <div className="px-6 py-1.5 text-xs text-muted-foreground">
+          <div className="px-4 py-1.5 text-xs text-muted-foreground">
             {t("salary.exchangeRateUnavailable")}
           </div>
         )}

@@ -1,7 +1,7 @@
-import { Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
+import RouteTransition from "@/components/layout/RouteTransition";
 import { useTheme } from "@/hooks/useTheme";
 import { useIsDialogOpen } from "@/contexts/KeyboardPaddingContext";
 
@@ -23,7 +23,7 @@ export default function Layout() {
             : undefined,
         }}
       >
-        <Outlet />
+        <RouteTransition />
       </main>
 
       {/* Footer */}

@@ -1,96 +1,349 @@
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Edit } from "lucide-react";
+import { Check, Plus, Settings2, X } from "lucide-react";
+import { toast } from "sonner";
+import { useSalarySettings, useUpsertSalarySettings } from "@/hooks/useSalary";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardAction,
-  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import type { SalaryRecord, SalarySettings } from "@/types";
+import { Spinner } from "@/components/ui/spinner";
+import type { SalaryDeduction, RentTaxBracket } from "@/types";
 import {
-  calcSalaryBreakdown,
-  formatCurrency,
-  formatPercentage,
+  DEFAULT_SALARY_DEDUCTIONS,
+  DEFAULT_RENT_TAX_BRACKETS,
+  decimalToPercentage,
+  percentageToDecimal,
 } from "@/lib/salaryCalculations";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 
-interface SalaryConfigPanelProps {
-  record: SalaryRecord;
-  settings: SalarySettings | null;
-  onOpenSettings: () => void;
+// ── Form helpers ─────────────────────────────────────────────────────────────
+
+interface DeductionFormItem {
+  id: string;
+  name: string;
+  type: "percentage" | "nominal";
+  amount: string;
 }
 
-export function SalaryConfigPanel({
-  record,
-  settings,
-  onOpenSettings,
-}: SalaryConfigPanelProps) {
+interface BracketFormItem {
+  id: string;
+  min: string;
+  max: string;
+  rate: string;
+}
+
+function deductionsToForm(deductions: SalaryDeduction[]): DeductionFormItem[] {
+  return deductions.map((d) => ({
+    id: d.id,
+    name: d.name,
+    type: d.type,
+    amount:
+      d.type === "percentage"
+        ? decimalToPercentage(d.amount).toString()
+        : d.amount.toString(),
+  }));
+}
+
+function formToDeductions(items: DeductionFormItem[]): SalaryDeduction[] {
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    amount:
+      item.type === "percentage"
+        ? percentageToDecimal(parseFloat(item.amount) || 0)
+        : parseFloat(item.amount) || 0,
+    active: true,
+  }));
+}
+
+function bracketsToForm(brackets: RentTaxBracket[]): BracketFormItem[] {
+  return brackets.map((b) => ({
+    id: b.id,
+    min: b.min.toString(),
+    max: b.max !== null ? b.max.toString() : "",
+    rate: decimalToPercentage(b.rate).toString(),
+  }));
+}
+
+function formToBrackets(items: BracketFormItem[]): RentTaxBracket[] {
+  return items.map((item) => ({
+    id: item.id,
+    min: parseFloat(item.min) || 0,
+    max: item.max.trim() !== "" ? parseFloat(item.max) : null,
+    rate: percentageToDecimal(parseFloat(item.rate) || 0),
+  }));
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+export function SalaryConfigPanel() {
   const { t } = useTranslation();
-  const breakdown = calcSalaryBreakdown(record, settings);
-  const activeDeductions = breakdown.deductions;
+  const { data: settings } = useSalarySettings();
+  const upsertMutation = useUpsertSalarySettings();
+  const isLoading = upsertMutation.isPending;
+
+  const [deductions, setDeductions] = useState<DeductionFormItem[]>([]);
+  const [brackets, setBrackets] = useState<BracketFormItem[]>([]);
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      setDeductions(
+        deductionsToForm(
+          settings?.deductions?.length
+            ? settings.deductions
+            : DEFAULT_SALARY_DEDUCTIONS,
+        ),
+      );
+      setBrackets(
+        bracketsToForm(
+          settings?.rent_tax_brackets?.length
+            ? settings.rent_tax_brackets
+            : DEFAULT_RENT_TAX_BRACKETS,
+        ),
+      );
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    for (const d of deductions) {
+      if (!d.name.trim()) {
+        toast.error(t("salary.deductionNameRequired"));
+        return;
+      }
+      const amount = parseFloat(d.amount);
+      if (isNaN(amount) || amount < 0) {
+        toast.error(t("salary.invalidDeductionAmount"));
+        return;
+      }
+      if (d.type === "percentage" && amount > 100) {
+        toast.error(t("salary.invalidDeductionPercentage"));
+        return;
+      }
+    }
+
+    try {
+      await upsertMutation.mutateAsync({
+        deductions: formToDeductions(deductions),
+        rent_tax_brackets: formToBrackets(brackets),
+      });
+      toast.success(t("salary.settingsSaved"));
+    } catch {
+      toast.error(t("salary.settingsFailed"));
+    }
+  };
 
   return (
     <Card variant="defaultGradient" className="gap-0">
       <CardHeader className="pb-3">
-        <CardTitle>{t("salary.deductions")}</CardTitle>
-        <CardDescription>{t("salary.deductionsDescription")}</CardDescription>
-        <CardAction>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onOpenSettings}
-            title={t("salary.settings")}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-        </CardAction>
+        <CardTitle className="flex items-center gap-2">
+          <Settings2 className="h-4 w-4" />
+          {t("salary.settings")}
+        </CardTitle>
+        <CardDescription>{t("salary.settingsDescription")}</CardDescription>
       </CardHeader>
       <Separator />
-      <CardContent className="p-0">
-        {activeDeductions.length === 0 ? (
-          <p className="text-xs text-muted-foreground px-4 py-3">—</p>
-        ) : (
-          activeDeductions.map((d, i) => (
-            <div
-              key={d.id}
-              className={`flex justify-between items-center px-4 py-2.5 text-sm ${
-                i < activeDeductions.length - 1 ? "border-b border-dashed" : ""
-              }`}
-            >
-              <div className="flex flex-col">
-                <span className="font-medium">{d.name}</span>
-                <span className="text-xs text-muted-foreground font-mono">
-                  {d.type === "percentage"
-                    ? formatPercentage(d.rate)
-                    : formatCurrency(d.rate, record.currency)}
-                </span>
-              </div>
-              <span className="font-mono text-sm text-red-500">
-                -{formatCurrency(d.monthlyAmount, record.currency)}
-              </span>
+      <CardContent className="space-y-4">
+        {/* Deductions */}
+        <div className="flex flex-col gap-3">
+          <div>
+            <Label className="pl-0">{t("salary.deductionTemplates")}</Label>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {t("salary.deductionTemplatesDescription")}
+            </p>
+          </div>
+          {deductions.map((d, i) => (
+            <div key={d.id} className="flex items-center gap-2">
+              <Input
+                className="flex-1"
+                value={d.name}
+                onChange={(e) => {
+                  const next = [...deductions];
+                  next[i] = { ...next[i], name: e.target.value };
+                  setDeductions(next);
+                }}
+                placeholder={t("salary.deductionNamePlaceholder")}
+              />
+              <Button
+                type="button"
+                size="icon"
+                variant={d.type === "percentage" ? "default" : "outline"}
+                className="shrink-0 text-xs font-semibold"
+                onClick={() => {
+                  const next = [...deductions];
+                  next[i] = {
+                    ...next[i],
+                    type: d.type === "percentage" ? "nominal" : "percentage",
+                  };
+                  setDeductions(next);
+                }}
+              >
+                {d.type === "percentage" ? "%" : "$"}
+              </Button>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                max={d.type === "percentage" ? "100" : undefined}
+                className="w-24 shrink-0"
+                value={d.amount}
+                onChange={(e) => {
+                  const next = [...deductions];
+                  next[i] = { ...next[i], amount: e.target.value };
+                  setDeductions(next);
+                }}
+                placeholder="0"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                onClick={() =>
+                  setDeductions(deductions.filter((_, j) => j !== i))
+                }
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          ))
-        )}
-        {/* Rent tax total if applicable */}
-        {breakdown.rentTax.appliedToCrc &&
-          breakdown.rentTax.monthlyTotal > 0 && (
-            <>
-              <Separator />
-              <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                <span className="font-medium">{t("salary.rentTax")}</span>
-                <span className="font-mono text-sm text-red-500">
-                  -
-                  {formatCurrency(
-                    breakdown.rentTax.monthlyTotal,
-                    record.currency,
-                  )}
-                </span>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() =>
+              setDeductions([
+                ...deductions,
+                {
+                  id: crypto.randomUUID(),
+                  name: "",
+                  type: "percentage",
+                  amount: "",
+                },
+              ])
+            }
+          >
+            <Plus className="h-4 w-4" />
+            {t("salary.addDeduction")}
+          </Button>
+        </div>
+
+        <Separator />
+
+        {/* Rent tax brackets */}
+        <div className="flex flex-col gap-3">
+          <div>
+            <Label className="pl-0">{t("salary.rentTaxBrackets")}</Label>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {t("salary.rentTaxBracketsDescription")}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+            <span className="flex-1 pl-3">{t("salary.bracketFrom")}</span>
+            <span className="flex-1 pl-3">{t("salary.bracketTo")}</span>
+            <span className="flex-1 pl-3">{t("salary.bracketRate")}</span>
+            <span className="shrink-0 w-11 sm:w-9" />
+          </div>
+          {brackets.map((b, i) => (
+            <div key={b.id} className="flex items-center gap-2">
+              <div className="grid grid-cols-3 items-center gap-2 flex-1">
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={b.min}
+                  onChange={(e) => {
+                    const next = [...brackets];
+                    next[i] = { ...next[i], min: e.target.value };
+                    setBrackets(next);
+                  }}
+                  placeholder="0"
+                />
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={b.max}
+                  onChange={(e) => {
+                    const next = [...brackets];
+                    next[i] = { ...next[i], max: e.target.value };
+                    setBrackets(next);
+                  }}
+                  placeholder={t("salary.noLimit")}
+                />
+                <InputGroup className="bg-background hover:bg-accent has-[[data-slot=input-group-control]:focus-visible]:bg-input/30">
+                  <InputGroupInput
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={b.rate}
+                    onChange={(e) => {
+                      const next = [...brackets];
+                      next[i] = { ...next[i], rate: e.target.value };
+                      setBrackets(next);
+                    }}
+                    placeholder="0"
+                    className="pr-6 hover:bg-transparent"
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>%</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </div>
-            </>
-          )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                onClick={() => setBrackets(brackets.filter((_, j) => j !== i))}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() =>
+              setBrackets([
+                ...brackets,
+                { id: crypto.randomUUID(), min: "", max: "", rate: "" },
+              ])
+            }
+          >
+            <Plus className="h-4 w-4" />
+            {t("salary.addBracket")}
+          </Button>
+        </div>
+
+        <Button
+          type="button"
+          className="w-full"
+          onClick={handleSave}
+          disabled={isLoading}
+        >
+          {isLoading ? <Spinner /> : <Check className="h-4 w-4" />}
+          {isLoading ? t("common.saving") : t("common.save")}
+        </Button>
       </CardContent>
     </Card>
   );
