@@ -86,7 +86,9 @@ export const MobileNavigation = ({
       <div className="relative flex items-center">
         {items.map((item, index) => {
           const Icon = item.icon;
-          const isActive = item.path === currentPath;
+          const isActive =
+            (item.path === "/aguinaldo" && currentPath === "/salary") ||
+            item.path === currentPath;
 
           return (
             <Link

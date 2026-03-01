@@ -490,7 +490,8 @@
     "totalAnnualSalary": "Total annual salary",
     "salary": "Salary",
     "salarySaved": "Salary saved",
-    "salaryFailed": "Failed to save salary"
+    "salaryFailed": "Failed to save salary",
+    "seeSalary": "See salary"
   },
   "footer": {
     "rights": "All rights reserved."

@@ -490,7 +490,8 @@
     "totalAnnualSalary": "Salario anual total",
     "salary": "Salario",
     "salarySaved": "Salario guardado",
-    "salaryFailed": "Error al guardar el salario"
+    "salaryFailed": "Error al guardar el salario",
+    "seeSalary": "Ver salario"
   },
   "footer": {
     "rights": "Todos los derechos reservados."

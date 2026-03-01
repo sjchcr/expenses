@@ -100,7 +100,7 @@ export default function Aguinaldo() {
 
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
-      <AguinaldoHeader aguinaldoYear={aguinaldoYear} />
+      <AguinaldoHeader />
 
       <AguinaldoFilters
         aguinaldoYear={aguinaldoYear}

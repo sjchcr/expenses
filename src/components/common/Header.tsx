@@ -162,7 +162,10 @@ const Header = () => {
       <NavItem
         key={item.path}
         {...item}
-        isActive={location.pathname === item.path}
+        isActive={
+          (item.path === "/aguinaldo" && location.pathname === "/salary") ||
+          location.pathname === item.path
+        }
       />
     ));
 
@@ -213,7 +216,12 @@ const Header = () => {
               <UserAvatar user={user} />
             </div>
             <ThemeToggle />
-            <Button className="rounded-full" variant="ghost" size="icon">
+            <Button
+              className="rounded-full"
+              variant="ghost"
+              size="icon"
+              asChild
+            >
               <Link to="/settings">
                 <Settings />
               </Link>

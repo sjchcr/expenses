@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
+  ChevronLeft,
   LogOut,
   MonitorSmartphone,
   Moon,
@@ -29,6 +30,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTranslation } from "react-i18next";
 
 interface CustomHeaderProps {
+  backLocation?: string;
   title: string;
   subtitle?: string;
   hasAvatar?: boolean;
@@ -89,6 +91,7 @@ const UserAvatar = ({ user }: { user: User | null }) => {
 };
 
 const CustomHeader = ({
+  backLocation,
   title,
   subtitle,
   hasAvatar,
@@ -107,9 +110,24 @@ const CustomHeader = ({
     <header className="sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
       <div className="mask-b-from-30% mask-b-to-100% bg-background/95 backdrop-blur-2xl w-full h-full absolute top-0 left-0"></div>
       <div className="flex justify-between items-center px-4 w-full min-h-11">
-        <h1 className="text-2xl font-bold text-accent-foreground relative text-left">
-          {title}
-        </h1>
+        <div className="flex items-center gap-2">
+          {backLocation && (
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="relative"
+              disabled
+            >
+              <Link to="/aguinaldo">
+                <ChevronLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+          <h1 className="text-2xl font-bold text-accent-foreground relative text-left">
+            {title}
+          </h1>
+        </div>
         {subtitle && (
           <p className="text-muted-foreground text-sm absolute left-4 top-full mt-1">
             {subtitle}
