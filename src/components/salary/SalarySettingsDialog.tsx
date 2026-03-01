@@ -305,7 +305,7 @@ export function SalarySettingsDialog({
                       }}
                       placeholder={t("salary.noLimit")}
                     />
-                    <InputGroup className="bg-background hover:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:bg-input/30">
+                    <InputGroup className="bg-background hover:bg-accent has-[[data-slot=input-group-control]:focus-visible]:bg-input/30">
                       <InputGroupInput
                         type="number"
                         step="0.01"

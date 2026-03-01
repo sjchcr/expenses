@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronDownIcon, Plus, X } from "lucide-react";
+import { Check, CheckIcon, ChevronDownIcon, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 import {
@@ -41,7 +41,15 @@ import {
   DEFAULT_SALARY_DEDUCTIONS,
   decimalToPercentage,
   percentageToDecimal,
+  formatCurrency,
 } from "@/lib/salaryCalculations";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "../ui/input-group";
+import { cn } from "@/lib/utils";
 
 const CURRENCIES = ["CRC", "USD"];
 
@@ -106,6 +114,7 @@ interface SalaryDialogProps {
   onOpenChange: (open: boolean) => void;
   record?: SalaryRecord | null;
   settings: SalarySettings | null;
+  previousRecord?: SalaryRecord | null;
 }
 
 export function SalaryDialog({
@@ -113,6 +122,7 @@ export function SalaryDialog({
   onOpenChange,
   record,
   settings,
+  previousRecord,
 }: SalaryDialogProps) {
   const { t } = useTranslation();
   const isMobile = useMobile();
@@ -126,6 +136,7 @@ export function SalaryDialog({
   );
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
+  const [raisePercent, setRaisePercent] = useState("");
 
   useEffect(() => {
     if (open && record) {
@@ -140,6 +151,7 @@ export function SalaryDialog({
     } else if (!open) {
       setFormData(createEmptyFormData(settings));
       setCalendarMonth(new Date());
+      setRaisePercent("");
     }
   }, [open, record, settings]);
 
@@ -295,38 +307,96 @@ export function SalaryDialog({
                 <Label htmlFor="gross_amount">
                   {t("salary.grossAmount")} *
                 </Label>
-                <Input
-                  id="gross_amount"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.gross_amount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gross_amount: e.target.value })
-                  }
-                  placeholder="0.00"
-                />
+                <div className="flex flex-col w-full gap-0">
+                  {/* Previous salary raise helper (create mode only) */}
+                  {!isEditing && previousRecord && (
+                    <div className="flex flex-col items-start gap-2 p-2 rounded-t-md bg-muted border text-sm">
+                      <span className="text-muted-foreground shrink-0">
+                        {t("salary.previousSalaryHint")}
+                      </span>
+                      <div className="flex items-center gap-2 w-full">
+                        <div className="grid grid-cols-2 items-center gap-2 w-full">
+                          <Label className="pl-0 col-span-1">
+                            {formatCurrency(
+                              previousRecord.gross_amount,
+                              previousRecord.currency,
+                            )}
+                          </Label>
+                          <InputGroup className="bg-background hover:bg-accent has-[[data-slot=input-group-control]:focus-visible]:bg-input/30 col-span-1">
+                            <InputGroupInput
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              value={raisePercent}
+                              onChange={(e) => setRaisePercent(e.target.value)}
+                              placeholder={t("salary.raisePercent")}
+                              className="w-28 h-7 hover:bg-transparent"
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupText>%</InputGroupText>
+                            </InputGroupAddon>
+                          </InputGroup>
+                        </div>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="default"
+                          className="text-xs shrink-0"
+                          onClick={() => {
+                            const raise = parseFloat(raisePercent) || 0;
+                            const newAmount =
+                              previousRecord.gross_amount * (1 + raise / 100);
+                            setFormData({
+                              ...formData,
+                              gross_amount: newAmount.toFixed(2),
+                              currency: previousRecord.currency,
+                            });
+                          }}
+                        >
+                          <CheckIcon />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <Input
+                    id="gross_amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.gross_amount}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gross_amount: e.target.value })
+                    }
+                    placeholder="0.00"
+                    className={cn(
+                      !isEditing &&
+                        previousRecord &&
+                        "rounded-t-none rounded-b-md",
+                    )}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label>{t("salary.currency")}</Label>
-                <Select
-                  value={formData.currency}
-                  onValueChange={(v) =>
-                    setFormData({ ...formData, currency: v })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            </div>
+
+            {/* Currency */}
+            <div className="flex flex-col justify-start gap-2">
+              <Label>{t("salary.currency")}</Label>
+              <Select
+                value={formData.currency}
+                onValueChange={(v) => setFormData({ ...formData, currency: v })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Deductions */}
@@ -340,7 +410,13 @@ export function SalaryDialog({
               </div>
               <div className="flex flex-col gap-2">
                 {formData.deductions.map((d, i) => (
-                  <div key={d.id} className="flex items-center gap-2">
+                  <div
+                    key={d.id}
+                    className={cn(
+                      !d.active && "opacity-50",
+                      "flex items-center gap-2",
+                    )}
+                  >
                     {/* Active toggle */}
                     <Checkbox
                       checked={d.active}
@@ -355,6 +431,7 @@ export function SalaryDialog({
                       onChange={(e) =>
                         updateDeduction(i, "name", e.target.value)
                       }
+                      disabled={!d.active}
                       placeholder={t("salary.deductionNamePlaceholder")}
                     />
                     {/* Type toggle */}
@@ -363,6 +440,7 @@ export function SalaryDialog({
                       size="icon"
                       variant={d.type === "percentage" ? "default" : "outline"}
                       className="shrink-0 px-0"
+                      disabled={!d.active}
                       onClick={() =>
                         updateDeduction(
                           i,
@@ -385,6 +463,7 @@ export function SalaryDialog({
                         updateDeduction(i, "amount", e.target.value)
                       }
                       placeholder="0"
+                      disabled={!d.active}
                     />
                     {/* Remove */}
                     <Button
@@ -392,6 +471,7 @@ export function SalaryDialog({
                       variant="ghost"
                       size="icon"
                       className="shrink-0 text-muted-foreground hover:text-destructive"
+                      disabled={!d.active}
                       onClick={() => handleRemoveDeduction(i)}
                     >
                       <X className="h-4 w-4" />

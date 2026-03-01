@@ -452,6 +452,7 @@
     "settingsDescription": "Configura las plantillas de deducciones y los tramos del impuesto de renta.",
     "deductionTemplates": "Plantillas de deducciones",
     "deductionTemplatesDescription": "Estas son las deducciones por defecto que se copian a cada nuevo salario.",
+    "deductionsDescription": "Deducciones aplicadas a este salario. Puedes agregar deducciones personalizadas además de las plantillas.",
     "rentTaxBrackets": "Tramos de impuesto de renta",
     "rentTaxBracketsDescription": "Impuesto de renta de Costa Rica aplicado al salario bruto en CRC.",
     "addBracket": "Agregar tramo",
@@ -465,6 +466,7 @@
     "deductionNameRequired": "El nombre de la deducción es requerido",
     "invalidDeductionAmount": "El monto de la deducción debe ser mayor o igual a 0",
     "invalidDeductionPercentage": "El porcentaje no puede superar el 100%",
+    "salaryBreakdownDescription": "Desglose completo de este salario, incluyendo todas las deducciones y el cálculo del impuesto de renta.",
     "settingsSaved": "Configuración guardada",
     "settingsFailed": "Error al guardar la configuración",
     "salaryCreated": "Registro de salario creado",
@@ -473,7 +475,10 @@
     "salaryFailed": "Error al guardar el salario",
     "deleteFailed": "Error al eliminar el salario",
     "noSalaries": "No hay registros de salario. Agrega tu primer salario para ver el desglose.",
-    "exchangeRateUnavailable": "Tipo de cambio no disponible"
+    "exchangeRateUnavailable": "Tipo de cambio no disponible",
+    "previousSalaryHint": "Encontramos un salario anterior. Puedes ingresar un porcentaje de aumento para calcular automáticamente el nuevo monto bruto",
+    "raisePercent": "Aumento",
+    "applyRaise": "Aplicar"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

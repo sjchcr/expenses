@@ -452,6 +452,7 @@
     "settingsDescription": "Configure default deduction templates and rent tax brackets.",
     "deductionTemplates": "Deduction templates",
     "deductionTemplatesDescription": "These are the default deductions copied to each new salary.",
+    "deductionsDescription": "Deductions can be either a fixed amount or a percentage of the gross salary. You can have multiple deductions and choose which ones are active for each salary record.",
     "rentTaxBrackets": "Rent tax brackets",
     "rentTaxBracketsDescription": "Costa Rica rent tax applied to gross CRC salary.",
     "addBracket": "Add bracket",
@@ -465,6 +466,7 @@
     "deductionNameRequired": "Deduction name is required",
     "invalidDeductionAmount": "Deduction amount must be 0 or greater",
     "invalidDeductionPercentage": "Percentage cannot exceed 100%",
+    "salaryBreakdownDescription": "This is the breakdown of your salary based on the gross amount and active deductions. The rent tax is calculated based on the gross salary and the defined tax brackets.",
     "settingsSaved": "Settings saved",
     "settingsFailed": "Failed to save settings",
     "salaryCreated": "Salary record created",
@@ -473,7 +475,10 @@
     "salaryFailed": "Failed to save salary",
     "deleteFailed": "Failed to delete salary",
     "noSalaries": "No salary records yet. Add your first salary to see the breakdown.",
-    "exchangeRateUnavailable": "Exchange rate unavailable"
+    "exchangeRateUnavailable": "Exchange rate unavailable",
+    "previousSalaryHint": "We found a previous salary. You can enter a raise percentage to automatically calculate the new gross amount",
+    "raisePercent": "Raise",
+    "applyRaise": "Apply"
   },
   "aguinaldo": {
     "title": "Aguinaldo",

@@ -101,11 +101,6 @@ export default function Salary() {
       type: "button",
       actions: [
         {
-          label: t("salary.settings"),
-          icon: Settings,
-          onClick: () => setIsSettingsOpen(true),
-        },
-        {
           label: t("salary.addSalary"),
           icon: Plus,
           onClick: handleAdd,
@@ -158,34 +153,6 @@ export default function Salary() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </ButtonGroup>
-
-          {!isMobile && selectedRecord && (
-            <div className="flex gap-2 ml-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleEdit(selectedRecord)}
-              >
-                {t("common.edit")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteId(selectedRecord.id)}
-                className="text-destructive hover:text-destructive"
-              >
-                {t("common.delete")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsSettingsOpen(true)}
-              >
-                <Settings className="h-4 w-4" />
-                {t("salary.settings")}
-              </Button>
-            </div>
-          )}
         </div>
       )}
 
@@ -208,6 +175,8 @@ export default function Salary() {
               record={selectedRecord}
               settings={settings ?? null}
               exchangeRate={exchangeRate}
+              onEdit={() => handleEdit(selectedRecord)}
+              onDelete={() => setDeleteId(selectedRecord.id)}
             />
           </div>
           <div className="lg:col-span-1">
@@ -249,6 +218,7 @@ export default function Salary() {
         onOpenChange={handleDialogOpenChange}
         record={editingRecord}
         settings={settings ?? null}
+        previousRecord={editingRecord ? null : records[0] ?? null}
       />
 
       <DeleteSalaryDialog
