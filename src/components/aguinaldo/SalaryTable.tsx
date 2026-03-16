@@ -117,12 +117,15 @@ export function SalaryTable({
                   </div>
                   <p
                     className={cn(
-                      "font-bold col-span-1 text-right",
-                      salary1 && salary2
-                        ? "text-green-600 dark:text-green-400"
-                        : (!salary1 || salary1.gross_amount == 0) &&
-                          (!salary2 || salary2.gross_amount == 0)
+                      "font-bold col-span-1 text-right tabular-nums",
+                      (!salary1 || salary1.gross_amount == 0) &&
+                        (!salary2 || salary2.gross_amount == 0)
                         ? "text-red-600 dark:text-red-400"
+                        : salary1 &&
+                          salary1.gross_amount > 0 &&
+                          salary2 &&
+                          salary2.gross_amount > 0
+                        ? "text-green-600 dark:text-green-400"
                         : "text-yellow-600 dark:text-yellow-400",
                     )}
                   >

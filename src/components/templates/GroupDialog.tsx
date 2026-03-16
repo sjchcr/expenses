@@ -162,6 +162,7 @@ export function GroupDialog({
                       >
                         <Checkbox
                           checked={formData.template_ids.includes(template.id)}
+                          size="small"
                           onCheckedChange={() =>
                             handleTemplateToggle(template.id)
                           }

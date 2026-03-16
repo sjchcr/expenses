@@ -401,12 +401,22 @@ export function SalaryDialog({
 
             {/* Deductions */}
             <Separator />
-            <div className="flex flex-col gap-2">
-              <div>
-                <Label>{t("salary.deductions")}</Label>
-                <p className="text-xs text-muted-foreground ml-3">
-                  {t("salary.deductionTemplatesDescription")}
-                </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center gap-2">
+                <div>
+                  <Label className="pl-0">{t("salary.deductions")}</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t("salary.deductionTemplatesDescription")}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={handleAddDeduction}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
               <div className="flex flex-col gap-2">
                 {formData.deductions.map((d, i) => (
@@ -468,7 +478,7 @@ export function SalaryDialog({
                     {/* Remove */}
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="ghostDestructive"
                       size="icon"
                       className="shrink-0 text-muted-foreground hover:text-destructive"
                       disabled={!d.active}
@@ -479,16 +489,6 @@ export function SalaryDialog({
                   </div>
                 ))}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddDeduction}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4" />
-                {t("salary.addDeduction")}
-              </Button>
             </div>
           </form>
         </DialogBody>

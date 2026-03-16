@@ -17,7 +17,7 @@ import {
   formatUsd,
 } from "@/lib/salaryCalculations";
 import { Button } from "../ui/button";
-import { BanknoteArrowUp, Edit, X } from "lucide-react";
+import { BanknoteArrowUp, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SalaryBreakdownCardProps {
@@ -87,14 +87,14 @@ export function SalaryBreakdownCard({
             onClick={onDelete}
             title={t("salary.settings")}
           >
-            <X className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </CardAction>
       </CardHeader>
 
       {/* Column headers */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 px-6 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-        <span className="hidden sm:col-span-1" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 px-4 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <span className="hidden sm:flex sm:col-span-1" />
         <span className="text-right">{t("salary.monthly")}</span>
         <span className="text-right">{t("salary.fortnightly")}</span>
       </div>
@@ -199,7 +199,7 @@ export function SalaryBreakdownCard({
 
         {/* Net salary */}
         <Separator className="my-2" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 px-4 py-2 font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 px-4 pt-2 font-bold">
           <span className="col-span-3 sm:col-span-1">
             {t("salary.netSalary")}
           </span>
@@ -213,7 +213,7 @@ export function SalaryBreakdownCard({
           />
         </div>
 
-        {/* Converted currency row */}
+        {/* Converted currency row
         {breakdown.convertedCurrency &&
           breakdown.netMonthlyConverted !== null &&
           breakdown.netFortnightlyConverted !== null && (
@@ -231,7 +231,7 @@ export function SalaryBreakdownCard({
           <div className="px-4 py-1.5 text-xs text-muted-foreground">
             {t("salary.exchangeRateUnavailable")}
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

@@ -175,11 +175,33 @@ export function SalarySettingsDialog({
           <div className="py-4 space-y-6">
             {/* Deduction templates */}
             <div className="flex flex-col gap-3">
-              <div>
-                <Label>{t("salary.deductionTemplates")}</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {t("salary.deductionTemplatesDescription")}
-                </p>
+              <div className="flex justify-between items-center gap-2">
+                <div>
+                  <Label>{t("salary.deductionTemplates")}</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("salary.deductionTemplatesDescription")}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() =>
+                    setDeductions([
+                      ...deductions,
+                      {
+                        id: crypto.randomUUID(),
+                        name: "",
+                        type: "percentage",
+                        amount: "",
+                      },
+                    ])
+                  }
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("salary.addDeduction")}
+                </Button>
               </div>
               {deductions.map((d, i) => (
                 <div key={d.id} className="flex items-center gap-2">
@@ -237,26 +259,6 @@ export function SalarySettingsDialog({
                   </Button>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() =>
-                  setDeductions([
-                    ...deductions,
-                    {
-                      id: crypto.randomUUID(),
-                      name: "",
-                      type: "percentage",
-                      amount: "",
-                    },
-                  ])
-                }
-              >
-                <Plus className="h-4 w-4" />
-                {t("salary.addDeduction")}
-              </Button>
             </div>
 
             <Separator />

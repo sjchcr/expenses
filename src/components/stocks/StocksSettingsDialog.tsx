@@ -308,11 +308,18 @@ export function StocksSettingsDialog({
             <Separator />
 
             {/* Other Deductions */}
-            <div className="flex flex-col gap-3">
-              <Label>{t("stocks.otherDeductions")}</Label>
-              <p className="text-xs text-muted-foreground pl-3">
-                {t("stocks.otherDeductionsDescription")}
-              </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center gap-2">
+                <div>
+                  <Label className="pl-0">{t("stocks.otherDeductions")}</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t("stocks.otherDeductionsDescription")}
+                  </p>
+                </div>
+                <Button type="button" size="icon" onClick={handleAddDeduction}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
               {formData.other_deductions.map((deduction) => (
                 <div key={deduction.id} className="flex items-center gap-2">
                   <Input
@@ -365,7 +372,7 @@ export function StocksSettingsDialog({
                   </div>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="ghostDestructive"
                     size="icon"
                     className="shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => handleRemoveDeduction(deduction.id)}
@@ -374,16 +381,6 @@ export function StocksSettingsDialog({
                   </Button>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddDeduction}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4" />
-                {t("stocks.addDeduction")}
-              </Button>
             </div>
           </form>
         </DialogBody>

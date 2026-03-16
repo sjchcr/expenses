@@ -269,6 +269,7 @@ export function TemplateDialog({
               <Checkbox
                 id="is_recurring"
                 checked={formData.is_recurring}
+                size="small"
                 onCheckedChange={(checked) =>
                   setFormData({
                     ...formData,

@@ -161,11 +161,30 @@ export function SalaryConfigPanel() {
       <CardContent className="space-y-4">
         {/* Deductions */}
         <div className="flex flex-col gap-3">
-          <div>
-            <Label className="pl-0">{t("salary.deductionTemplates")}</Label>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {t("salary.deductionTemplatesDescription")}
-            </p>
+          <div className="flex justify-between items-center gap-2 pt-2">
+            <div>
+              <Label className="pl-0">{t("salary.deductionTemplates")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t("salary.deductionTemplatesDescription")}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              onClick={() =>
+                setDeductions([
+                  ...deductions,
+                  {
+                    id: crypto.randomUUID(),
+                    name: "",
+                    type: "percentage",
+                    amount: "",
+                  },
+                ])
+              }
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
           {deductions.map((d, i) => (
             <div key={d.id} className="flex items-center gap-2">
@@ -211,7 +230,7 @@ export function SalaryConfigPanel() {
               />
               <Button
                 type="button"
-                variant="ghost"
+                variant="ghostDestructive"
                 size="icon"
                 className="shrink-0 text-muted-foreground hover:text-destructive"
                 onClick={() =>
@@ -222,37 +241,32 @@ export function SalaryConfigPanel() {
               </Button>
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() =>
-              setDeductions([
-                ...deductions,
-                {
-                  id: crypto.randomUUID(),
-                  name: "",
-                  type: "percentage",
-                  amount: "",
-                },
-              ])
-            }
-          >
-            <Plus className="h-4 w-4" />
-            {t("salary.addDeduction")}
-          </Button>
         </div>
 
         <Separator />
 
         {/* Rent tax brackets */}
         <div className="flex flex-col gap-3">
-          <div>
-            <Label className="pl-0">{t("salary.rentTaxBrackets")}</Label>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {t("salary.rentTaxBracketsDescription")}
-            </p>
+          <div className="flex justify-between items-center gap-2 pt-2">
+            <div>
+              <Label className="pl-0">{t("salary.rentTaxBrackets")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t("salary.rentTaxBracketsDescription")}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              className="w-full"
+              onClick={() =>
+                setBrackets([
+                  ...brackets,
+                  { id: crypto.randomUUID(), min: "", max: "", rate: "" },
+                ])
+              }
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
             <span className="flex-1 pl-3">{t("salary.bracketFrom")}</span>
@@ -309,7 +323,7 @@ export function SalaryConfigPanel() {
               </div>
               <Button
                 type="button"
-                variant="ghost"
+                variant="ghostDestructive"
                 size="icon"
                 className="shrink-0 text-muted-foreground hover:text-destructive"
                 onClick={() => setBrackets(brackets.filter((_, j) => j !== i))}
@@ -318,21 +332,6 @@ export function SalaryConfigPanel() {
               </Button>
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() =>
-              setBrackets([
-                ...brackets,
-                { id: crypto.randomUUID(), min: "", max: "", rate: "" },
-              ])
-            }
-          >
-            <Plus className="h-4 w-4" />
-            {t("salary.addBracket")}
-          </Button>
         </div>
 
         <Button

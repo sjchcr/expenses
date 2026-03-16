@@ -337,6 +337,7 @@ export function ExpenseTable({
                             <span
                               className={cn(
                                 amountData.paid && "line-through opacity-70",
+                                "tabular-nums",
                               )}
                             >
                               {getCurrencySymbol(amountData.currency)}
@@ -445,7 +446,7 @@ export function ExpenseTable({
                   <Sigma className="w-3 h-3" />
                   {t("common.total")}:
                 </span>
-                <span className="text-accent-foreground/50">
+                <span className="text-accent-foreground/50 tabular-nums">
                   {getCurrencySymbol(currency)}
                   {formatAmount(values.total)}
                 </span>
@@ -455,7 +456,7 @@ export function ExpenseTable({
                   <CircleCheck className="w-3 h-3" />
                   {t("common.paid")}:
                 </span>
-                <span className="text-green-600">
+                <span className="text-green-600 tabular-nums">
                   {getCurrencySymbol(currency)}
                   {formatAmount(values.paid)}
                 </span>
@@ -465,7 +466,7 @@ export function ExpenseTable({
                   <CircleDashed className="w-3 h-3" />
                   {t("common.pending")}:
                 </span>
-                <span className="text-yellow-600">
+                <span className="text-yellow-600 tabular-nums">
                   {getCurrencySymbol(currency)}
                   {formatAmount(values.pending)}
                 </span>
@@ -475,7 +476,7 @@ export function ExpenseTable({
                   <span className="flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
                     {t("expenses.grandTotal")}:
                   </span>
-                  <span className="text-blue-700 dark:text-blue-400">
+                  <span className="text-blue-700 dark:text-blue-400 tabular-nums">
                     {isLoadingRates ? (
                       <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
                     ) : grandTotals[currency].hasAllRates ? (
