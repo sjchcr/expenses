@@ -13,8 +13,6 @@ import {
   calcSalaryBreakdown,
   formatCurrency,
   formatPercentage,
-  formatCRC,
-  formatUsd,
 } from "@/lib/salaryCalculations";
 import { Button } from "../ui/button";
 import { BanknoteArrowUp, Edit, Trash2 } from "lucide-react";
@@ -57,10 +55,10 @@ export function SalaryBreakdownCard({
   );
 
   const fmt = (amount: number) => formatCurrency(amount, breakdown.currency);
-  const fmtConverted = (amount: number) =>
-    breakdown.convertedCurrency === "USD"
-      ? formatUsd(amount)
-      : formatCRC(amount);
+  // const fmtConverted = (amount: number) =>
+  //   breakdown.convertedCurrency === "USD"
+  //     ? formatUsd(amount)
+  //     : formatCRC(amount);
 
   return (
     <Card variant="defaultGradient" className="gap-0">
