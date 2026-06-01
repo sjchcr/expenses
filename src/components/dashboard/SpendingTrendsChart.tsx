@@ -10,12 +10,16 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from "recharts";
-import type { MonthlyData } from "@/hooks/useDashboardStats";
+import type {
+  DashboardStatsPeriod,
+  MonthlyData,
+} from "@/hooks/useDashboardStats";
 
 interface SpendingTrendsChartProps {
   monthlyTrends: MonthlyData[];
   currencies: string[];
-  currentYear: number;
+  period: DashboardStatsPeriod;
+  periodLabel: string;
   isLoading: boolean;
 }
 
@@ -27,7 +31,8 @@ interface ChartDataPoint {
 export function SpendingTrendsChart({
   monthlyTrends,
   currencies,
-  currentYear,
+  period,
+  periodLabel,
   isLoading,
 }: SpendingTrendsChartProps) {
   const { t } = useTranslation();
@@ -93,10 +98,12 @@ export function SpendingTrendsChart({
     <Card className="col-span-1 lg:col-span-2 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="text-base">
-          {t("dashboard.spendingTrends")} - {currentYear}
+          {t("dashboard.spendingTrends")} - {periodLabel}
         </CardTitle>
         <p className="text-muted-foreground text-sm">
-          {t("dashboard.monthlySpendingByCurrency")}
+          {period === "monthly"
+            ? t("dashboard.dailySpendingByCurrency")
+            : t("dashboard.monthlySpendingByCurrency")}
           {hasLeftAxis && hasRightAxis && " (CRC left, USD right)"}
         </p>
       </CardHeader>

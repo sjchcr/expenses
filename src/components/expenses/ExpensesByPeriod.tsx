@@ -10,7 +10,7 @@ import {
 import { ExpenseTable } from "./ExpenseTable";
 import { useMobile } from "@/hooks/useMobile";
 import { cn } from "@/lib/utils";
-import type { Expense } from "@/types";
+import type { Expense, ExpenseCategory } from "@/types";
 
 interface ExpensesByPeriodProps {
   expensesByPeriod: Record<string, Expense[]>;
@@ -26,6 +26,7 @@ interface ExpensesByPeriodProps {
   onDelete: (expense: Expense) => void;
   onCreateTemplate: (expense: Expense) => void;
   onAddExpense: () => void;
+  categories: ExpenseCategory[];
 }
 
 export function ExpensesByPeriod({
@@ -38,6 +39,7 @@ export function ExpensesByPeriod({
   onDelete,
   onCreateTemplate,
   onAddExpense,
+  categories,
 }: ExpensesByPeriodProps) {
   const isMobile = useMobile();
 
@@ -70,6 +72,7 @@ export function ExpensesByPeriod({
               onDelete={onDelete}
               onCreateTemplate={onCreateTemplate}
               defaultTab={defaultTab}
+              categories={categories}
             />
           </CardContent>
         </Card>

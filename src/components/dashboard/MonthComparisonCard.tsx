@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import type { MonthComparison } from "@/hooks/useDashboardStats";
+import type {
+  DashboardStatsPeriod,
+  MonthComparison,
+} from "@/hooks/useDashboardStats";
 
 interface MonthComparisonCardProps {
   monthComparison: MonthComparison[];
-  currentMonthName: string;
-  previousMonthName: string;
+  period: DashboardStatsPeriod;
+  currentLabel: string;
+  previousLabel: string;
   isLoading: boolean;
 }
 
@@ -27,8 +31,9 @@ function formatPercent(value: number): string {
 
 export function MonthComparisonCard({
   monthComparison,
-  currentMonthName,
-  previousMonthName,
+  period,
+  currentLabel,
+  previousLabel,
   isLoading,
 }: MonthComparisonCardProps) {
   const { t } = useTranslation();
@@ -52,9 +57,13 @@ export function MonthComparisonCard({
   return (
     <Card className="bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow col-span-1">
       <CardHeader>
-        <CardTitle className="text-base">{t("dashboard.monthComparison")}</CardTitle>
+        <CardTitle className="text-base">
+          {period === "monthly"
+            ? t("dashboard.monthComparison")
+            : t("dashboard.yearComparison")}
+        </CardTitle>
         <p className="text-muted-foreground text-sm">
-          {previousMonthName} vs {currentMonthName}
+          {previousLabel} vs {currentLabel}
         </p>
       </CardHeader>
       <CardContent>
@@ -111,7 +120,7 @@ export function MonthComparisonCard({
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">
-                          {previousMonthName}
+                          {previousLabel}
                         </p>
                         <p className="font-medium">
                           {formatCurrency(previousMonth, currency)}
@@ -119,7 +128,7 @@ export function MonthComparisonCard({
                       </div>
                       <div>
                         <p className="text-muted-foreground">
-                          {currentMonthName}
+                          {currentLabel}
                         </p>
                         <p className="font-medium">
                           {formatCurrency(currentMonth, currency)}

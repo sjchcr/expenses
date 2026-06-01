@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Expense } from "@/types";
+import type { Expense, ExpenseCategory } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useExchangeRates, getExchangeRate } from "@/hooks/useExchangeRates";
@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CategoryIcon } from "@/components/categories";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -67,6 +68,7 @@ interface ExpenseTableProps {
   onDelete: (expense: Expense) => void;
   onCreateTemplate: (expense: Expense) => void;
   defaultTab?: "all" | "pending" | "paid";
+  categories: ExpenseCategory[];
 }
 
 // Helper to check if all amounts in an expense are paid
@@ -87,6 +89,7 @@ export function ExpenseTable({
   onDelete,
   onCreateTemplate,
   defaultTab = "all",
+  categories,
 }: ExpenseTableProps) {
   const { t } = useTranslation();
   const [sortColumn] = useState<string | null>("due_date");
@@ -138,6 +141,10 @@ export function ExpenseTable({
 
   const filteredExpenses = filterExpenses(expenses);
   const sortedExpenses = sortExpenses(filteredExpenses);
+  const categoriesById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  );
 
   // Get all unique currencies from all expenses
   const allCurrencies = useMemo(
@@ -236,6 +243,9 @@ export function ExpenseTable({
           );
           const fullyPaid = isExpenseFullyPaid(expense);
           const partiallyPaid = isExpensePartiallyPaid(expense);
+          const category = expense.category_id
+            ? categoriesById.get(expense.category_id)
+            : null;
           return (
             <div
               key={expense.id}
@@ -269,7 +279,7 @@ export function ExpenseTable({
                     )}
                     <p
                       className={cn(
-                        "text-sm font-bold truncate",
+                        "flex min-w-0 items-center gap-1.5 text-sm font-bold truncate",
                         fullyPaid
                           ? "text-green-600"
                           : partiallyPaid
@@ -277,7 +287,15 @@ export function ExpenseTable({
                           : "text-amber-500",
                       )}
                     >
-                      {expense.name}
+                      {category && (
+                        <CategoryIcon
+                          icon={category.icon}
+                          color={category.color}
+                          className="size-5"
+                          iconClassName="size-3"
+                        />
+                      )}
+                      <span className="truncate">{expense.name}</span>
                     </p>
                   </div>
                   <div className="w-full flex justify-between items-center gap-2">

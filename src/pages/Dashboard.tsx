@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDashboardStats } from "@/hooks/useDashboardStats";
+import {
+  type DashboardStatsPeriod,
+  useDashboardStats,
+} from "@/hooks/useDashboardStats";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   PendingPaymentsCard,
@@ -12,27 +16,32 @@ import {
 import { useMobile } from "@/hooks/useMobile";
 import CustomHeader from "@/components/common/CustomHeader";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   const isMobile = useMobile();
   const { t } = useTranslation();
   const { displayName } = useCurrentUser();
+  const [statsPeriod, setStatsPeriod] =
+    useState<DashboardStatsPeriod>("yearly");
   const {
     pendingPayments,
     monthComparison,
     monthlyTrends,
     yearTotals,
+    categoryTotals,
     paidVsPending,
     exchangeRatesDisplay,
     currencies,
     primaryCurrency,
-    currentYear,
-    currentMonthName,
-    previousMonthName,
+    period,
+    periodLabel,
+    currentComparisonLabel,
+    previousComparisonLabel,
     isLoading,
     totalExpensesCount,
     refetch,
-  } = useDashboardStats();
+  } = useDashboardStats(statsPeriod);
 
   const welcomeTitle = `${t("dashboard.welcomeBack")}${
     displayName ? ` ${displayName}` : ""
@@ -46,9 +55,26 @@ export default function Dashboard() {
             {welcomeTitle}
           </h2>
         )}
-        <h3 className="text-sm text-muted-foreground">
-          {t("dashboard.financialSummary", { year: currentYear })}
-        </h3>
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-sm text-muted-foreground">
+            {t("dashboard.financialSummaryPeriod", { period: periodLabel })}
+          </h3>
+          <Tabs
+            value={statsPeriod}
+            onValueChange={(value) =>
+              setStatsPeriod(value as DashboardStatsPeriod)
+            }
+          >
+            <TabsList background>
+              <TabsTrigger value="yearly">
+                {t("dashboard.yearly")}
+              </TabsTrigger>
+              <TabsTrigger value="monthly">
+                {t("dashboard.monthly")}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {/* Quick Stats Row */}
@@ -57,7 +83,8 @@ export default function Dashboard() {
           yearTotals={yearTotals}
           paidVsPending={paidVsPending}
           totalExpensesCount={totalExpensesCount}
-          currentYear={currentYear}
+          period={period}
+          periodLabel={periodLabel}
           isLoading={isLoading}
         />
       </div>
@@ -66,13 +93,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <PendingPaymentsCard
           pendingPayments={pendingPayments}
-          currentMonthName={currentMonthName}
+          periodLabel={periodLabel}
           isLoading={isLoading}
         />
         <MonthComparisonCard
           monthComparison={monthComparison}
-          currentMonthName={currentMonthName}
-          previousMonthName={previousMonthName}
+          period={period}
+          currentLabel={currentComparisonLabel}
+          previousLabel={previousComparisonLabel}
           isLoading={isLoading}
         />
         <ExchangeRatesCard
@@ -87,12 +115,14 @@ export default function Dashboard() {
         <SpendingTrendsChart
           monthlyTrends={monthlyTrends}
           currencies={currencies}
-          currentYear={currentYear}
+          period={period}
+          periodLabel={periodLabel}
           isLoading={isLoading}
         />
         <CurrencyBreakdownChart
-          yearTotals={yearTotals}
-          currentYear={currentYear}
+          categoryTotals={categoryTotals}
+          primaryCurrency={primaryCurrency}
+          periodLabel={periodLabel}
           isLoading={isLoading}
         />
       </div>

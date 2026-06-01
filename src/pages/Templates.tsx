@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, FolderPlus } from "lucide-react";
+import { Plus, Shapes } from "lucide-react";
 import { useTemplates } from "@/hooks/useTemplates";
-import { useTemplateGroups } from "@/hooks/useTemplateGroups";
+import { useCategories } from "@/hooks/useCategories";
 import { useMobile } from "@/hooks/useMobile";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import CustomHeader, {
@@ -12,15 +12,17 @@ import {
   TemplatesHeader,
   RecurringTemplatesCard,
   RegularTemplatesCard,
-  TemplateGroupsCard,
   TemplatesLoadingSkeleton,
   GroupsLoadingSkeleton,
   TemplateDialog,
   DeleteTemplateDialog,
-  GroupDialog,
-  DeleteGroupDialog,
 } from "@/components/templates";
-import type { ExpenseTemplate, TemplateGroup } from "@/types";
+import {
+  CategoriesCard,
+  CategoryDialog,
+  DeleteCategoryDialog,
+} from "@/components/categories";
+import type { ExpenseCategory, ExpenseTemplate } from "@/types";
 
 export default function Templates() {
   const isMobile = useMobile();
@@ -37,15 +39,16 @@ export default function Templates() {
   const [templateToDelete, setTemplateToDelete] =
     useState<ExpenseTemplate | null>(null);
 
-  // Group dialog state
-  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<TemplateGroup | null>(null);
+  // Category dialog state
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] =
+    useState<ExpenseCategory | null>(null);
 
-  // Delete group dialog state
-  const [isDeleteGroupDialogOpen, setIsDeleteGroupDialogOpen] = useState(false);
-  const [groupToDelete, setGroupToDelete] = useState<TemplateGroup | null>(
-    null
-  );
+  // Delete category dialog state
+  const [isDeleteCategoryDialogOpen, setIsDeleteCategoryDialogOpen] =
+    useState(false);
+  const [categoryToDelete, setCategoryToDelete] =
+    useState<ExpenseCategory | null>(null);
 
   const {
     data: templates,
@@ -53,10 +56,10 @@ export default function Templates() {
     refetch: refetchTemplates,
   } = useTemplates();
   const {
-    data: groups,
-    isLoading: isLoadingGroups,
-    refetch: refetchGroups,
-  } = useTemplateGroups();
+    data: categories,
+    isLoading: isLoadingCategories,
+    refetch: refetchCategories,
+  } = useCategories();
 
   // Template handlers
   const handleOpenTemplateDialog = (template?: ExpenseTemplate) => {
@@ -79,25 +82,25 @@ export default function Templates() {
     setTemplateToDelete(null);
   };
 
-  // Group handlers
-  const handleOpenGroupDialog = (group?: TemplateGroup) => {
-    setEditingGroup(group || null);
-    setIsGroupDialogOpen(true);
+  // Category handlers
+  const handleOpenCategoryDialog = (category?: ExpenseCategory) => {
+    setEditingCategory(category || null);
+    setIsCategoryDialogOpen(true);
   };
 
-  const handleCloseGroupDialog = () => {
-    setIsGroupDialogOpen(false);
-    setEditingGroup(null);
+  const handleCloseCategoryDialog = () => {
+    setIsCategoryDialogOpen(false);
+    setEditingCategory(null);
   };
 
-  const handleDeleteGroup = (group: TemplateGroup) => {
-    setGroupToDelete(group);
-    setIsDeleteGroupDialogOpen(true);
+  const handleDeleteCategory = (category: ExpenseCategory) => {
+    setCategoryToDelete(category);
+    setIsDeleteCategoryDialogOpen(true);
   };
 
-  const handleCloseDeleteGroupDialog = () => {
-    setIsDeleteGroupDialogOpen(false);
-    setGroupToDelete(null);
+  const handleCloseDeleteCategoryDialog = () => {
+    setIsDeleteCategoryDialogOpen(false);
+    setCategoryToDelete(null);
   };
 
   const recurringTemplates = templates?.filter((t) => t.is_recurring) || [];
@@ -115,57 +118,54 @@ export default function Templates() {
           onClick: () => handleOpenTemplateDialog(),
         },
         {
-          label: t("groups.newGroup"),
-          icon: FolderPlus,
-          onClick: () => handleOpenGroupDialog(),
+          label: t("categories.create"),
+          icon: Shapes,
+          onClick: () => handleOpenCategoryDialog(),
         },
       ],
     },
   ];
 
   const handleRefresh = async () => {
-    await Promise.all([refetchTemplates(), refetchGroups()]);
+    await Promise.all([refetchTemplates(), refetchCategories()]);
   };
 
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
       <TemplatesHeader />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Templates Section - Left side */}
-        <div className="xl:col-span-2 space-y-6">
+      <div className="flex flex-col gap-6">
+        {/* Templates Section */}
+        <div className="space-y-6">
           {isLoading ? (
             <TemplatesLoadingSkeleton />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <RecurringTemplatesCard
                 templates={recurringTemplates}
                 onEdit={handleOpenTemplateDialog}
                 onDelete={handleDeleteTemplate}
                 onCreate={() => handleOpenTemplateDialog()}
+                categories={categories || []}
               />
               <RegularTemplatesCard
                 templates={regularTemplates}
                 onEdit={handleOpenTemplateDialog}
                 onDelete={handleDeleteTemplate}
                 onCreate={() => handleOpenTemplateDialog()}
+                categories={categories || []}
               />
+              {isLoadingCategories ? (
+                <GroupsLoadingSkeleton />
+              ) : (
+                <CategoriesCard
+                  categories={categories || []}
+                  onEdit={handleOpenCategoryDialog}
+                  onDelete={handleDeleteCategory}
+                  onCreate={() => handleOpenCategoryDialog()}
+                />
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Groups Section - Right side */}
-        <div className="xl:col-span-1">
-          {isLoadingGroups ? (
-            <GroupsLoadingSkeleton />
-          ) : (
-            <TemplateGroupsCard
-              groups={groups || []}
-              templates={templates}
-              onEdit={handleOpenGroupDialog}
-              onDelete={handleDeleteGroup}
-              onCreate={() => handleOpenGroupDialog()}
-            />
           )}
         </div>
       </div>
@@ -207,25 +207,24 @@ export default function Templates() {
         template={templateToDelete}
       />
 
-      {/* Group Dialog (Create/Edit) */}
-      <GroupDialog
-        open={isGroupDialogOpen}
+      {/* Category Dialog (Create/Edit) */}
+      <CategoryDialog
+        open={isCategoryDialogOpen}
         onOpenChange={(open) => {
-          if (!open) handleCloseGroupDialog();
-          else setIsGroupDialogOpen(true);
+          if (!open) handleCloseCategoryDialog();
+          else setIsCategoryDialogOpen(true);
         }}
-        group={editingGroup}
-        templates={templates}
+        category={editingCategory}
       />
 
-      {/* Delete Group Dialog */}
-      <DeleteGroupDialog
-        open={isDeleteGroupDialogOpen}
+      {/* Delete Category Dialog */}
+      <DeleteCategoryDialog
+        open={isDeleteCategoryDialogOpen}
         onOpenChange={(open) => {
-          if (!open) handleCloseDeleteGroupDialog();
-          else setIsDeleteGroupDialogOpen(true);
+          if (!open) handleCloseDeleteCategoryDialog();
+          else setIsDeleteCategoryDialogOpen(true);
         }}
-        group={groupToDelete}
+        category={categoryToDelete}
       />
     </div>
   );

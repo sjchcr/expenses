@@ -33,13 +33,15 @@ import {
 } from "@/components/ui/empty";
 import { useMobile } from "@/hooks/useMobile";
 import { formatAmountsDisplay } from "./utils";
-import type { ExpenseTemplate } from "@/types";
+import type { ExpenseCategory, ExpenseTemplate } from "@/types";
+import { CategoryIcon } from "@/components/categories";
 
 interface RecurringTemplatesCardProps {
   templates: ExpenseTemplate[];
   onEdit: (template: ExpenseTemplate) => void;
   onDelete: (template: ExpenseTemplate) => void;
   onCreate: () => void;
+  categories: ExpenseCategory[];
 }
 
 export function RecurringTemplatesCard({
@@ -47,9 +49,13 @@ export function RecurringTemplatesCard({
   onEdit,
   onDelete,
   onCreate,
+  categories,
 }: RecurringTemplatesCardProps) {
   const { t } = useTranslation();
   const isMobile = useMobile();
+  const categoriesById = new Map(
+    categories.map((category) => [category.id, category]),
+  );
 
   if (templates.length === 0) {
     return (
@@ -94,56 +100,74 @@ export function RecurringTemplatesCard({
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-0 p-0">
-        {templates.map((template) => (
-          <div
-            key={template.id}
-            className="flex items-center justify-between gap-2 px-4 py-2 border-b hover:bg-primary/5"
-          >
-            <div className="flex flex-col items-start justify-start gap-2 w-full">
-              <p className="font-bold text-sm">{template.name}</p>
-              <div className="flex justify-between gap-2 w-full">
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  {formatAmountsDisplay(template.amounts).map((text, index) => (
-                    <p key={index} className="col-span-1 text-sm">
-                      {text}
-                    </p>
-                  ))}
-                </div>
-                <p className="text-sm w-20">
-                  {template.recurrence_day
-                    ? `${t("common.day")} ${template.recurrence_day}`
-                    : "-"}
+        {templates.map((template) => {
+          const category = template.category_id
+            ? categoriesById.get(template.category_id)
+            : null;
+
+          return (
+            <div
+              key={template.id}
+              className="flex items-center justify-between gap-2 px-4 py-2 border-b hover:bg-primary/5"
+            >
+              <div className="flex flex-col items-start justify-start gap-2 w-full">
+                <p className="flex items-center gap-1.5 font-bold text-sm">
+                  {category && (
+                    <CategoryIcon
+                      icon={category.icon}
+                      color={category.color}
+                      className="size-5"
+                      iconClassName="size-3"
+                    />
+                  )}
+                  <span className="truncate">{template.name}</span>
                 </p>
+                <div className="flex justify-between gap-2 w-full">
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    {formatAmountsDisplay(template.amounts).map(
+                      (text, index) => (
+                        <p key={index} className="col-span-1 text-sm">
+                          {text}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                  <p className="text-sm w-20">
+                    {template.recurrence_day
+                      ? `${t("common.day")} ${template.recurrence_day}`
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div className="gap-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Ellipsis />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={() => onEdit(template)}>
+                        <Edit />
+                        {t("templates.editTemplate")}
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => onDelete(template)}
+                      >
+                        <Trash2 />
+                        {t("templates.deleteTemplate")}
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className="gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Ellipsis />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => onEdit(template)}>
-                      <Edit />
-                      {t("templates.editTemplate")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => onDelete(template)}
-                    >
-                      <Trash2 />
-                      {t("templates.deleteTemplate")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        ))}
+          );
+        })}
         <p className="text-xs text-gray-500 px-4 pt-4">
           {t("templates.totalTemplates")}: {templates.length}
         </p>

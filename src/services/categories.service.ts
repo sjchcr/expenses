@@ -4,19 +4,17 @@ import {
   DEFAULT_CATEGORY_ICON,
 } from "@/lib/categoryOptions";
 import type {
-  TemplateGroup,
-  TemplateGroupInsert,
-  TemplateGroupUpdate,
+  ExpenseCategory,
+  ExpenseCategoryInsert,
+  ExpenseCategoryUpdate,
 } from "@/types";
 
-// Helper to cast database JSON to string[]
 const parseTemplateIds = (templateIds: unknown): string[] => {
   if (!templateIds || !Array.isArray(templateIds)) return [];
   return templateIds as string[];
 };
 
-// Helper to transform database row to typed TemplateGroup
-const transformGroup = (row: {
+const transformCategory = (row: {
   id: string;
   user_id: string;
   name: string;
@@ -24,15 +22,15 @@ const transformGroup = (row: {
   icon: string | null;
   template_ids: unknown;
   created_at: string | null;
-}): TemplateGroup => ({
+}): ExpenseCategory => ({
   ...row,
   color: row.color || DEFAULT_CATEGORY_COLOR,
   icon: row.icon || DEFAULT_CATEGORY_ICON,
   template_ids: parseTemplateIds(row.template_ids),
 });
 
-export const templateGroupsService = {
-  async getGroups(): Promise<TemplateGroup[]> {
+export const categoriesService = {
+  async getCategories(): Promise<ExpenseCategory[]> {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -45,23 +43,12 @@ export const templateGroupsService = {
       .order("name", { ascending: true });
 
     if (error) throw error;
-    return (data || []).map(transformGroup);
+    return (data || []).map(transformCategory);
   },
 
-  async getGroup(id: string): Promise<TemplateGroup | null> {
-    const { data, error } = await supabase
-      .from("template_groups")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data ? transformGroup(data) : null;
-  },
-
-  async createGroup(
-    group: Omit<TemplateGroupInsert, "user_id">
-  ): Promise<TemplateGroup> {
+  async createCategory(
+    category: Omit<ExpenseCategoryInsert, "user_id" | "template_ids">,
+  ): Promise<ExpenseCategory> {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -70,25 +57,27 @@ export const templateGroupsService = {
     const { data, error } = await supabase
       .from("template_groups")
       .insert({
-        name: group.name,
-        template_ids: JSON.parse(JSON.stringify(group.template_ids)),
+        name: category.name,
+        color: category.color || DEFAULT_CATEGORY_COLOR,
+        icon: category.icon || DEFAULT_CATEGORY_ICON,
+        template_ids: [],
         user_id: user.id,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return transformGroup(data);
+    return transformCategory(data);
   },
 
-  async updateGroup(
+  async updateCategory(
     id: string,
-    updates: TemplateGroupUpdate
-  ): Promise<TemplateGroup> {
+    updates: ExpenseCategoryUpdate,
+  ): Promise<ExpenseCategory> {
     const updateData: Record<string, unknown> = {};
     if (updates.name !== undefined) updateData.name = updates.name;
-    if (updates.template_ids !== undefined)
-      updateData.template_ids = JSON.parse(JSON.stringify(updates.template_ids));
+    if (updates.color !== undefined) updateData.color = updates.color;
+    if (updates.icon !== undefined) updateData.icon = updates.icon;
 
     const { data, error } = await supabase
       .from("template_groups")
@@ -98,10 +87,10 @@ export const templateGroupsService = {
       .single();
 
     if (error) throw error;
-    return transformGroup(data);
+    return transformCategory(data);
   },
 
-  async deleteGroup(id: string): Promise<void> {
+  async deleteCategory(id: string): Promise<void> {
     const { error } = await supabase
       .from("template_groups")
       .delete()

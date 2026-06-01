@@ -18,6 +18,7 @@ const transformTemplate = (row: {
   user_id: string;
   name: string;
   amounts: unknown;
+  category_id: string | null;
   is_recurring: boolean | null;
   recurrence_day: number | null;
   created_at: string | null;
@@ -67,6 +68,7 @@ export const templatesService = {
       .insert({
         name: template.name,
         amounts: JSON.parse(JSON.stringify(template.amounts)),
+        category_id: template.category_id,
         is_recurring: template.is_recurring,
         recurrence_day: template.recurrence_day,
         user_id: user.id,
@@ -86,6 +88,8 @@ export const templatesService = {
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.amounts !== undefined)
       updateData.amounts = JSON.parse(JSON.stringify(updates.amounts));
+    if (updates.category_id !== undefined)
+      updateData.category_id = updates.category_id;
     if (updates.is_recurring !== undefined)
       updateData.is_recurring = updates.is_recurring;
     if (updates.recurrence_day !== undefined)

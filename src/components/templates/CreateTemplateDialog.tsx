@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Check, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateTemplate } from "@/hooks/useTemplates";
+import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { TemplateAmount } from "@/types";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useMobile } from "@/hooks/useMobile";
+import { CategoryIcon } from "@/components/categories";
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
 
@@ -38,6 +40,7 @@ interface AmountFormData {
 interface TemplateFormData {
   name: string;
   amounts: AmountFormData[];
+  category_id: string;
   is_recurring: boolean;
   recurrence_day: number | null;
 }
@@ -45,6 +48,7 @@ interface TemplateFormData {
 interface InitialData {
   name: string;
   amounts: { currency: string; amount: number }[];
+  category_id?: string | null;
 }
 
 interface CreateTemplateDialogProps {
@@ -61,6 +65,7 @@ const createEmptyAmount = (): AmountFormData => ({
 const createEmptyFormData = (): TemplateFormData => ({
   name: "",
   amounts: [createEmptyAmount()],
+  category_id: "none",
   is_recurring: false,
   recurrence_day: null,
 });
@@ -73,6 +78,7 @@ export function CreateTemplateDialog({
   const isMobile = useMobile();
   const { t } = useTranslation();
   const createMutation = useCreateTemplate();
+  const { data: categories = [] } = useCategories();
   const [formData, setFormData] = useState<TemplateFormData>(
     createEmptyFormData(),
   );
@@ -85,6 +91,7 @@ export function CreateTemplateDialog({
           currency: a.currency,
           amount: a.amount.toString(),
         })),
+        category_id: initialData.category_id || "none",
         is_recurring: false,
         recurrence_day: null,
       });
@@ -142,6 +149,7 @@ export function CreateTemplateDialog({
     const templateData = {
       name: formData.name,
       amounts: templateAmounts,
+      category_id: formData.category_id === "none" ? null : formData.category_id,
       is_recurring: formData.is_recurring,
       recurrence_day: formData.is_recurring ? formData.recurrence_day : null,
     };
@@ -179,6 +187,36 @@ export function CreateTemplateDialog({
                 placeholder={t("templates.templateNamePlaceholder")}
                 required
               />
+            </div>
+
+            <div>
+              <Label htmlFor="template-category">{t("expenses.category")}</Label>
+              <Select
+                value={formData.category_id}
+                onValueChange={(category_id) =>
+                  setFormData({ ...formData, category_id })
+                }
+              >
+                <SelectTrigger id="template-category" className="mt-1 w-full">
+                  <SelectValue placeholder={t("expenses.selectCategory")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("expenses.noCategory")}</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon
+                          icon={category.icon}
+                          color={category.color}
+                          className="size-5"
+                          iconClassName="size-3"
+                        />
+                        {category.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

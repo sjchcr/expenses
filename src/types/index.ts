@@ -108,6 +108,10 @@ export interface TemplateGroupUpdate
   template_ids?: string[];
 }
 
+export type ExpenseCategory = TemplateGroup;
+export type ExpenseCategoryInsert = TemplateGroupInsert;
+export type ExpenseCategoryUpdate = TemplateGroupUpdate;
+
 // Salary types (existing aguinaldo table)
 export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];

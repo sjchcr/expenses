@@ -8,51 +8,69 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Pie, PieChart, Label } from "recharts";
-import type { CurrencyTotal } from "@/hooks/useDashboardStats";
+import { CategoryIcon } from "@/components/categories";
+import type { CategoryTotal } from "@/hooks/useDashboardStats";
 import { useMemo } from "react";
 
 interface CurrencyBreakdownChartProps {
-  yearTotals: CurrencyTotal[];
-  currentYear: number;
+  categoryTotals: CategoryTotal[];
+  primaryCurrency: string;
+  periodLabel: string;
   isLoading: boolean;
 }
 
 interface PieDataItem {
-  currency: string;
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
   total: number;
   fill: string;
 }
 
 export function CurrencyBreakdownChart({
-  yearTotals,
-  currentYear,
+  categoryTotals,
+  primaryCurrency,
+  periodLabel,
   isLoading,
 }: CurrencyBreakdownChartProps) {
   const { t } = useTranslation();
 
-  // Build chart config and pie data
   const { chartConfig, pieData } = useMemo(() => {
     const config: ChartConfig = {};
     const data: PieDataItem[] = [];
 
-    yearTotals.forEach(({ currency, total }, index) => {
-      const colorIndex = (index % 5) + 1;
-      const color = `var(--chart-${colorIndex})`;
+    categoryTotals.forEach(({ id, name, icon, color, total }) => {
+      const fill = color || "var(--muted-foreground)";
 
-      config[currency] = {
-        label: currency,
-        color,
+      config[id] = {
+        label: name,
+        color: fill,
       };
 
       data.push({
-        currency,
+        id,
+        name,
+        icon,
+        color: fill,
         total,
-        fill: color,
+        fill,
       });
     });
 
     return { chartConfig: config, pieData: data };
-  }, [yearTotals]);
+  }, [categoryTotals]);
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: primaryCurrency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    [primaryCurrency],
+  );
 
   if (isLoading) {
     return (
@@ -71,10 +89,10 @@ export function CurrencyBreakdownChart({
     <Card className="col-span-1 bg-linear-180 from-background to-accent hover:shadow-lg transition-shadow flex flex-col">
       <CardHeader className="pb-0">
         <CardTitle className="text-base">
-          {t("dashboard.currencyBreakdown")} - {currentYear}
+          {t("dashboard.categoryBreakdown")} - {periodLabel}
         </CardTitle>
         <p className="text-muted-foreground text-sm">
-          {t("dashboard.totalDistribution")}
+          {t("dashboard.categoryDistribution")}
         </p>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
@@ -97,17 +115,18 @@ export function CurrencyBreakdownChart({
                       const payload = props.payload as PieDataItem;
                       if (typeof value !== "number") return null;
                       return (
-                        <div className="flex min-w-32 justify-between gap-4">
-                          <span className="text-muted-foreground">
-                            {payload.currency}
+                        <div className="flex min-w-40 items-center justify-between gap-4">
+                          <span className="flex items-center gap-2 text-muted-foreground">
+                            <CategoryIcon
+                              icon={payload.icon}
+                              color={payload.color}
+                              className="size-5"
+                              iconClassName="size-3"
+                            />
+                            {payload.name}
                           </span>
                           <span className="font-mono font-medium">
-                            {new Intl.NumberFormat("en-US", {
-                              style: "currency",
-                              currency: payload.currency,
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }).format(value)}
+                            {currencyFormatter.format(value)}
                           </span>
                         </div>
                       );
@@ -118,7 +137,7 @@ export function CurrencyBreakdownChart({
               <Pie
                 data={pieData}
                 dataKey="total"
-                nameKey="currency"
+                nameKey="name"
                 innerRadius={60}
                 strokeWidth={5}
               >
@@ -137,16 +156,16 @@ export function CurrencyBreakdownChart({
                             y={viewBox.cy}
                             className="fill-foreground text-2xl font-bold"
                           >
-                            {yearTotals.length}
+                            {categoryTotals.length}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) + 20}
                             className="fill-muted-foreground text-xs"
                           >
-                            {yearTotals.length === 1
-                              ? t("dashboard.currencySingular")
-                              : t("dashboard.currencyPlural")}
+                            {categoryTotals.length === 1
+                              ? t("dashboard.categorySingular")
+                              : t("dashboard.categoryPlural")}
                           </tspan>
                         </text>
                       );
@@ -157,28 +176,21 @@ export function CurrencyBreakdownChart({
             </PieChart>
           </ChartContainer>
         )}
-        {/* Legend below chart */}
         {pieData.length > 0 && (
           <div className="flex flex-wrap justify-center gap-4 py-4">
-            {yearTotals.map(({ currency, total }, index) => {
-              const colorIndex = (index % 5) + 1;
+            {categoryTotals.map((category) => {
               return (
-                <div key={currency} className="flex items-center gap-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{
-                      backgroundColor: `var(--chart-${colorIndex})`,
-                    }}
+                <div key={category.id} className="flex items-center gap-2">
+                  <CategoryIcon
+                    icon={category.icon}
+                    color={category.color}
+                    className="size-5"
+                    iconClassName="size-3"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {currency}:{" "}
+                    {category.name}:{" "}
                     <span className="font-medium text-foreground">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency,
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(total)}
+                      {currencyFormatter.format(category.total)}
                     </span>
                   </span>
                 </div>

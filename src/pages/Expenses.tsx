@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { Plus, LayersPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
   useExpenses,
@@ -11,7 +11,7 @@ import {
 } from "@/hooks/useExpenses";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
-import { useTemplateGroups } from "@/hooks/useTemplateGroups";
+import { useCategories } from "@/hooks/useCategories";
 import { useMobile } from "@/hooks/useMobile";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
@@ -20,7 +20,6 @@ import CustomHeader, {
 } from "@/components/common/CustomHeader";
 import {
   AddExpenseDialog,
-  CreateFromGroupDialog,
   DeleteExpenseDialog,
   ExpensesHeader,
   ExpensesFilters,
@@ -101,7 +100,6 @@ export default function Expenses() {
   };
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -114,11 +112,9 @@ export default function Expenses() {
 
   const { data: expenses, isLoading, refetch } = useExpenses(filters);
   const { settings } = useUserSettings();
-  const { data: groups } = useTemplateGroups();
+  const { data: categories } = useCategories();
   const deleteMutation = useDeleteExpense();
   const toggleAmountPaidMutation = useToggleAmountPaid();
-
-  const hasGroups = groups && groups.length > 0;
 
   const availableCurrencies = useMemo(() => {
     if (!expenses) return [];
@@ -205,22 +201,13 @@ export default function Expenses() {
           icon: Plus,
           onClick: handleAddExpense,
         },
-        {
-          label: t("expenses.fromGroup"),
-          icon: LayersPlus,
-          onClick: () => setIsGroupDialogOpen(true),
-        },
       ],
     },
   ];
 
   const content = (
     <div className="px-4 sm:px-0 flex flex-col gap-6">
-      <ExpensesHeader
-        hasGroups={hasGroups ?? false}
-        onAddExpense={handleAddExpense}
-        onFromGroup={() => setIsGroupDialogOpen(true)}
-      />
+      <ExpensesHeader onAddExpense={handleAddExpense} />
 
       <ExpensesFilters
         selectedMonth={selectedMonth}
@@ -248,6 +235,7 @@ export default function Expenses() {
           onDelete={handleDelete}
           onCreateTemplate={handleCreateTemplate}
           onAddExpense={handleAddExpense}
+          categories={categories || []}
         />
       ) : (
         <ExpensesEmptyState onAddExpense={handleAddExpense} />
@@ -286,6 +274,7 @@ export default function Expenses() {
         paymentPeriods={settings?.payment_periods || []}
         defaultMonth={selectedMonth}
         defaultYear={selectedYear}
+        categories={categories || []}
       />
 
       <DeleteExpenseDialog
@@ -297,12 +286,6 @@ export default function Expenses() {
         expense={expenseToDelete}
         onConfirm={handleConfirmDelete}
         isDeleting={deleteMutation.isPending}
-      />
-
-      <CreateFromGroupDialog
-        open={isGroupDialogOpen}
-        onOpenChange={setIsGroupDialogOpen}
-        paymentPeriods={settings?.payment_periods || []}
       />
 
       <CreateTemplateDialog
@@ -319,6 +302,7 @@ export default function Expenses() {
                   currency: a.currency,
                   amount: a.amount,
                 })),
+                category_id: expenseForTemplate.category_id,
               }
             : null
         }

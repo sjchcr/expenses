@@ -1,4 +1,8 @@
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { format, parseISO } from "date-fns";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import {
   Card,
   CardAction,
@@ -15,7 +19,7 @@ import {
   formatPercentage,
 } from "@/lib/salaryCalculations";
 import { Button } from "../ui/button";
-import { BanknoteArrowUp, Edit, Trash2 } from "lucide-react";
+import { BanknoteArrowUp, Download, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SalaryBreakdownCardProps {
@@ -48,6 +52,8 @@ export function SalaryBreakdownCard({
   onDelete,
 }: SalaryBreakdownCardProps) {
   const { t } = useTranslation();
+  const breakdownRef = useRef<HTMLDivElement>(null);
+  const [showExportHeader, setShowExportHeader] = useState(false);
   const breakdown: SalaryBreakdown = calcSalaryBreakdown(
     record,
     settings,
@@ -60,35 +66,85 @@ export function SalaryBreakdownCard({
   //     ? formatUsd(amount)
   //     : formatCRC(amount);
 
+  const handleDownloadBreakdown = useCallback(async () => {
+    if (!breakdownRef.current) return;
+
+    try {
+      setShowExportHeader(true);
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+
+      const dataUrl = await toPng(breakdownRef.current, { pixelRatio: 3 });
+      const link = document.createElement("a");
+      link.download = `salary-breakdown-${record.effective_date}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success(t("salary.downloadSuccess"));
+    } catch {
+      toast.error(t("salary.downloadFailed"));
+    } finally {
+      setShowExportHeader(false);
+    }
+  }, [record.effective_date, t]);
+
   return (
-    <Card variant="defaultGradient" className="gap-0">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
-          <BanknoteArrowUp className="h-4 w-4" />
-          {record.label}
-        </CardTitle>
-        <CardDescription>
-          {t("salary.salaryBreakdownDescription")}
-        </CardDescription>
-        <CardAction className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onEdit}
-            title={t("salary.settings")}
+    <div ref={breakdownRef}>
+      <Card variant="defaultGradient" className="gap-0">
+        {showExportHeader && (
+          <>
+            <div className="flex flex-col items-start gap-0.5 px-4 pt-1 pb-3">
+              <span className="text-lg font-semibold">
+                {t("salary.breakdownReceiptTitle")}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {record.label} ·{" "}
+                {format(parseISO(record.effective_date), "MMMM d, yyyy")}
+              </span>
+            </div>
+            <Separator />
+          </>
+        )}
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <BanknoteArrowUp className="h-4 w-4" />
+            {record.label}
+          </CardTitle>
+          <CardDescription>
+            {t("salary.salaryBreakdownDescription")}
+          </CardDescription>
+          <CardAction
+            className={cn(
+              "flex items-center gap-2",
+              showExportHeader && "hidden",
+            )}
           >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghostDestructive"
-            size="icon"
-            onClick={onDelete}
-            title={t("salary.settings")}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </CardAction>
-      </CardHeader>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDownloadBreakdown}
+              title={t("salary.downloadBreakdown")}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onEdit}
+              title={t("salary.settings")}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghostDestructive"
+              size="icon"
+              onClick={onDelete}
+              title={t("salary.settings")}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </CardAction>
+        </CardHeader>
 
       {/* Column headers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 px-4 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -231,6 +287,7 @@ export function SalaryBreakdownCard({
           </div>
         )} */}
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }

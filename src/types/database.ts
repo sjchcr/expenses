@@ -47,6 +47,7 @@ export type Database = {
       expense_templates: {
         Row: {
           amounts: Json
+          category_id: string | null
           created_at: string | null
           id: string
           is_recurring: boolean | null
@@ -56,6 +57,7 @@ export type Database = {
         }
         Insert: {
           amounts: Json
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_recurring?: boolean | null
@@ -65,6 +67,7 @@ export type Database = {
         }
         Update: {
           amounts?: Json
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_recurring?: boolean | null
@@ -77,6 +80,7 @@ export type Database = {
       expenses: {
         Row: {
           amounts: Json
+          category_id: string | null
           created_at: string | null
           due_date: string
           id: string
@@ -89,6 +93,7 @@ export type Database = {
         }
         Insert: {
           amounts: Json
+          category_id?: string | null
           created_at?: string | null
           due_date: string
           id?: string
@@ -101,6 +106,7 @@ export type Database = {
         }
         Update: {
           amounts?: Json
+          category_id?: string | null
           created_at?: string | null
           due_date?: string
           id?: string
@@ -123,21 +129,27 @@ export type Database = {
       }
       template_groups: {
         Row: {
+          color: string | null
           created_at: string | null
+          icon: string | null
           id: string
           name: string
           template_ids: Json
           user_id: string
         }
         Insert: {
+          color?: string | null
           created_at?: string | null
+          icon?: string | null
           id?: string
           name: string
           template_ids: Json
           user_id: string
         }
         Update: {
+          color?: string | null
           created_at?: string | null
+          icon?: string | null
           id?: string
           name?: string
           template_ids?: Json

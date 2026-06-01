@@ -15,7 +15,7 @@ import type { CurrencyTotal } from "@/hooks/useDashboardStats";
 
 interface PendingPaymentsCardProps {
   pendingPayments: CurrencyTotal[];
-  currentMonthName: string;
+  periodLabel: string;
   isLoading: boolean;
 }
 
@@ -29,7 +29,7 @@ function formatCurrency(amount: number, currency: string): string {
 
 export function PendingPaymentsCard({
   pendingPayments,
-  currentMonthName,
+  periodLabel,
   isLoading,
 }: PendingPaymentsCardProps) {
   const { t } = useTranslation();
@@ -58,7 +58,7 @@ export function PendingPaymentsCard({
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-amber-600" />
           <CardTitle className="text-base">
-            {t("dashboard.pendingPayments")} - {currentMonthName}
+            {t("dashboard.pendingPayments")} - {periodLabel}
           </CardTitle>
         </div>
         {pendingPayments.length > 0 && (

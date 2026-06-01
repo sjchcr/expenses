@@ -47,6 +47,16 @@ const getDefaultDate = (defaultYear?: number): string => {
   return format(new Date(year, now.getMonth(), now.getDate()), "yyyy-MM-dd");
 };
 
+const getCalendarRange = (defaultYear?: number) => {
+  const currentYear = new Date().getFullYear();
+  const endYear = Math.max(currentYear + 10, (defaultYear ?? currentYear) + 10);
+
+  return {
+    startMonth: new Date(currentYear - 100, 0),
+    endMonth: new Date(endYear, 11),
+  };
+};
+
 const createEmptyFormData = (defaultYear?: number): StockPeriodFormData => ({
   vesting_date: getDefaultDate(defaultYear),
   quantity: "",
@@ -71,6 +81,7 @@ export function StockPeriodDialog({
   const [calendarMonth, setCalendarMonth] = useState<Date>(() =>
     parseISO(getDefaultDate(defaultYear)),
   );
+  const calendarRange = getCalendarRange(defaultYear);
 
   const isEditing = !!period;
 
@@ -181,12 +192,15 @@ export function StockPeriodDialog({
                     month={calendarMonth}
                     onMonthChange={setCalendarMonth}
                     captionLayout="dropdown"
+                    startMonth={calendarRange.startMonth}
+                    endMonth={calendarRange.endMonth}
                     onSelect={(date) => {
+                      if (!date) return;
                       setFormData({
                         ...formData,
-                        vesting_date: format(date!, "yyyy-MM-dd"),
+                        vesting_date: format(date, "yyyy-MM-dd"),
                       });
-                      setCalendarMonth(date!);
+                      setCalendarMonth(date);
                       setDatePickerOpen(false);
                     }}
                   />

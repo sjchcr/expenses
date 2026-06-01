@@ -1,19 +1,24 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useExpenses } from "./useExpenses";
-import { useExchangeRates } from "./useExchangeRates";
+import { getExchangeRate, useExchangeRates } from "./useExchangeRates";
 import { useUserSettings } from "./useUserSettings";
+import { useCategories } from "./useCategories";
 import {
   startOfMonth,
   endOfMonth,
   startOfYear,
   endOfYear,
   subMonths,
+  subYears,
+  eachDayOfInterval,
   format,
   isWithinInterval,
   parseISO,
 } from "date-fns";
 import type { Expense, ExpenseAmount } from "@/types";
+
+export type DashboardStatsPeriod = "yearly" | "monthly";
 
 const MONTH_TRANSLATION_KEYS = [
   "months.january",
@@ -32,6 +37,15 @@ const MONTH_TRANSLATION_KEYS = [
 
 export interface CurrencyTotal {
   currency: string;
+  total: number;
+  count: number;
+}
+
+export interface CategoryTotal {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
   total: number;
   count: number;
 }
@@ -56,7 +70,7 @@ export interface ExchangeRateDisplay {
   rate: number;
 }
 
-export function useDashboardStats() {
+export function useDashboardStats(period: DashboardStatsPeriod = "yearly") {
   const { t } = useTranslation();
   const now = new Date();
   const currentMonthStart = startOfMonth(now);
@@ -66,62 +80,70 @@ export function useDashboardStats() {
   const previousMonthEnd = endOfMonth(previousMonthDate);
   const yearStart = startOfYear(now);
   const yearEnd = endOfYear(now);
+  const previousYearDate = subYears(now, 1);
+  const previousYearStart = startOfYear(previousYearDate);
+  const previousYearEnd = endOfYear(previousYearDate);
+  const periodStart = period === "monthly" ? currentMonthStart : yearStart;
+  const periodEnd = period === "monthly" ? currentMonthEnd : yearEnd;
+  const comparisonStart =
+    period === "monthly" ? previousMonthStart : previousYearStart;
+  const comparisonEnd =
+    period === "monthly" ? previousMonthEnd : previousYearEnd;
 
-  // Determine the earliest date we need (either year start or previous month, whichever is earlier)
-  // This handles the case where previous month is in the prior year (e.g., Dec when current is Jan)
   const queryStartDate =
-    previousMonthStart < yearStart ? previousMonthStart : yearStart;
+    comparisonStart < periodStart ? comparisonStart : periodStart;
 
-  // Fetch expenses from the earliest needed date through end of current year
   const {
     data: allExpenses,
     isLoading: expensesLoading,
     refetch: refetchExpenses,
   } = useExpenses({
     startDate: format(queryStartDate, "yyyy-MM-dd"),
-    endDate: format(yearEnd, "yyyy-MM-dd"),
+    endDate: format(periodEnd, "yyyy-MM-dd"),
   });
 
-  // Filter to only current year expenses for year-based calculations
-  const yearExpenses = useMemo(() => {
+  const periodExpenses = useMemo(() => {
     if (!allExpenses) return [];
     return allExpenses.filter((expense) => {
       const dueDate = parseISO(expense.due_date);
-      return isWithinInterval(dueDate, { start: yearStart, end: yearEnd });
+      return isWithinInterval(dueDate, { start: periodStart, end: periodEnd });
     });
-  }, [allExpenses, yearStart, yearEnd]);
+  }, [allExpenses, periodEnd, periodStart]);
 
   const { settings, isLoading: settingsLoading } = useUserSettings();
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
 
   // Get all unique currencies from expenses
   const currencies = useMemo(() => {
-    if (!yearExpenses) return [];
+    if (!periodExpenses) return [];
     const currencySet = new Set<string>();
-    yearExpenses.forEach((expense) => {
+    periodExpenses.forEach((expense) => {
       expense.amounts.forEach((amount: ExpenseAmount) => {
         currencySet.add(amount.currency);
       });
     });
     return Array.from(currencySet);
-  }, [yearExpenses]);
+  }, [periodExpenses]);
+
+  const currenciesForRates = useMemo(() => {
+    const primaryCurrency = settings?.primary_currency;
+    if (!primaryCurrency) return currencies;
+    return Array.from(new Set([...currencies, primaryCurrency]));
+  }, [currencies, settings?.primary_currency]);
 
   const { data: exchangeRates, isLoading: ratesLoading } =
-    useExchangeRates(currencies);
+    useExchangeRates(currenciesForRates);
 
   // Calculate pending payments for current month (per currency)
   const pendingPayments = useMemo((): CurrencyTotal[] => {
-    if (!yearExpenses) return [];
+    if (!periodExpenses) return [];
 
     const currencyTotals: Record<string, { total: number; count: number }> = {};
 
-    yearExpenses
+    periodExpenses
       .filter((expense: Expense) => {
-        if (expense.is_paid) return false;
-        const dueDate = parseISO(expense.due_date);
-        return isWithinInterval(dueDate, {
-          start: currentMonthStart,
-          end: currentMonthEnd,
-        });
+        return !expense.is_paid;
       })
       .forEach((expense: Expense) => {
         expense.amounts.forEach((amount: ExpenseAmount) => {
@@ -140,9 +162,9 @@ export function useDashboardStats() {
         count: data.count,
       }))
       .sort((a, b) => b.total - a.total);
-  }, [yearExpenses, currentMonthStart, currentMonthEnd]);
+  }, [periodExpenses]);
 
-  // Calculate month-over-month comparison (uses allExpenses to include previous month from prior year)
+  // Calculate selected period comparison.
   const monthComparison = useMemo((): MonthComparison[] => {
     if (!allExpenses) return [];
 
@@ -152,23 +174,23 @@ export function useDashboardStats() {
     allExpenses.forEach((expense: Expense) => {
       const dueDate = parseISO(expense.due_date);
 
-      const isCurrentMonth = isWithinInterval(dueDate, {
-        start: currentMonthStart,
-        end: currentMonthEnd,
+      const isCurrentPeriod = isWithinInterval(dueDate, {
+        start: periodStart,
+        end: periodEnd,
       });
 
-      const isPreviousMonth = isWithinInterval(dueDate, {
-        start: previousMonthStart,
-        end: previousMonthEnd,
+      const isPreviousPeriod = isWithinInterval(dueDate, {
+        start: comparisonStart,
+        end: comparisonEnd,
       });
 
-      if (isCurrentMonth || isPreviousMonth) {
+      if (isCurrentPeriod || isPreviousPeriod) {
         expense.amounts.forEach((amount: ExpenseAmount) => {
-          if (isCurrentMonth) {
+          if (isCurrentPeriod) {
             currentTotals[amount.currency] =
               (currentTotals[amount.currency] || 0) + amount.amount;
           }
-          if (isPreviousMonth) {
+          if (isPreviousPeriod) {
             previousTotals[amount.currency] =
               (previousTotals[amount.currency] || 0) + amount.amount;
           }
@@ -199,17 +221,51 @@ export function useDashboardStats() {
       .sort((a, b) => b.currentMonth - a.currentMonth);
   }, [
     allExpenses,
-    currentMonthStart,
-    currentMonthEnd,
-    previousMonthStart,
-    previousMonthEnd,
+    comparisonEnd,
+    comparisonStart,
+    periodEnd,
+    periodStart,
   ]);
 
   // Calculate monthly spending trends for the year
   const monthlyTrends = useMemo((): MonthlyData[] => {
-    if (!yearExpenses) return [];
+    if (!periodExpenses) return [];
 
     const months: MonthlyData[] = [];
+
+    if (period === "monthly") {
+      const days = eachDayOfInterval({
+        start: currentMonthStart,
+        end: currentMonthEnd,
+      });
+
+      days.forEach((day) => {
+        const dayStart = new Date(day);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(day);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        const totals: Record<string, number> = {};
+
+        periodExpenses.forEach((expense: Expense) => {
+          const dueDate = parseISO(expense.due_date);
+          if (isWithinInterval(dueDate, { start: dayStart, end: dayEnd })) {
+            expense.amounts.forEach((amount: ExpenseAmount) => {
+              totals[amount.currency] =
+                (totals[amount.currency] || 0) + amount.amount;
+            });
+          }
+        });
+
+        months.push({
+          month: format(day, "yyyy-MM-dd"),
+          monthLabel: format(day, "d"),
+          totals,
+        });
+      });
+
+      return months;
+    }
 
     for (let i = 0; i < 12; i++) {
       const monthDate = new Date(now.getFullYear(), i, 1);
@@ -218,7 +274,7 @@ export function useDashboardStats() {
 
       const totals: Record<string, number> = {};
 
-      yearExpenses.forEach((expense: Expense) => {
+      periodExpenses.forEach((expense: Expense) => {
         const dueDate = parseISO(expense.due_date);
         if (isWithinInterval(dueDate, { start: monthStart, end: monthEnd })) {
           expense.amounts.forEach((amount: ExpenseAmount) => {
@@ -236,15 +292,15 @@ export function useDashboardStats() {
     }
 
     return months;
-  }, [yearExpenses, now]);
+  }, [currentMonthEnd, currentMonthStart, now, period, periodExpenses]);
 
   // Calculate year totals per currency
   const yearTotals = useMemo((): CurrencyTotal[] => {
-    if (!yearExpenses) return [];
+    if (!periodExpenses) return [];
 
     const totals: Record<string, { total: number; count: number }> = {};
 
-    yearExpenses.forEach((expense: Expense) => {
+    periodExpenses.forEach((expense: Expense) => {
       expense.amounts.forEach((amount: ExpenseAmount) => {
         if (!totals[amount.currency]) {
           totals[amount.currency] = { total: 0, count: 0 };
@@ -261,16 +317,75 @@ export function useDashboardStats() {
         count: data.count,
       }))
       .sort((a, b) => b.total - a.total);
-  }, [yearExpenses]);
+  }, [periodExpenses]);
+
+  const categoryTotals = useMemo((): CategoryTotal[] => {
+    if (!periodExpenses) return [];
+
+    const primaryCurrency = settings?.primary_currency || "USD";
+    const categoriesById = new Map(
+      categories.map((category) => [category.id, category]),
+    );
+    const totals: Record<string, CategoryTotal> = {};
+
+    periodExpenses.forEach((expense: Expense) => {
+      const category = expense.category_id
+        ? categoriesById.get(expense.category_id)
+        : null;
+      const id = category?.id ?? "uncategorized";
+
+      if (!totals[id]) {
+        totals[id] = {
+          id,
+          name: category?.name ?? t("dashboard.uncategorized"),
+          color: category?.color || "var(--muted-foreground)",
+          icon: category?.icon || "tag",
+          total: 0,
+          count: 0,
+        };
+      }
+
+      expense.amounts.forEach((amount: ExpenseAmount) => {
+        if (amount.currency === primaryCurrency) {
+          totals[id].total += amount.amount;
+          return;
+        }
+
+        if (amount.exchange_rate) {
+          totals[id].total += amount.amount * amount.exchange_rate;
+          return;
+        }
+
+        const exchangeRate = getExchangeRate(
+          exchangeRates,
+          amount.currency,
+          primaryCurrency,
+        );
+
+        if (exchangeRate) {
+          totals[id].total += amount.amount * exchangeRate;
+        }
+      });
+      totals[id].count += 1;
+    });
+
+    return Object.values(totals).sort((a, b) => b.total - a.total);
+  }, [
+    categories,
+    exchangeRates,
+    periodExpenses,
+    settings?.primary_currency,
+    t,
+  ]);
 
   // Calculate paid vs pending totals
   const paidVsPending = useMemo(() => {
-    if (!yearExpenses) return { paid: [], pending: [] };
+    if (!periodExpenses) return { paid: [], pending: [] };
 
     const paidTotals: Record<string, number> = {};
     const pendingTotals: Record<string, number> = {};
 
-    yearExpenses.forEach((expense: Expense) => {
+    periodExpenses.forEach((expense: Expense) => {
       expense.amounts.forEach((amount: ExpenseAmount) => {
         if (expense.is_paid) {
           paidTotals[amount.currency] =
@@ -292,7 +407,7 @@ export function useDashboardStats() {
         total,
       })),
     };
-  }, [yearExpenses]);
+  }, [periodExpenses]);
 
   // Get exchange rates for display (both directions)
   const exchangeRatesDisplay = useMemo((): ExchangeRateDisplay[] => {
@@ -328,7 +443,8 @@ export function useDashboardStats() {
     return rates;
   }, [exchangeRates, currencies, settings?.primary_currency]);
 
-  const isLoading = expensesLoading || settingsLoading || ratesLoading;
+  const isLoading =
+    expensesLoading || settingsLoading || ratesLoading || categoriesLoading;
 
   const refetch = async () => {
     await refetchExpenses();
@@ -339,17 +455,31 @@ export function useDashboardStats() {
     monthComparison,
     monthlyTrends,
     yearTotals,
+    categoryTotals,
     paidVsPending,
     exchangeRatesDisplay,
     currencies,
     primaryCurrency: settings?.primary_currency || "USD",
     currentYear: now.getFullYear(),
+    period,
+    periodLabel:
+      period === "monthly"
+        ? t(MONTH_TRANSLATION_KEYS[now.getMonth()])
+        : String(now.getFullYear()),
+    currentComparisonLabel:
+      period === "monthly"
+        ? t(MONTH_TRANSLATION_KEYS[now.getMonth()])
+        : String(now.getFullYear()),
+    previousComparisonLabel:
+      period === "monthly"
+        ? t(MONTH_TRANSLATION_KEYS[previousMonthDate.getMonth()])
+        : String(previousYearDate.getFullYear()),
     currentMonthName: t(MONTH_TRANSLATION_KEYS[now.getMonth()]),
     previousMonthName: t(
       MONTH_TRANSLATION_KEYS[previousMonthDate.getMonth()],
     ),
     isLoading,
-    totalExpensesCount: yearExpenses?.length || 0,
+    totalExpensesCount: periodExpenses?.length || 0,
     refetch,
   };
 }

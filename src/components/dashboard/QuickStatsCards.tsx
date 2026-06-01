@@ -3,7 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, CircleDashed, Receipt, CircleCheck } from "lucide-react";
-import type { CurrencyTotal } from "@/hooks/useDashboardStats";
+import type {
+  CurrencyTotal,
+  DashboardStatsPeriod,
+} from "@/hooks/useDashboardStats";
 
 interface QuickStatsCardsProps {
   yearTotals: CurrencyTotal[];
@@ -12,7 +15,8 @@ interface QuickStatsCardsProps {
     pending: { currency: string; total: number }[];
   };
   totalExpensesCount: number;
-  currentYear: number;
+  period: DashboardStatsPeriod;
+  periodLabel: string;
   isLoading: boolean;
 }
 
@@ -28,10 +32,15 @@ export function QuickStatsCards({
   yearTotals,
   paidVsPending,
   totalExpensesCount,
-  currentYear,
+  period,
+  periodLabel,
   isLoading,
 }: QuickStatsCardsProps) {
   const { t } = useTranslation();
+  const periodScope =
+    period === "monthly"
+      ? t("dashboard.thisMonth")
+      : t("dashboard.thisYear");
 
   if (isLoading) {
     return (
@@ -85,7 +94,7 @@ export function QuickStatsCards({
         <CardContent>
           <p className="text-3xl font-bold">{totalExpensesCount}</p>
           <p className="text-muted-foreground text-sm mt-1">
-            {t("dashboard.trackedIn", { year: currentYear })}
+            {t("dashboard.trackedInPeriod", { period: periodLabel })}
           </p>
         </CardContent>
       </Card>
@@ -96,7 +105,7 @@ export function QuickStatsCards({
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
             <CardTitle className="text-base">
-              {t("dashboard.totalSpend", { year: currentYear })}
+              {t("dashboard.totalSpendPeriod", { period: periodScope })}
             </CardTitle>
           </div>
         </CardHeader>

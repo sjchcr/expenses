@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { format, parseISO } from "date-fns";
+import { format, getDaysInMonth, parseISO } from "date-fns";
 import {
   Dialog,
   DialogBody,
@@ -23,7 +23,12 @@ import {
 } from "@/components/ui/select";
 import { useCreateExpense, useUpdateExpense } from "@/hooks/useExpenses";
 import { expensesService } from "@/services/expenses.service";
-import type { Expense, ExpenseAmount, PaymentPeriod } from "@/types";
+import type {
+  Expense,
+  ExpenseAmount,
+  ExpenseCategory,
+  PaymentPeriod,
+} from "@/types";
 import {
   Popover,
   PopoverContent,
@@ -36,6 +41,7 @@ import { useTemplates } from "@/hooks/useTemplates";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useMobile } from "@/hooks/useMobile";
 import { Spinner } from "@/components/ui/spinner";
+import { CategoryIcon } from "@/components/categories";
 
 interface AddExpenseDialogProps {
   open: boolean;
@@ -44,6 +50,7 @@ interface AddExpenseDialogProps {
   paymentPeriods: PaymentPeriod[];
   defaultMonth?: number;
   defaultYear?: number;
+  categories: ExpenseCategory[];
 }
 
 const COMMON_CURRENCIES = ["USD", "CRC", "COP", "MXN", "EUR", "GBP", "JPY"];
@@ -71,6 +78,7 @@ export function AddExpenseDialog({
   paymentPeriods,
   defaultMonth,
   defaultYear,
+  categories,
 }: AddExpenseDialogProps) {
   const isMobile = useMobile();
   const { t } = useTranslation();
@@ -79,6 +87,15 @@ export function AddExpenseDialog({
     const year = defaultYear ?? now.getFullYear();
     const month = defaultMonth ?? now.getMonth();
     return format(new Date(year, month, now.getDate()), "yyyy-MM-dd");
+  };
+
+  const getTemplateRecurrenceDate = (recurrenceDay: number) => {
+    const now = new Date();
+    const year = defaultYear ?? now.getFullYear();
+    const month = defaultMonth ?? now.getMonth();
+    const day = Math.min(recurrenceDay, getDaysInMonth(new Date(year, month)));
+
+    return new Date(year, month, day);
   };
 
   const [name, setName] = useState("");
@@ -91,6 +108,7 @@ export function AddExpenseDialog({
     parseISO(getDefaultDate()),
   );
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>("none");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -125,17 +143,13 @@ export function AddExpenseDialog({
       );
       // If recurring, set due date to this month's recurrence day
       if (template.is_recurring && template.recurrence_day) {
-        const today = new Date();
-        const recurrenceDate = new Date(
-          today.getFullYear(),
-          today.getMonth(),
+        const recurrenceDate = getTemplateRecurrenceDate(
           template.recurrence_day,
         );
-        if (recurrenceDate < today) {
-          recurrenceDate.setMonth(recurrenceDate.getMonth() + 1);
-        }
         setDueDate(format(recurrenceDate, "yyyy-MM-dd"));
+        setCalendarMonth(recurrenceDate);
       }
+      setCategoryId(template.category_id || "none");
       setSelectedTemplateId(templateId);
     }
   };
@@ -167,6 +181,7 @@ export function AddExpenseDialog({
         })),
       );
       setSelectedTemplateId("");
+      setCategoryId(expense.category_id || "none");
     } else {
       const defaultDate = getDefaultDate();
       setName("");
@@ -174,6 +189,7 @@ export function AddExpenseDialog({
       setCalendarMonth(parseISO(defaultDate));
       setAmounts([createEmptyAmount()]);
       setSelectedTemplateId("");
+      setCategoryId("none");
     }
   }, [expense, open, defaultMonth, defaultYear]);
 
@@ -232,6 +248,7 @@ export function AddExpenseDialog({
       due_date: dueDate,
       is_paid: allPaid,
       payment_period: paymentPeriod,
+      category_id: categoryId === "none" ? null : categoryId,
       amounts: expenseAmounts,
     };
 
@@ -343,6 +360,31 @@ export function AddExpenseDialog({
                   ))}
                 </div>
               )}
+            </div>
+
+            <div>
+              <Label htmlFor="category">{t("expenses.category")}</Label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger id="category" className="mt-1 w-full">
+                  <SelectValue placeholder={t("expenses.selectCategory")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("expenses.noCategory")}</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon
+                          icon={category.icon}
+                          color={category.color}
+                          className="size-5"
+                          iconClassName="size-3"
+                        />
+                        {category.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

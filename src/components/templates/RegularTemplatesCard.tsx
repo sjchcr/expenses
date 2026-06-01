@@ -14,8 +14,6 @@ import {
   TableBody,
   TableCell,
   TableFooter,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import {
@@ -28,13 +26,15 @@ import {
 } from "@/components/ui/empty";
 import { useMobile } from "@/hooks/useMobile";
 import { formatAmountsDisplay } from "./utils";
-import type { ExpenseTemplate } from "@/types";
+import type { ExpenseCategory, ExpenseTemplate } from "@/types";
+import { CategoryIcon } from "@/components/categories";
 
 interface RegularTemplatesCardProps {
   templates: ExpenseTemplate[];
   onEdit: (template: ExpenseTemplate) => void;
   onDelete: (template: ExpenseTemplate) => void;
   onCreate: () => void;
+  categories: ExpenseCategory[];
 }
 
 export function RegularTemplatesCard({
@@ -42,9 +42,13 @@ export function RegularTemplatesCard({
   onEdit,
   onDelete,
   onCreate,
+  categories,
 }: RegularTemplatesCardProps) {
   const { t } = useTranslation();
   const isMobile = useMobile();
+  const categoriesById = new Map(
+    categories.map((category) => [category.id, category]),
+  );
 
   if (templates.length === 0) {
     return (
@@ -90,20 +94,27 @@ export function RegularTemplatesCard({
       </CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-4">
-                {t("templates.templateName")}
-              </TableHead>
-              <TableHead>{t("templates.currenciesAmounts")}</TableHead>
-              <TableHead className="w-24 pr-4">{t("common.actions")}</TableHead>
-            </TableRow>
-          </TableHeader>
           <TableBody>
             {templates.map((template) => (
               <TableRow key={template.id} className="hover:bg-primary/5">
                 <TableCell className="font-medium pl-4">
-                  {template.name}
+                  <span className="flex items-center gap-1.5">
+                    {(() => {
+                      const category = template.category_id
+                        ? categoriesById.get(template.category_id)
+                        : null;
+
+                      return category ? (
+                        <CategoryIcon
+                          icon={category.icon}
+                          color={category.color}
+                          className="size-5"
+                          iconClassName="size-3"
+                        />
+                      ) : null;
+                    })()}
+                    <span className="truncate">{template.name}</span>
+                  </span>
                 </TableCell>
                 <TableCell className="text-sm">
                   <div className="grid grid-cols-2 gap-2 w-full">
@@ -112,11 +123,11 @@ export function RegularTemplatesCard({
                         <p key={index} className="col-span-1 text-sm">
                           {text}
                         </p>
-                      )
+                      ),
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="pr-4">
+                <TableCell className="pr-4 w-24">
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"

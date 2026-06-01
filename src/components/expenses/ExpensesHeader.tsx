@@ -1,19 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { Plus, LayersPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMobile } from "@/hooks/useMobile";
 
 interface ExpensesHeaderProps {
-  hasGroups: boolean;
   onAddExpense: () => void;
-  onFromGroup: () => void;
 }
 
-export function ExpensesHeader({
-  hasGroups,
-  onAddExpense,
-  onFromGroup,
-}: ExpensesHeaderProps) {
+export function ExpensesHeader({ onAddExpense }: ExpensesHeaderProps) {
   const { t } = useTranslation();
   const isMobile = useMobile();
 
@@ -29,12 +23,6 @@ export function ExpensesHeader({
       </div>
       {!isMobile && (
         <div className="flex flex-col sm:flex-row gap-2">
-          {hasGroups && (
-            <Button variant="outline" onClick={onFromGroup}>
-              <LayersPlus className="h-4 w-4" />
-              {t("expenses.fromGroup")}
-            </Button>
-          )}
           <Button onClick={onAddExpense}>
             <Plus className="h-4 w-4" />
             {t("expenses.addExpense")}
