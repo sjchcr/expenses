@@ -116,6 +116,7 @@ export default function Salary() {
               onClick={handlePrev}
               disabled={selectedIndex >= records.length - 1}
               aria-label="Previous salary"
+              className="shrink-0"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -128,7 +129,11 @@ export default function Salary() {
               </SelectTrigger>
               <SelectContent>
                 {records.map((r, i) => (
-                  <SelectItem key={r.id} value={i.toString()}>
+                  <SelectItem
+                    key={r.id}
+                    value={i.toString()}
+                    className="truncate"
+                  >
                     {r.label} — {format(parseISO(r.effective_date), "MMM yyyy")}
                     {i === 0 ? ` (${t("salary.currentSalary")})` : ""}
                   </SelectItem>
@@ -141,6 +146,7 @@ export default function Salary() {
               onClick={handleNext}
               disabled={selectedIndex <= 0}
               aria-label="Next salary"
+              className="shrink-0"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -211,7 +217,7 @@ export default function Salary() {
         onOpenChange={handleDialogOpenChange}
         record={editingRecord}
         settings={settings ?? null}
-        previousRecord={editingRecord ? null : records[0] ?? null}
+        previousRecord={editingRecord ? null : (records[0] ?? null)}
       />
 
       <DeleteSalaryDialog

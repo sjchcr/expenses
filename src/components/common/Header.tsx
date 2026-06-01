@@ -29,6 +29,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { MobileNavigation } from "./MobileNavigation";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import HeaderActions from "./HeaderActions";
 
 const NAV_ITEMS = [
   { path: "/dashboard", labelKey: "nav.dashboard", icon: Home },
@@ -200,40 +201,7 @@ const Header = () => {
 
           {/* Right: User info and sign out */}
           <div className="flex justify-center items-center gap-2 absolute md:right-1/12 right-2 top-[calc(0.5rem+env(safe-area-inset-top))]">
-            <div className="flex justify-end items-center gap-2">
-              <div className="flex flex-col justify-center items-end gap-0">
-                {user?.user_metadata?.full_name && (
-                  <p className="font-bold truncate hidden lg:block">
-                    {user?.user_metadata?.full_name}
-                  </p>
-                )}
-                {user?.email && (
-                  <p className="font-medium text-xs truncate hidden lg:block">
-                    {user?.email}
-                  </p>
-                )}
-              </div>
-              <UserAvatar user={user} />
-            </div>
-            <ThemeToggle />
-            <Button
-              className="rounded-full"
-              variant="ghost"
-              size="icon"
-              asChild
-            >
-              <Link to="/settings">
-                <Settings />
-              </Link>
-            </Button>
-            <Button
-              className="rounded-full"
-              variant="ghostDestructive"
-              size="icon"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-4 w-4 text-destructive" />
-            </Button>
+            <HeaderActions />
           </div>
         </div>
       </div>

@@ -49,27 +49,29 @@ export default function Dashboard() {
 
   const content = (
     <div className="flex flex-col gap-6 md:px-0 px-4 w-full">
-      <div className="flex flex-col items-start justify-start gap-2">
-        {!isMobile && (
-          <h2 className="text-2xl font-semibold text-accent-foreground">
-            {welcomeTitle}
-          </h2>
-        )}
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+        <div className="flex flex-col items-start justify-start gap-0">
+          {!isMobile && (
+            <h2 className="text-2xl font-semibold text-accent-foreground">
+              {welcomeTitle}
+            </h2>
+          )}
           <h3 className="text-sm text-muted-foreground">
             {t("dashboard.financialSummaryPeriod", { period: periodLabel })}
           </h3>
+        </div>
+        <div className="flex w-full sm:w-auto flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Tabs
             value={statsPeriod}
             onValueChange={(value) =>
               setStatsPeriod(value as DashboardStatsPeriod)
             }
           >
-            <TabsList background>
-              <TabsTrigger value="yearly">
+            <TabsList background className="gap-1 h-11 w-full sm:w-auto">
+              <TabsTrigger variant="outline" value="yearly">
                 {t("dashboard.yearly")}
               </TabsTrigger>
-              <TabsTrigger value="monthly">
+              <TabsTrigger variant="outline" value="monthly">
                 {t("dashboard.monthly")}
               </TabsTrigger>
             </TabsList>

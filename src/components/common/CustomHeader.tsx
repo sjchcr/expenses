@@ -1,33 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
-import {
-  ChevronLeft,
-  LogOut,
-  MonitorSmartphone,
-  Moon,
-  Plus,
-  Settings,
-  Sun,
-  type LucideIcon,
-} from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronLeft, Plus, type LucideIcon } from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { User } from "@supabase/supabase-js";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useTheme } from "@/hooks/useTheme";
-import { authService } from "@/services/auth.service";
-import { useAvatarUrl } from "@/hooks/useAvatarUrl";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useTranslation } from "react-i18next";
+import HeaderActions from "./HeaderActions";
 
 interface CustomHeaderProps {
   backLocation?: string;
@@ -50,46 +32,6 @@ export interface HeaderActionsProps {
   onClick: () => void;
 }
 
-const THEME_OPTIONS = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: MonitorSmartphone },
-] as const;
-
-const getInitials = (user: User | null): string => {
-  if (!user) return "?";
-
-  const fullName =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.user_metadata?.display_name;
-
-  if (fullName) {
-    const parts = fullName.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return fullName.slice(0, 2).toUpperCase();
-  }
-
-  if (user.email) {
-    return user.email.slice(0, 2).toUpperCase();
-  }
-
-  return "?";
-};
-
-const UserAvatar = ({ user }: { user: User | null }) => {
-  const { avatarUrl } = useAvatarUrl(user);
-
-  return (
-    <Avatar className="w-11 h-11 border border-gray-200 dark:border-gray-900">
-      <AvatarImage src={avatarUrl || undefined} alt={user?.email || "User"} />
-      <AvatarFallback>{getInitials(user)}</AvatarFallback>
-    </Avatar>
-  );
-};
-
 const CustomHeader = ({
   backLocation,
   title,
@@ -97,15 +39,6 @@ const CustomHeader = ({
   hasAvatar,
   actions,
 }: CustomHeaderProps) => {
-  const { user } = useCurrentUser();
-  const { theme, setTheme } = useTheme();
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await authService.signOut();
-    navigate("/login");
-  };
   return (
     <header className="sticky top-0 z-50 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
       <div className="mask-b-from-30% mask-b-to-100% bg-background/95 backdrop-blur-2xl w-full h-full absolute top-0 left-0"></div>
@@ -178,46 +111,7 @@ const CustomHeader = ({
                 </DropdownMenu>
               ),
             )}
-          {(hasAvatar || (!actions && hasAvatar)) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="iconLg" className="rounded-full">
-                  <UserAvatar user={user} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to="/settings">
-                    <Settings />
-                    {t("nav.settings")}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                  {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
-                    <DropdownMenuCheckboxItem
-                      key={value}
-                      onClick={() => setTheme(value)}
-                      checked={theme === value}
-                      className="capitalize"
-                    >
-                      <Icon className="h-4 w-4" />
-                      {label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={handleSignOut}
-                  >
-                    <LogOut />
-                    {t("auth.signOut")}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {(hasAvatar || (!actions && hasAvatar)) && <HeaderActions />}
         </div>
       </div>
     </header>

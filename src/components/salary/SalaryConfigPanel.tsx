@@ -257,7 +257,6 @@ export function SalaryConfigPanel() {
             <Button
               type="button"
               size="icon"
-              className="w-full"
               onClick={() =>
                 setBrackets([
                   ...brackets,

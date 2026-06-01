@@ -160,70 +160,79 @@ export function ExpenseTable({
     useExchangeRates(allCurrencies);
 
   // Calculate totals by currency (supports multiple amounts per expense)
-  const totals = expenses.reduce((acc, expense) => {
-    for (const { currency, amount, paid } of expense.amounts) {
-      if (!acc[currency]) {
-        acc[currency] = { total: 0, paid: 0, pending: 0 };
-      }
-      acc[currency].total += amount;
-      if (paid) {
-        acc[currency].paid += amount;
-      } else {
-        acc[currency].pending += amount;
-      }
-    }
-    return acc;
-  }, {} as Record<string, { total: number; paid: number; pending: number }>);
-
-  // Calculate grand totals by converting all amounts to each target currency
-  const grandTotals = useMemo(() => {
-    return expenses.reduce((acc, expense) => {
-      // For each target currency, sum up all amounts converted using exchange rates
-      for (const targetCurrency of allCurrencies) {
-        if (!acc[targetCurrency]) {
-          acc[targetCurrency] = {
-            total: 0,
-            paid: 0,
-            pending: 0,
-            hasAllRates: true,
-          };
+  const totals = expenses.reduce(
+    (acc, expense) => {
+      for (const { currency, amount, paid } of expense.amounts) {
+        if (!acc[currency]) {
+          acc[currency] = { total: 0, paid: 0, pending: 0 };
         }
-
-        for (const amountData of expense.amounts) {
-          let convertedAmount: number;
-
-          if (amountData.currency === targetCurrency) {
-            // Same currency, no conversion needed
-            convertedAmount = amountData.amount;
-          } else if (amountData.exchange_rate) {
-            // Use manual exchange rate from the expense
-            convertedAmount = amountData.amount * amountData.exchange_rate;
-          } else {
-            // Try to get rate from API-fetched rates
-            const apiRate = getExchangeRate(
-              fetchedRates,
-              amountData.currency,
-              targetCurrency,
-            );
-            if (apiRate !== null) {
-              convertedAmount = amountData.amount * apiRate;
-            } else {
-              // No exchange rate available, mark as incomplete
-              acc[targetCurrency].hasAllRates = false;
-              continue;
-            }
-          }
-
-          acc[targetCurrency].total += convertedAmount;
-          if (amountData.paid) {
-            acc[targetCurrency].paid += convertedAmount;
-          } else {
-            acc[targetCurrency].pending += convertedAmount;
-          }
+        acc[currency].total += amount;
+        if (paid) {
+          acc[currency].paid += amount;
+        } else {
+          acc[currency].pending += amount;
         }
       }
       return acc;
-    }, {} as Record<string, { total: number; paid: number; pending: number; hasAllRates: boolean }>);
+    },
+    {} as Record<string, { total: number; paid: number; pending: number }>,
+  );
+
+  // Calculate grand totals by converting all amounts to each target currency
+  const grandTotals = useMemo(() => {
+    return expenses.reduce(
+      (acc, expense) => {
+        // For each target currency, sum up all amounts converted using exchange rates
+        for (const targetCurrency of allCurrencies) {
+          if (!acc[targetCurrency]) {
+            acc[targetCurrency] = {
+              total: 0,
+              paid: 0,
+              pending: 0,
+              hasAllRates: true,
+            };
+          }
+
+          for (const amountData of expense.amounts) {
+            let convertedAmount: number;
+
+            if (amountData.currency === targetCurrency) {
+              // Same currency, no conversion needed
+              convertedAmount = amountData.amount;
+            } else if (amountData.exchange_rate) {
+              // Use manual exchange rate from the expense
+              convertedAmount = amountData.amount * amountData.exchange_rate;
+            } else {
+              // Try to get rate from API-fetched rates
+              const apiRate = getExchangeRate(
+                fetchedRates,
+                amountData.currency,
+                targetCurrency,
+              );
+              if (apiRate !== null) {
+                convertedAmount = amountData.amount * apiRate;
+              } else {
+                // No exchange rate available, mark as incomplete
+                acc[targetCurrency].hasAllRates = false;
+                continue;
+              }
+            }
+
+            acc[targetCurrency].total += convertedAmount;
+            if (amountData.paid) {
+              acc[targetCurrency].paid += convertedAmount;
+            } else {
+              acc[targetCurrency].pending += convertedAmount;
+            }
+          }
+        }
+        return acc;
+      },
+      {} as Record<
+        string,
+        { total: number; paid: number; pending: number; hasAllRates: boolean }
+      >,
+    );
   }, [expenses, allCurrencies, fetchedRates]);
 
   const renderExpenseList = (tab: string) => (
@@ -283,8 +292,8 @@ export function ExpenseTable({
                         fullyPaid
                           ? "text-green-600"
                           : partiallyPaid
-                          ? "text-amber-600"
-                          : "text-amber-500",
+                            ? "text-amber-600"
+                            : "text-amber-500",
                       )}
                     >
                       {category && (
@@ -428,7 +437,7 @@ export function ExpenseTable({
         onValueChange={(v) => setActiveTab(v as "all" | "pending" | "paid")}
         className="w-full"
       >
-        <TabsList background={true} className="mx-4 gap-1  h-11">
+        <TabsList background={true} className="mx-4 gap-1 h-11">
           <TabsTrigger variant="outline" value="all" className="flex-1 gap-1">
             <Sigma className="w-3 h-3" />
             {t("common.all")}
