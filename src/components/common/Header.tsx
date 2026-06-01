@@ -1,21 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { authService } from "@/services/auth.service";
-import {
-  LogOut,
-  Receipt,
-  Settings,
-  FileText,
-  Gift,
-  Sun,
-  Moon,
-  Home,
-  MonitorSmartphone,
-  TrendingUpDown,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { User } from "@supabase/supabase-js";
+import { Link, useLocation } from "react-router-dom";
+import { Receipt, FileText, Gift, Home, TrendingUpDown } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -27,8 +12,6 @@ import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import { useTheme } from "@/hooks/useTheme";
 import { MobileNavigation } from "./MobileNavigation";
-import { useAvatarUrl } from "@/hooks/useAvatarUrl";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import HeaderActions from "./HeaderActions";
 
 const NAV_ITEMS = [
@@ -38,40 +21,6 @@ const NAV_ITEMS = [
   { path: "/aguinaldo", labelKey: "nav.aguinaldo", icon: Gift },
   { path: "/stocks", labelKey: "nav.stocks", icon: TrendingUpDown },
 ];
-
-const getInitials = (user: User | null): string => {
-  if (!user) return "?";
-
-  const fullName =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.user_metadata?.display_name;
-
-  if (fullName) {
-    const parts = fullName.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return fullName.slice(0, 2).toUpperCase();
-  }
-
-  if (user.email) {
-    return user.email.slice(0, 2).toUpperCase();
-  }
-
-  return "?";
-};
-
-const UserAvatar = ({ user }: { user: User | null }) => {
-  const { avatarUrl } = useAvatarUrl(user);
-
-  return (
-    <Avatar className="w-9 h-9">
-      <AvatarImage src={avatarUrl || undefined} alt={user?.email || "User"} />
-      <AvatarFallback>{getInitials(user)}</AvatarFallback>
-    </Avatar>
-  );
-};
 
 interface NavItemProps {
   path: string;
@@ -104,59 +53,14 @@ const NavItem = ({ path, labelKey, icon: Icon, isActive }: NavItemProps) => {
   );
 };
 
-const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
-
-  const cycleTheme = () => {
-    const themes: Array<"light" | "dark" | "system"> = [
-      "light",
-      "dark",
-      "system",
-    ];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
-  };
-
-  const getIcon = () => {
-    switch (theme) {
-      case "light":
-        return <Sun className="h-4 w-4" />;
-      case "dark":
-        return <Moon className="h-4 w-4" />;
-      case "system":
-        return <MonitorSmartphone className="h-4 w-4" />;
-    }
-  };
-
-  return (
-    <Button
-      className="rounded-full"
-      variant="ghost"
-      size="icon"
-      onClick={cycleTheme}
-      title={`Theme: ${theme}`}
-    >
-      {getIcon()}
-    </Button>
-  );
-};
-
 const Header = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user } = useCurrentUser();
   const isMobile = useMobile();
   const { resolvedTheme } = useTheme();
   const { t } = useTranslation();
   const siteTitle = t("siteTitle", {
     defaultValue: import.meta.env.VITE_SITE_TITLE,
   });
-
-  const handleSignOut = async () => {
-    await authService.signOut();
-    navigate("/login");
-  };
 
   const renderNavItems = () =>
     NAV_ITEMS.map((item) => (
