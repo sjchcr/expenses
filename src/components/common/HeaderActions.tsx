@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   LogOut,
   Map,
@@ -73,12 +73,11 @@ const HeaderActions = () => {
   const { user } = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { openTour } = useAppTour();
 
   const handleSignOut = async () => {
     await authService.signOut();
-    navigate("/login");
+    window.location.replace("/");
   };
   return (
     <DropdownMenu>

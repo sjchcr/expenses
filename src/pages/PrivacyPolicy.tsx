@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 type PrivacySection = {
@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b bg-muted/60 backdrop-blur-lg pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
             <img
@@ -62,7 +62,7 @@ export default function PrivacyPolicy() {
             <span className="font-semibold">{siteTitle}</span>
           </Link>
           <Button variant="outline" onClick={handleBack}>
-            <ArrowLeft />
+            <ChevronLeft />
             {t("common.back")}
           </Button>
         </div>
