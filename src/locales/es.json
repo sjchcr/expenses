@@ -35,7 +35,9 @@
     "selected": "seleccionado",
     "selectAll": "Seleccionar todo",
     "deselectAll": "Deseleccionar todo",
-    "loadingMessage": "Nos estamos asegurando que todos tus datos estén disponibles."
+    "loadingMessage": "Nos estamos asegurando que todos tus datos estén disponibles.",
+    "back": "Atrás",
+    "next": "Siguiente"
   },
   "months": {
     "january": "Enero",
@@ -105,6 +107,102 @@
     "passwordUpdated": "¡Contraseña actualizada!",
     "devLogin": "Login de desarrollo",
     "manageFinances": "Administra tus finanzas con facilidad. Gratis, seguro y diseñado para todos."
+  },
+  "landing": {
+    "eyebrow": "Finanzas personales sin hojas de cálculo desordenadas",
+    "heroTitle": "Controla lo que debes, lo que ganas y lo que viene.",
+    "heroDescription": "Control Financiero reúne gastos recurrentes, salarios, acciones, categorías y resúmenes mensuales en un espacio claro para usar todos los días.",
+    "primaryCta": "Crear cuenta",
+    "secondaryCta": "Iniciar sesión",
+    "proof": {
+      "private": "Privado por diseño",
+      "mobile": "Listo para móvil",
+      "free": "Gratis"
+    },
+    "features": {
+      "items": [
+        {
+          "title": "Control de gastos",
+          "description": "Agrega gastos, marca pagos, filtra por periodo y revisa pendientes rápidamente."
+        },
+        {
+          "title": "Plantillas y categorías",
+          "description": "Reutiliza gastos frecuentes y organízalos con colores e íconos fáciles de reconocer."
+        },
+        {
+          "title": "Resumen financiero",
+          "description": "Cambia entre estadísticas anuales y mensuales con tendencias y desglose por categorías."
+        },
+        {
+          "title": "Herramientas de ingresos",
+          "description": "Registra salario, aguinaldo y cálculos de acciones junto con tus gastos."
+        }
+      ]
+    },
+    "preview": {
+      "label": "Vista mensual",
+      "title": "Resumen de junio",
+      "rows": [
+        {
+          "label": "Alquiler",
+          "amount": "$1,250",
+          "status": "Pagado"
+        },
+        {
+          "label": "Supermercado",
+          "amount": "$340",
+          "status": "Pendiente"
+        },
+        {
+          "label": "Acciones",
+          "amount": "$2,180",
+          "status": "Estimado"
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Tus datos financieros merecen un espacio claro y privado.",
+      "description": "La app está construida alrededor de tu cuenta y tus registros. Úsala para entender tu flujo de efectivo sin mezclarlo con notas u hojas de cálculo genéricas.",
+      "link": "Leer la política de privacidad"
+    },
+    "preferences": {
+      "label": "Idioma y tema",
+      "theme": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  },
+  "tour": {
+    "title": "Bienvenido a Control Financiero",
+    "replayTitle": "Tour de la app",
+    "description": "Un recorrido rápido por las áreas principales para administrar tus finanzas.",
+    "stepProgress": "Paso {{current}} de {{total}}",
+    "skip": "Omitir tour",
+    "finish": "Finalizar tour",
+    "menuLabel": "Tour de la app",
+    "steps": [
+      {
+        "title": "Inicio",
+        "description": "Empieza con una vista anual o mensual, incluyendo totales pagados y pendientes, tendencias, tipos de cambio y desglose por categorías."
+      },
+      {
+        "title": "Gastos",
+        "description": "Agrega gastos, asigna categorías, márcalos como pagados o pendientes y usa filtros mensuales para enfocarte en el periodo que necesitas."
+      },
+      {
+        "title": "Plantillas y categorías",
+        "description": "Crea plantillas reutilizables y organízalas con colores e íconos para registrar gastos más rápido."
+      },
+      {
+        "title": "Salario, Aguinaldo y Acciones",
+        "description": "Registra pagos de salario, calcula aguinaldo y estima ingresos por acciones después de impuestos y costos."
+      },
+      {
+        "title": "Ajustes",
+        "description": "Configura moneda principal, periodos de pago, idioma, perfil y exporta tus datos cuando lo necesites."
+      }
+    ]
   },
   "dashboard": {
     "welcomeBack": "Hola de nuevo",
@@ -347,7 +445,17 @@
     "avatarUpdated": "Foto de perfil actualizada",
     "avatarRemoved": "Foto de perfil eliminada",
     "avatarUploadFailed": "Error al subir la foto",
-    "avatarRemoveFailed": "Error al eliminar la foto"
+    "avatarRemoveFailed": "Error al eliminar la foto",
+    "dangerZone": "Zona de riesgo",
+    "dangerZoneDesc": "Acciones permanentes para tu cuenta y datos guardados.",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountTitle": "¿Eliminar tu cuenta?",
+    "deleteAccountDescription": "Esto elimina permanentemente tu cuenta y los datos guardados para esta app.",
+    "deleteAccountWarning": "Esto elimina tu foto de perfil, ajustes, gastos, plantillas, categorías, registros de salario y registros de acciones. Esta acción no se puede deshacer.",
+    "deleteAccountConfirmLabel": "Escribe {{email}} para confirmar.",
+    "deletingAccount": "Eliminando cuenta...",
+    "deleteAccountSuccess": "Cuenta eliminada.",
+    "deleteAccountFailed": "Error al eliminar la cuenta."
   },
   "onboarding": {
     "title": "Personalicemos tu cuenta",
@@ -462,8 +570,11 @@
     "invalidDeductionAmount": "El monto de la deducción debe ser 0 o mayor.",
     "invalidDeductionPercentage": "La deducción porcentual debe estar entre 0 y 100.",
     "downloadBreakdown": "Descargar como imagen",
+    "shareBreakdown": "Compartir imagen",
     "downloadFailed": "Error al descargar la imagen del desglose.",
-    "downloadSuccess": "Imagen descargada correctamente."
+    "downloadSuccess": "Imagen descargada correctamente.",
+    "shareFailed": "Error al compartir la imagen del desglose.",
+    "shareSuccess": "Imagen lista para compartir."
   },
   "salary": {
     "title": "Salario",
@@ -518,8 +629,11 @@
     "applyRaise": "Aplicar",
     "breakdownReceiptTitle": "Desglose de salario",
     "downloadBreakdown": "Descargar como imagen",
+    "shareBreakdown": "Compartir imagen",
     "downloadFailed": "Error al descargar la imagen del desglose de salario.",
-    "downloadSuccess": "Imagen del desglose de salario descargada correctamente."
+    "downloadSuccess": "Imagen del desglose de salario descargada correctamente.",
+    "shareFailed": "Error al compartir la imagen del desglose de salario.",
+    "shareSuccess": "Imagen del desglose de salario lista para compartir."
   },
   "aguinaldo": {
     "title": "Aguinaldo",
@@ -539,38 +653,40 @@
   },
   "privacy": {
     "title": "Política de privacidad",
-    "description": "Tu privacidad es nuestra prioridad. No vendemos ni compartimos tus datos con terceros. Toda tu información se almacena de forma segura y solo se utiliza para brindarte la mejor experiencia posible.",
-    "intro": "Esta política de privacidad aplica a la app SJ Financial Tracker (en adelante, la \"Aplicación\") para dispositivos móviles que fue creada por Steven Jimenez (en adelante, el \"Proveedor del Servicio\") como un servicio gratuito. Este servicio está destinado para usarse \"TAL CUAL\".",
+    "description": "Tu privacidad es nuestra prioridad. No vendemos tu información ni la compartimos con otras personas. Tus datos se usan únicamente para operar y mejorar la app.",
+    "intro": "Esta política de privacidad aplica a la app SJ Financial Tracker (en adelante, la \"Aplicación\") para web y dispositivos móviles que fue creada por Steven Jimenez (en adelante, el \"Proveedor del Servicio\") como un servicio gratuito. Este servicio está destinado para usarse \"TAL CUAL\".",
     "sections": [
       {
         "id": "information",
         "title": "Recopilación y uso de información",
         "paragraphs": [
-          "La Aplicación recopila información cuando la descargas y la usas. Esta información puede incluir detalles como:"
+          "La Aplicación recopila la información necesaria para crear tu cuenta, mantener tus datos sincronizados y ofrecer las funciones financieras que decidas usar. Esto puede incluir:"
         ],
         "list": [
-          "La dirección IP de tu dispositivo (por ejemplo, dirección IP)",
-          "Las páginas de la Aplicación que visitas, la fecha y hora de tu visita y el tiempo que pasas en esas páginas",
-          "El tiempo que pasas en la Aplicación",
-          "El sistema operativo que utilizas en tu dispositivo móvil"
+          "Información de cuenta como correo electrónico, nombre, ID de usuario, proveedor de autenticación y foto de perfil opcional",
+          "Información financiera que ingreses, como gastos, plantillas, categorías, registros de salario, acciones, monedas, periodos de pago y configuración de la app",
+          "Información técnica necesaria para operar y proteger el servicio, como dirección IP, información del navegador o dispositivo, sistema operativo, detalles de sesión y registros básicos de la aplicación",
+          "Pares de monedas usados para consultar tipos de cambio, por ejemplo USD a CRC"
         ],
         "afterList": [
-          "La Aplicación no recopila información precisa sobre la ubicación de tu dispositivo móvil.",
-          "El Proveedor del Servicio puede utilizar la información que proporcionas para contactarte ocasionalmente con información importante, avisos requeridos o promociones.",
-          "Para ofrecerte una mejor experiencia al usar la Aplicación, el Proveedor del Servicio puede solicitar cierta información de identificación personal, incluida, entre otros datos, correo electrónico, nombre, ID de usuario, información financiera y contenido generado por el usuario. La información solicitada se conservará y utilizará según lo descrito en esta política de privacidad."
+          "La Aplicación no recopila ubicación precisa, contactos ni identificadores de publicidad.",
+          "El Proveedor del Servicio no usa tu información para publicidad de terceros y no la vende, alquila ni comparte con otras personas.",
+          "El Proveedor del Servicio puede contactarte únicamente por motivos de cuenta, soporte, seguridad, legales o avisos importantes del servicio."
         ]
       },
       {
         "id": "thirdParty",
-        "title": "Acceso de terceros",
+        "title": "Proveedores de servicio",
         "paragraphs": [
-          "Solo se transmite periódicamente información agregada y anonimizada a servicios externos para ayudar al Proveedor del Servicio a mejorar la Aplicación y su servicio. El Proveedor del Servicio puede compartir tu información con terceros en las formas descritas en esta declaración de privacidad."
+          "La Aplicación usa proveedores de servicio de confianza solo cuando es necesario para operar la app. Estos proveedores procesan información en nombre del Proveedor del Servicio o como parte del método de inicio de sesión que elijas.",
+          "Supabase se usa para autenticación, almacenamiento de base de datos, almacenamiento de archivos y metadatos del perfil de usuario. El inicio de sesión por correo electrónico se gestiona mediante Supabase. Si eliges iniciar sesión con Google, Google puede proporcionar datos básicos de la cuenta como tu nombre, correo electrónico y foto de perfil después de que apruebes el inicio de sesión. Si eliges iniciar sesión con Apple, Apple puede proporcionar un identificador único y, según tu elección, tu nombre y correo electrónico o un correo privado de retransmisión.",
+          "Las solicitudes de tipo de cambio pueden enviarse a un servicio de tipos de cambio usando únicamente el par de monedas solicitado. Tu ID de usuario y tus registros financieros no se envían para esas consultas."
         ],
-        "listTitle": "El Proveedor del Servicio puede divulgar la información proporcionada por el usuario y la recopilada automáticamente:",
+        "listTitle": "El Proveedor del Servicio puede divulgar información únicamente:",
         "list": [
           "cuando lo requiera la ley, como para cumplir con una citación o un proceso legal similar;",
-          "cuando crea de buena fe que la divulgación es necesaria para proteger sus derechos, tu seguridad o la seguridad de otros, investigar fraudes o responder a una solicitud del gobierno;",
-          "con proveedores de servicios de confianza que trabajan en su nombre, no tienen un uso independiente de la información y aceptaron cumplir las reglas establecidas en esta declaración de privacidad."
+          "cuando la divulgación sea necesaria para proteger derechos, seguridad, investigar fraudes, prevenir abusos o responder a una solicitud del gobierno;",
+          "con proveedores de servicio de confianza que ayudan a operar la Aplicación y se espera que procesen la información solo para ese propósito."
         ]
       },
       {
@@ -584,7 +700,8 @@
         "id": "dataRetention",
         "title": "Política de retención de datos",
         "paragraphs": [
-          "El Proveedor del Servicio conservará los datos proporcionados por el usuario mientras uses la Aplicación y durante un tiempo razonable después. Si deseas que eliminen los datos proporcionados a través de la Aplicación, comunícate con ellos en {{email}} y responderán en un tiempo razonable."
+          "El Proveedor del Servicio conserva tu cuenta y datos financieros mientras tu cuenta permanezca activa o mientras sea necesario para proporcionar la Aplicación, cumplir obligaciones legales, resolver disputas y proteger el servicio.",
+          "Si deseas que el Proveedor del Servicio elimine los datos proporcionados a través de la Aplicación, comunícate al {{email}} y responderá en un tiempo razonable."
         ]
       },
       {
@@ -599,7 +716,8 @@
         "id": "security",
         "title": "Seguridad",
         "paragraphs": [
-          "El Proveedor del Servicio se preocupa por proteger la confidencialidad de tu información y proporciona salvaguardas físicas, electrónicas y procedimentales para proteger la información que procesa y mantiene."
+          "El Proveedor del Servicio se preocupa por proteger la confidencialidad de tu información y usa salvaguardas técnicas y organizativas razonables para la información que procesa y mantiene.",
+          "Ningún método de transmisión por Internet o almacenamiento electrónico es 100% seguro, por lo que no se puede garantizar seguridad absoluta."
         ]
       },
       {
@@ -615,7 +733,7 @@
         "id": "consent",
         "title": "Tu consentimiento",
         "paragraphs": [
-          "Al usar la Aplicación, das tu consentimiento para el procesamiento de tu información según lo establecido en esta Política de Privacidad, ahora y según sea modificada por nosotros."
+          "Al usar la Aplicación, das tu consentimiento para el procesamiento de tu información según lo establecido en esta Política de Privacidad."
         ]
       },
       {

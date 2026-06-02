@@ -4,10 +4,47 @@ import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
+const TOUCH_MOVE_THRESHOLD = 8;
+
+interface DropdownMenuContextValue {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const DropdownMenuContext =
+  React.createContext<DropdownMenuContextValue | null>(null);
+
 function DropdownMenu({
+  open,
+  defaultOpen,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+  const [internalOpen, setInternalOpen] = React.useState(Boolean(defaultOpen));
+  const isControlled = open !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange],
+  );
+
+  return (
+    <DropdownMenuContext.Provider value={{ open: currentOpen, setOpen }}>
+      <DropdownMenuPrimitive.Root
+        data-slot="dropdown-menu"
+        open={currentOpen}
+        defaultOpen={defaultOpen}
+        onOpenChange={setOpen}
+        {...props}
+      />
+    </DropdownMenuContext.Provider>
+  );
 }
 
 function DropdownMenuPortal({
@@ -19,12 +56,84 @@ function DropdownMenuPortal({
 }
 
 function DropdownMenuTrigger({
+  className,
+  onPointerDownCapture,
+  onPointerMoveCapture,
+  onPointerUpCapture,
+  onPointerCancelCapture,
+  onClickCapture,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  const dropdown = React.useContext(DropdownMenuContext);
+  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const touchMovedRef = React.useRef(false);
+  const suppressClickRef = React.useRef(false);
+
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
-      className="data-[state=open]:bg-popover data-[state=open]:border"
+      className={cn(
+        "data-[state=open]:bg-popover data-[state=open]:border",
+        className,
+      )}
+      onPointerDownCapture={(event) => {
+        onPointerDownCapture?.(event);
+        if (event.defaultPrevented || event.pointerType !== "touch") return;
+
+        touchStartRef.current = {
+          x: event.clientX,
+          y: event.clientY,
+        };
+        touchMovedRef.current = false;
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onPointerMoveCapture={(event) => {
+        onPointerMoveCapture?.(event);
+        const touchStart = touchStartRef.current;
+        if (event.defaultPrevented || event.pointerType !== "touch" || !touchStart) {
+          return;
+        }
+
+        const distanceX = Math.abs(event.clientX - touchStart.x);
+        const distanceY = Math.abs(event.clientY - touchStart.y);
+        if (
+          distanceX > TOUCH_MOVE_THRESHOLD ||
+          distanceY > TOUCH_MOVE_THRESHOLD
+        ) {
+          touchMovedRef.current = true;
+        }
+      }}
+      onPointerUpCapture={(event) => {
+        onPointerUpCapture?.(event);
+        if (event.defaultPrevented || event.pointerType !== "touch") return;
+
+        const shouldOpen = touchStartRef.current && !touchMovedRef.current;
+        touchStartRef.current = null;
+        suppressClickRef.current = true;
+        window.setTimeout(() => {
+          suppressClickRef.current = false;
+        }, 0);
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (shouldOpen) {
+          dropdown?.setOpen(!dropdown.open);
+        }
+      }}
+      onPointerCancelCapture={(event) => {
+        onPointerCancelCapture?.(event);
+        touchStartRef.current = null;
+        touchMovedRef.current = false;
+      }}
+      onClickCapture={(event) => {
+        onClickCapture?.(event);
+        if (!suppressClickRef.current) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+      }}
       {...props}
     />
   );

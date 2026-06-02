@@ -1,10 +1,18 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -25,9 +33,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AppTourProvider } from "@/contexts/AppTourContext";
 
 // Lazy load pages for code splitting
 const Login = lazy(() => import("@/pages/Login"));
+const Landing = lazy(() => import("@/pages/Landing"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Expenses = lazy(() => import("@/pages/Expenses"));
 const Templates = lazy(() => import("@/pages/Templates"));
@@ -55,6 +65,7 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboardingReminder, setShowOnboardingReminder] = useState(false);
+  const [isAppTourOpen, setIsAppTourOpen] = useState(false);
 
   useEffect(() => {
     // Process OAuth callbacks and fetch session
@@ -113,8 +124,8 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    setShowOnboardingReminder(Boolean(user && needsOnboarding));
-  }, [needsOnboarding, user]);
+    setShowOnboardingReminder(Boolean(user && needsOnboarding && !isAppTourOpen));
+  }, [isAppTourOpen, needsOnboarding, user]);
 
   if (loading) {
     return (
@@ -140,63 +151,79 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <KeyboardPaddingProvider>
         <BrowserRouter>
-          <Suspense
-            fallback={
-              <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
-                <img
-                  src={
-                    resolvedTheme === "dark"
-                      ? "/icon-1024x1024-dark.png"
-                      : "/icon-1024x1024.png"
-                  }
-                  alt="Financial Tracker"
-                  className="h-24 w-24 animate-bounce"
-                />
-                <div className="flex flex-col items-center justify-center gap-1">
-                  <h2 className="font-bold text-2xl">
-                    {t("dashboard.welcomeBack")}
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {t("common.loadingMessage")}
-                  </p>
-                </div>
-              </div>
-            }
+          <ScrollToTop />
+          <AppTourProvider
+            user={user}
+            onUserUpdated={setUser}
+            onOpenChange={setIsAppTourOpen}
           >
-            <Routes>
-              <Route
-                path="/login"
-                element={user ? <Navigate to="/expenses" /> : <Login />}
-              />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Suspense
+              fallback={
+                <div className="flex flex-col items-center justify-center gap-4 min-h-dvh w-full bg-background">
+                  <img
+                    src={
+                      resolvedTheme === "dark"
+                        ? "/icon-1024x1024-dark.png"
+                        : "/icon-1024x1024.png"
+                    }
+                    alt="Financial Tracker"
+                    className="h-24 w-24 animate-bounce"
+                  />
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <h2 className="font-bold text-2xl">
+                      {t("dashboard.welcomeBack")}
+                    </h2>
+                    <p className="text-muted-foreground">
+                      {t("common.loadingMessage")}
+                    </p>
+                  </div>
+                </div>
+              }
+            >
+              <Routes>
+                <Route
+                  path="/login"
+                  element={user ? <Navigate to="/expenses" /> : <Login />}
+                />
+                <Route
+                  path="/"
+                  element={user ? <Navigate to="/expenses" /> : <Landing />}
+                />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
 
-              {/* Protected routes with layout */}
-              <Route element={user ? <Layout /> : <Navigate to="/login" />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/expenses" element={<Expenses />} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/aguinaldo" element={<Aguinaldo />} />
-                <Route path="/stocks" element={<Stocks />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/salary" element={<Salary />} />
-              </Route>
-
-              <Route
-                path="/"
-                element={<Navigate to={user ? "/expenses" : "/login"} />}
+                {/* Protected routes with layout */}
+                <Route element={user ? <Layout /> : <Navigate to="/login" />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/expenses" element={<Expenses />} />
+                  <Route path="/templates" element={<Templates />} />
+                  <Route path="/aguinaldo" element={<Aguinaldo />} />
+                  <Route path="/stocks" element={<Stocks />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/salary" element={<Salary />} />
+                </Route>
+              </Routes>
+              <OnboardingReminderModal
+                open={showOnboardingReminder}
+                onClose={() => setShowOnboardingReminder(false)}
               />
-            </Routes>
-            <OnboardingReminderModal
-              open={showOnboardingReminder}
-              onClose={() => setShowOnboardingReminder(false)}
-            />
-          </Suspense>
+            </Suspense>
+          </AppTourProvider>
         </BrowserRouter>
         <ReactQueryDevtools initialIsOpen={false} />
       </KeyboardPaddingProvider>
     </QueryClientProvider>
   );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
 }
 
 function OnboardingReminderModal({

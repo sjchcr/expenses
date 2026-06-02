@@ -17,10 +17,10 @@ i18n
       en: { translation: en },
       es: { translation: es },
     },
-    fallbackLng: "en",
+    fallbackLng: "es",
     supportedLngs: ["en", "es"],
     detection: {
-      order: ["localStorage", "navigator"],
+      order: ["localStorage"],
       caches: ["localStorage"],
       lookupLocalStorage: LANGUAGE_KEY,
     },

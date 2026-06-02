@@ -15,6 +15,7 @@ import {
   PrimaryCurrencyCard,
   ExportDataCard,
   LanguageCard,
+  DeleteAccountCard,
   ExportDialog,
   SettingsLoadingSkeleton,
 } from "@/components/settings";
@@ -81,6 +82,8 @@ export default function Settings() {
 
         <LanguageCard />
       </div>
+
+      <DeleteAccountCard user={user} />
     </div>
   );
 

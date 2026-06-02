@@ -35,7 +35,9 @@
     "selected": "selected",
     "selectAll": "Select all",
     "deselectAll": "Deselect all",
-    "loadingMessage": "We are making sure all your data is available."
+    "loadingMessage": "We are making sure all your data is available.",
+    "back": "Back",
+    "next": "Next"
   },
   "months": {
     "january": "January",
@@ -105,6 +107,102 @@
     "passwordUpdated": "Password updated successfully!",
     "devLogin": "Dev Login",
     "manageFinances": "Manage your finances with ease. Free, secure, and designed for everyone."
+  },
+  "landing": {
+    "eyebrow": "Personal finance without the spreadsheet drift",
+    "heroTitle": "Track what you owe, what you earn, and what is coming next.",
+    "heroDescription": "Financial Tracker keeps recurring expenses, salary records, stock vesting, categories, and monthly summaries in one quiet workspace built for daily use.",
+    "primaryCta": "Create your account",
+    "secondaryCta": "Sign in",
+    "proof": {
+      "private": "Private by design",
+      "mobile": "Mobile ready",
+      "free": "Free to use"
+    },
+    "features": {
+      "items": [
+        {
+          "title": "Expense tracking",
+          "description": "Add expenses, mark payments, filter by period, and see what is pending at a glance."
+        },
+        {
+          "title": "Templates and categories",
+          "description": "Reuse frequent expenses and organize them with colors and icons that are easy to scan."
+        },
+        {
+          "title": "Dashboard summaries",
+          "description": "Switch between yearly and monthly stats with spending trends and category breakdowns."
+        },
+        {
+          "title": "Income tools",
+          "description": "Track salary, aguinaldo, and stock vesting calculations alongside your expenses."
+        }
+      ]
+    },
+    "preview": {
+      "label": "Live monthly view",
+      "title": "June overview",
+      "rows": [
+        {
+          "label": "Rent",
+          "amount": "$1,250",
+          "status": "Paid"
+        },
+        {
+          "label": "Groceries",
+          "amount": "$340",
+          "status": "Pending"
+        },
+        {
+          "label": "Stock vesting",
+          "amount": "$2,180",
+          "status": "Estimated"
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Your financial data deserves a quiet, private place.",
+      "description": "The app is built around your account and your records. Use it to understand your cash flow without mixing it into generic notes or spreadsheets.",
+      "link": "Read the privacy policy"
+    },
+    "preferences": {
+      "label": "Language and theme",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "tour": {
+    "title": "Welcome to Financial Tracker",
+    "replayTitle": "App tour",
+    "description": "A quick walkthrough of the main areas you can use to manage your finances.",
+    "stepProgress": "Step {{current}} of {{total}}",
+    "skip": "Skip tour",
+    "finish": "Finish tour",
+    "menuLabel": "App tour",
+    "steps": [
+      {
+        "title": "Dashboard",
+        "description": "Start with a yearly or monthly overview, including paid and pending totals, spending trends, exchange rates, and category breakdowns."
+      },
+      {
+        "title": "Expenses",
+        "description": "Add expenses, assign categories, mark them as paid or pending, and use month filters to focus on the period you need."
+      },
+      {
+        "title": "Templates and categories",
+        "description": "Create reusable expense templates and organize them with category colors and icons for faster entry."
+      },
+      {
+        "title": "Salary, Aguinaldo, and Stocks",
+        "description": "Track salary payments, calculate aguinaldo, and estimate stock vesting proceeds after taxes and costs."
+      },
+      {
+        "title": "Settings",
+        "description": "Set your primary currency, payment periods, language, profile, and export your data when needed."
+      }
+    ]
   },
   "dashboard": {
     "welcomeBack": "Welcome back",
@@ -347,7 +445,17 @@
     "avatarUpdated": "Profile photo updated",
     "avatarRemoved": "Profile photo removed",
     "avatarUploadFailed": "Failed to upload photo",
-    "avatarRemoveFailed": "Failed to remove photo"
+    "avatarRemoveFailed": "Failed to remove photo",
+    "dangerZone": "Danger zone",
+    "dangerZoneDesc": "Permanent actions for your account and stored data.",
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete your account?",
+    "deleteAccountDescription": "This permanently deletes your account and the data stored for this app.",
+    "deleteAccountWarning": "This removes your profile photo, settings, expenses, templates, categories, salary records, and stock records. This action cannot be undone.",
+    "deleteAccountConfirmLabel": "Type {{email}} to confirm.",
+    "deletingAccount": "Deleting account...",
+    "deleteAccountSuccess": "Account deleted.",
+    "deleteAccountFailed": "Failed to delete account."
   },
   "onboarding": {
     "title": "Let's personalize your account",
@@ -462,8 +570,11 @@
     "invalidDeductionAmount": "Deduction amount must be 0 or greater.",
     "invalidDeductionPercentage": "Percentage deduction must be between 0 and 100.",
     "downloadBreakdown": "Download as image",
+    "shareBreakdown": "Share image",
     "downloadFailed": "Failed to download breakdown image.",
-    "downloadSuccess": "Breakdown image downloaded."
+    "downloadSuccess": "Breakdown image downloaded.",
+    "shareFailed": "Failed to share breakdown image.",
+    "shareSuccess": "Breakdown image ready to share."
   },
   "salary": {
     "title": "Salary",
@@ -518,8 +629,11 @@
     "applyRaise": "Apply",
     "breakdownReceiptTitle": "Salary breakdown",
     "downloadBreakdown": "Download as image",
+    "shareBreakdown": "Share image",
     "downloadFailed": "Failed to download salary breakdown image.",
-    "downloadSuccess": "Salary breakdown image downloaded."
+    "downloadSuccess": "Salary breakdown image downloaded.",
+    "shareFailed": "Failed to share salary breakdown image.",
+    "shareSuccess": "Salary breakdown image ready to share."
   },
   "aguinaldo": {
     "title": "Aguinaldo",
@@ -539,38 +653,40 @@
   },
   "privacy": {
     "title": "Privacy Policy",
-    "description": "Your privacy is our priority. We do not sell or share your data with third parties. All your information is securely stored and only used to provide you with the best experience possible.",
-    "intro": "This privacy policy applies to the SJ Financial Tracker app (hereby referred to as \"Application\") for mobile devices that was created by Steven Jimenez (hereby referred to as \"Service Provider\") as a Free service. This service is intended for use \"AS IS\".",
+    "description": "Your privacy is our priority. We do not sell your information or share it with other people. Your data is used only to operate and improve the app.",
+    "intro": "This privacy policy applies to the SJ Financial Tracker app (hereby referred to as \"Application\") for web and mobile devices that was created by Steven Jimenez (hereby referred to as \"Service Provider\") as a Free service. This service is intended for use \"AS IS\".",
     "sections": [
       {
         "id": "information",
         "title": "Information Collection and Use",
         "paragraphs": [
-          "The Application collects information when you download and use it. This information may include details such as:"
+          "The Application collects the information needed to create your account, keep your data synced, and provide the financial tracking features you choose to use. This may include:"
         ],
         "list": [
-          "Your device's Internet Protocol address (e.g. IP address)",
-          "The pages of the Application that you visit, the time and date of your visit, the time spent on those pages",
-          "The time spent on the Application",
-          "The operating system you use on your mobile device"
+          "Account information such as email address, name, user ID, authentication provider, and optional profile photo",
+          "Financial information you enter, such as expenses, templates, categories, salary records, stocks, currencies, payment periods, and app settings",
+          "Technical information needed to operate and protect the service, such as IP address, browser or device information, operating system, session details, and basic application logs",
+          "Currency pairs used for exchange-rate lookups, such as USD to CRC"
         ],
         "afterList": [
-          "The Application does not gather precise information about the location of your mobile device.",
-          "The Service Provider may use the information you provide to contact you from time to time with important information, required notices, or marketing promotions.",
-          "For a better experience, while using the Application, the Service Provider may require certain personally identifiable information, including but not limited to Email, Name, User ID, Financial Info, and User Content. The information requested will be retained and used as described in this privacy policy."
+          "The Application does not gather precise location information, contacts, or advertising identifiers.",
+          "The Service Provider does not use your information for third-party advertising and does not sell, rent, or share it with other people.",
+          "The Service Provider may contact you only for account, support, security, legal, or important service-related reasons."
         ]
       },
       {
         "id": "thirdParty",
-        "title": "Third Party Access",
+        "title": "Service Providers",
         "paragraphs": [
-          "Only aggregated, anonymized data is periodically transmitted to external services to help the Service Provider improve the Application and its service. The Service Provider may share your information with third parties in the ways described in this privacy statement."
+          "The Application uses trusted service providers only as needed to operate the app. These providers process information on behalf of the Service Provider or as part of the login method you choose.",
+          "Supabase is used for authentication, database storage, file storage, and user profile metadata. Email login is handled through Supabase. If you choose Google login, Google may provide basic account details such as your name, email address, and profile picture after you approve the sign-in. If you choose Apple login, Apple may provide a unique identifier and, depending on your choice, your name and email address or a private relay email address.",
+          "Exchange-rate requests may be sent to an exchange-rate service using only the currency pair being requested. Your user ID and financial records are not sent for those exchange-rate lookups."
         ],
-        "listTitle": "The Service Provider may disclose User Provided and Automatically Collected Information:",
+        "listTitle": "The Service Provider may disclose information only:",
         "list": [
-          "as required by law, such as to comply with a subpoena, or similar legal process;",
-          "when they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;",
-          "with their trusted services providers who work on their behalf, do not have an independent use of the information disclosed to them, and have agreed to adhere to the rules set forth in this privacy statement."
+          "as required by law, such as to comply with a subpoena or similar legal process;",
+          "when disclosure is necessary to protect rights, security, safety, investigate fraud, prevent abuse, or respond to a government request;",
+          "with trusted service providers that help operate the Application and are expected to process the information only for that purpose."
         ]
       },
       {
@@ -584,7 +700,8 @@
         "id": "dataRetention",
         "title": "Data Retention Policy",
         "paragraphs": [
-          "The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like the Service Provider to delete User Provided Data submitted via the Application, please contact them at {{email}} and they will respond within a reasonable time."
+          "The Service Provider retains your account and financial data for as long as your account remains active or as long as needed to provide the Application, comply with legal obligations, resolve disputes, and protect the service.",
+          "If you would like the Service Provider to delete User Provided Data submitted via the Application, please contact them at {{email}} and they will respond within a reasonable time."
         ]
       },
       {
@@ -599,7 +716,8 @@
         "id": "security",
         "title": "Security",
         "paragraphs": [
-          "The Service Provider is concerned about safeguarding the confidentiality of your information and provides physical, electronic, and procedural safeguards to protect information that is processed and maintained."
+          "The Service Provider is concerned about safeguarding the confidentiality of your information and uses reasonable technical and organizational safeguards for information that is processed and maintained.",
+          "No method of transmission over the Internet or electronic storage is 100% secure, so absolute security cannot be guaranteed."
         ]
       },
       {
@@ -615,7 +733,7 @@
         "id": "consent",
         "title": "Your Consent",
         "paragraphs": [
-          "By using the Application, you consent to the processing of your information as set forth in this Privacy Policy now and as amended by us."
+          "By using the Application, you consent to the processing of your information as set forth in this Privacy Policy."
         ]
       },
       {

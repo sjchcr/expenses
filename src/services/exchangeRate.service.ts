@@ -1,23 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { Capacitor } from "@capacitor/core";
-
-const ENV_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-function getApiBaseUrl(): string | null {
-  if (ENV_API_BASE_URL) {
-    return ENV_API_BASE_URL.replace(/\/$/, "");
-  }
-
-  if (typeof window !== "undefined" && !Capacitor.isNativePlatform()) {
-    return window.location.origin;
-  }
-
-  console.warn(
-    "Exchange rate API base URL is not configured. Set VITE_API_BASE_URL for native builds.",
-  );
-  return null;
-}
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 export const exchangeRateService = {
   async getRate(fromCurrency: string, toCurrency: string, date?: Date) {
@@ -42,7 +25,7 @@ export const exchangeRateService = {
 
     // Fetch from serverless API
     try {
-      const baseUrl = getApiBaseUrl();
+      const baseUrl = getApiBaseUrl("Exchange rate API");
       if (!baseUrl) {
         return null;
       }

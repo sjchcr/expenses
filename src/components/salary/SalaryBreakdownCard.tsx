@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
-import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import {
   Card,
@@ -19,8 +18,9 @@ import {
   formatPercentage,
 } from "@/lib/salaryCalculations";
 import { Button } from "../ui/button";
-import { BanknoteArrowUp, Download, Edit, Trash2 } from "lucide-react";
+import { BanknoteArrowUp, Edit, Share2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { shareElementAsImage } from "@/lib/shareImage";
 
 interface SalaryBreakdownCardProps {
   record: SalaryRecord;
@@ -66,7 +66,7 @@ export function SalaryBreakdownCard({
   //     ? formatUsd(amount)
   //     : formatCRC(amount);
 
-  const handleDownloadBreakdown = useCallback(async () => {
+  const handleShareBreakdown = useCallback(async () => {
     if (!breakdownRef.current) return;
 
     try {
@@ -75,14 +75,25 @@ export function SalaryBreakdownCard({
         requestAnimationFrame(() => requestAnimationFrame(resolve)),
       );
 
-      const dataUrl = await toPng(breakdownRef.current, { pixelRatio: 3 });
-      const link = document.createElement("a");
-      link.download = `salary-breakdown-${record.effective_date}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success(t("salary.downloadSuccess"));
+      const result = await shareElementAsImage({
+        element: breakdownRef.current,
+        filename: `salary-breakdown-${record.effective_date}.png`,
+        title: t("salary.breakdownReceiptTitle"),
+        text: `${record.label} · ${format(
+          parseISO(record.effective_date),
+          "MMMM d, yyyy",
+        )}`,
+      });
+
+      if (result !== "cancelled") {
+        toast.success(
+          result === "shared"
+            ? t("salary.shareSuccess")
+            : t("salary.downloadSuccess"),
+        );
+      }
     } catch {
-      toast.error(t("salary.downloadFailed"));
+      toast.error(t("salary.shareFailed"));
     } finally {
       setShowExportHeader(false);
     }
@@ -122,10 +133,10 @@ export function SalaryBreakdownCard({
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleDownloadBreakdown}
-              title={t("salary.downloadBreakdown")}
+              onClick={handleShareBreakdown}
+              title={t("salary.shareBreakdown")}
             >
-              <Download className="h-4 w-4" />
+              <Share2 className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"

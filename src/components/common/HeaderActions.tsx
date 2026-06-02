@@ -10,7 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, MonitorSmartphone, Moon, Settings, Sun } from "lucide-react";
+import {
+  LogOut,
+  Map,
+  MonitorSmartphone,
+  Moon,
+  Settings,
+  Sun,
+} from "lucide-react";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import type { User } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +26,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useTranslation } from "react-i18next";
 import { authService } from "@/services/auth.service";
 import { useMobile } from "@/hooks/useMobile";
+import { useAppTour } from "@/contexts/AppTourContext";
 
 const getInitials = (user: User | null): string => {
   if (!user) return "?";
@@ -66,6 +74,7 @@ const HeaderActions = () => {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { openTour } = useAppTour();
 
   const handleSignOut = async () => {
     await authService.signOut();
@@ -88,6 +97,10 @@ const HeaderActions = () => {
             <Settings />
             {t("nav.settings")}
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openTour({ source: "manual" })}>
+          <Map />
+          {t("tour.menuLabel")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

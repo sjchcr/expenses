@@ -33,6 +33,7 @@ interface EmailAuthContentProps {
   onForgotPassword: (e: React.FormEvent) => void;
   formClassName?: string;
   buttonClassName?: string;
+  topContent?: ReactNode;
 }
 
 export function EmailAuthContent({
@@ -59,6 +60,7 @@ export function EmailAuthContent({
   onForgotPassword,
   formClassName = "",
   buttonClassName = "",
+  topContent,
 }: EmailAuthContentProps) {
   const { t } = useTranslation();
   const isMobile = useMobile();
@@ -118,6 +120,7 @@ export function EmailAuthContent({
         </Description>
       </Header>
       <DialogBody>
+        {topContent}
         <form
           onSubmit={mode === "forgotPassword" ? onForgotPassword : onSubmit}
           className={`space-y-4 py-4 ${formClassName}`}

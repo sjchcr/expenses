@@ -139,6 +139,37 @@
   padding-block: var(--h);
 }
 
+.public-gradient-bg {
+  background:
+    radial-gradient(
+      at 98.27586206896551% 10.208333333333334%,
+      #e4f9f5 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 86.96120689655173% 79.16666666666666%,
+      #30e3ca 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 46.44396551724138% 84.16666666666667%,
+      #11999e 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 17.780172413793103% 76.66666666666667%,
+      #27ec77 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 21% 3%, #d8cfa8 0px, transparent 50%),
+    radial-gradient(
+      at 68.53448275862068% 29.375%,
+      #91c20b 0px,
+      transparent 50%
+    ),
+    #e4f9f5;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

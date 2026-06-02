@@ -236,6 +236,19 @@ export const authService = {
     return userData.user;
   },
 
+  async completeAppTour() {
+    const { data: currentUserData } = await supabase.auth.getUser();
+    const currentMetadata = currentUserData.user?.user_metadata || {};
+    const { data: userData, error } = await supabase.auth.updateUser({
+      data: {
+        ...currentMetadata,
+        app_tour_completed: true,
+      },
+    });
+    if (error) throw error;
+    return userData.user;
+  },
+
   onAuthStateChange(callback: (user: any) => void) {
     return supabase.auth.onAuthStateChange((_event, session) => {
       callback(session?.user ?? null);

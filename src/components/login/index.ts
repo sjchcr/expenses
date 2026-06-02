@@ -1,6 +1,7 @@
 export { LoginHeader } from "./LoginHeader";
 export { OAuthButtons } from "./OAuthButtons";
 export { EmailAuthContent } from "./EmailAuthContent";
+export { AuthDialog } from "./AuthDialog";
 export { PasswordInput } from "./PasswordInput";
 export { PasswordChecklist } from "./PasswordChecklist";
 export { LinkExpiredCard } from "./LinkExpiredCard";

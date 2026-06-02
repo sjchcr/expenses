@@ -1,9 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
-import { AlertTriangle, Download } from "lucide-react";
+import { AlertTriangle, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useRef, useCallback } from "react";
-import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +25,7 @@ import {
   formatUsd,
   formatPercentage,
 } from "@/lib/stockCalculations";
+import { shareElementAsImage } from "@/lib/shareImage";
 
 function BreakdownContent({
   data,
@@ -169,7 +169,7 @@ export function StockBreakdownDialog({
   const [showHeader, setShowHeader] = useState(false);
   const breakdownData = period ? calcPeriodBreakdown(period, settings) : null;
 
-  const handleDownloadBreakdown = useCallback(async () => {
+  const handleShareBreakdown = useCallback(async () => {
     if (!breakdownRef.current || !period) return;
     try {
       setShowHeader(true);
@@ -177,16 +177,24 @@ export function StockBreakdownDialog({
       await new Promise((r) =>
         requestAnimationFrame(() => requestAnimationFrame(r)),
       );
-      const dataUrl = await toPng(breakdownRef.current, { pixelRatio: 3 });
+      const result = await shareElementAsImage({
+        element: breakdownRef.current,
+        filename: `breakdown-${period.vesting_date}.png`,
+        title: t("stocks.breakdownReceiptTitle"),
+        text: format(parseISO(period.vesting_date), "MMMM d, yyyy"),
+      });
       setShowHeader(false);
-      const link = document.createElement("a");
-      link.download = `breakdown-${period.vesting_date}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success(t("stocks.downloadSuccess"));
+
+      if (result !== "cancelled") {
+        toast.success(
+          result === "shared"
+            ? t("stocks.shareSuccess")
+            : t("stocks.downloadSuccess"),
+        );
+      }
     } catch {
       setShowHeader(false);
-      toast.error(t("stocks.downloadFailed"));
+      toast.error(t("stocks.shareFailed"));
     }
   }, [period, t]);
 
@@ -214,21 +222,21 @@ export function StockBreakdownDialog({
         </DialogBody>
         {isMobile ? (
           <Button
-            onClick={handleDownloadBreakdown}
+            onClick={handleShareBreakdown}
             size="icon"
             className="absolute top-4 right-4"
           >
-            <Download />
+            <Share2 />
           </Button>
         ) : (
           <DialogFooter className="border-t">
             <Button
               type="button"
               className="w-full"
-              onClick={handleDownloadBreakdown}
+              onClick={handleShareBreakdown}
             >
-              <Download className="h-4 w-4" />
-              {t("stocks.downloadBreakdown")}
+              <Share2 className="h-4 w-4" />
+              {t("stocks.shareBreakdown")}
             </Button>
           </DialogFooter>
         )}
