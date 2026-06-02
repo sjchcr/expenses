@@ -81,9 +81,8 @@ export default function Settings() {
         />
 
         <LanguageCard />
+        <DeleteAccountCard user={user} />
       </div>
-
-      <DeleteAccountCard user={user} />
     </div>
   );
 

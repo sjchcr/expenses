@@ -39,7 +39,6 @@ interface LandingHeaderProps {
   theme: LandingTheme;
   setTheme: (theme: LandingTheme) => void;
   currentLanguage: string;
-  onSignIn: () => void;
   onSignUp: () => void;
 }
 
@@ -49,13 +48,12 @@ export function LandingHeader({
   theme,
   setTheme,
   currentLanguage,
-  onSignIn,
   onSignUp,
 }: LandingHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+    <header className="sticky top-0 z-60 border-b bg-background/60 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
           <img
@@ -70,10 +68,7 @@ export function LandingHeader({
           <span className="font-semibold">{siteTitle}</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={onSignIn}>
-            {t("auth.signIn")}
-          </Button>
-          <Button onClick={onSignUp}>{t("auth.createAccount")}</Button>
+          <Button onClick={onSignUp}>{t("auth.start")}</Button>
           <LandingPreferencesDropdown
             theme={theme}
             setTheme={setTheme}

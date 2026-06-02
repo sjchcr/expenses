@@ -33,7 +33,6 @@ export default function Landing() {
         theme={theme}
         setTheme={setTheme}
         currentLanguage={i18n.resolvedLanguage || i18n.language}
-        onSignIn={openSignIn}
         onSignUp={openSignUp}
       />
 

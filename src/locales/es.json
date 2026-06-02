@@ -62,6 +62,7 @@
     "stocks": "Stocks"
   },
   "auth": {
+    "start": "Empezar",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
     "signInWithGoogle": "Continuar con Google",
