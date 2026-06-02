@@ -81,6 +81,7 @@ export function EmailAuthContent({
 
   return (
     <motion.div
+      className="flex min-h-0 flex-1 flex-col"
       drag={canSwipeBack ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={{ left: 0, right: 0.5 }}
