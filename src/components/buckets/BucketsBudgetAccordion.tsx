@@ -1,24 +1,17 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { WalletCards } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { CategoryIcon } from "@/components/categories";
 import type { Expense, ExpenseBucket, ExpenseCategory } from "@/types";
 import {
-  formatBudgetAmount,
   getBucketBudgetSummaries,
-  getCurrencySymbol,
   getTotalsByCurrency,
-} from "./bucketUtils";
-import { cn } from "@/lib/utils";
-import { Progress } from "../ui/progress";
-import BucketStatsCard from "./BucketStatsCard";
+} from "@/components/buckets/bucketUtils";
+import BucketStatsCard from "@/components/buckets/BucketStatsCard";
 
 interface BucketsBudgetAccordionProps {
   buckets: ExpenseBucket[];

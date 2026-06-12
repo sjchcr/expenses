@@ -2,8 +2,8 @@ import {
   formatBudgetAmount,
   getCurrencySymbol,
   type BucketBudgetSummary,
-} from "./bucketUtils";
-import { Progress } from "../ui/progress";
+} from "@/components/buckets/bucketUtils";
+import { Progress } from "@/components/ui/progress";
 import { t } from "i18next";
 import { cn } from "@/lib/utils";
 
