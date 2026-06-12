@@ -171,6 +171,7 @@ export function SalaryConfigPanel() {
             <Button
               type="button"
               size="icon"
+              className="shrink-0"
               onClick={() =>
                 setDeductions([
                   ...deductions,
@@ -257,6 +258,7 @@ export function SalaryConfigPanel() {
             <Button
               type="button"
               size="icon"
+              className="shrink-0"
               onClick={() =>
                 setBrackets([
                   ...brackets,
