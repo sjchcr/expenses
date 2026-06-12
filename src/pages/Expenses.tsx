@@ -12,6 +12,7 @@ import {
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { useCategories } from "@/hooks/useCategories";
+import { useExpenseBuckets } from "@/hooks/useExpenseBuckets";
 import { useMobile } from "@/hooks/useMobile";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
@@ -27,6 +28,7 @@ import {
   ExpensesLoadingSkeleton,
   ExpensesEmptyState,
 } from "@/components/expenses";
+import { BucketsBudgetAccordion } from "@/components/buckets";
 import type { Expense } from "@/types";
 
 export default function Expenses() {
@@ -113,15 +115,19 @@ export default function Expenses() {
   const { data: expenses, isLoading, refetch } = useExpenses(filters);
   const { settings } = useUserSettings();
   const { data: categories } = useCategories();
+  const { data: buckets } = useExpenseBuckets();
   const deleteMutation = useDeleteExpense();
   const toggleAmountPaidMutation = useToggleAmountPaid();
 
   const availableCurrencies = useMemo(() => {
-    if (!expenses) return [];
+    if (!expenses) return (buckets || []).map((bucket) => bucket.currency);
     return Array.from(
-      new Set(expenses.flatMap((e) => e.amounts.map((a) => a.currency))),
+      new Set([
+        ...expenses.flatMap((e) => e.amounts.map((a) => a.currency)),
+        ...(buckets || []).map((bucket) => bucket.currency),
+      ]),
     );
-  }, [expenses]);
+  }, [buckets, expenses]);
 
   const { data: exchangeRates, isLoading: isLoadingRates } =
     useExchangeRates(availableCurrencies);
@@ -224,21 +230,32 @@ export default function Expenses() {
 
       {isLoading ? (
         <ExpensesLoadingSkeleton />
-      ) : expenses && expenses.length > 0 ? (
-        <ExpensesByPeriod
-          expensesByPeriod={expensesByPeriod}
-          sortedPeriods={sortedPeriods}
-          togglingId={togglingId}
-          defaultTab={defaultTab}
-          onToggleAmountPaid={handleToggleAmountPaid}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onCreateTemplate={handleCreateTemplate}
-          onAddExpense={handleAddExpense}
-          categories={categories || []}
-        />
       ) : (
-        <ExpensesEmptyState onAddExpense={handleAddExpense} />
+        <>
+          <BucketsBudgetAccordion
+            buckets={buckets || []}
+            categories={categories || []}
+            expenses={expenses || []}
+            exchangeRates={exchangeRates}
+            isLoadingRates={isLoadingRates}
+          />
+          {expenses && expenses.length > 0 ? (
+            <ExpensesByPeriod
+              expensesByPeriod={expensesByPeriod}
+              sortedPeriods={sortedPeriods}
+              togglingId={togglingId}
+              defaultTab={defaultTab}
+              onToggleAmountPaid={handleToggleAmountPaid}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onCreateTemplate={handleCreateTemplate}
+              onAddExpense={handleAddExpense}
+              categories={categories || []}
+            />
+          ) : (
+            <ExpensesEmptyState onAddExpense={handleAddExpense} />
+          )}
+        </>
       )}
     </div>
   );

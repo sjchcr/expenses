@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Shapes } from "lucide-react";
+import { Plus, Shapes, WalletCards } from "lucide-react";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useCategories } from "@/hooks/useCategories";
+import { useExpenseBuckets } from "@/hooks/useExpenseBuckets";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { useMobile } from "@/hooks/useMobile";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import CustomHeader, {
@@ -22,7 +24,12 @@ import {
   CategoryDialog,
   DeleteCategoryDialog,
 } from "@/components/categories";
-import type { ExpenseCategory, ExpenseTemplate } from "@/types";
+import {
+  BucketDialog,
+  BucketsCard,
+  DeleteBucketDialog,
+} from "@/components/buckets";
+import type { ExpenseBucket, ExpenseCategory, ExpenseTemplate } from "@/types";
 
 export default function Templates() {
   const isMobile = useMobile();
@@ -50,6 +57,19 @@ export default function Templates() {
   const [categoryToDelete, setCategoryToDelete] =
     useState<ExpenseCategory | null>(null);
 
+  // Bucket dialog state
+  const [isBucketDialogOpen, setIsBucketDialogOpen] = useState(false);
+  const [editingBucket, setEditingBucket] = useState<ExpenseBucket | null>(
+    null,
+  );
+
+  // Delete bucket dialog state
+  const [isDeleteBucketDialogOpen, setIsDeleteBucketDialogOpen] =
+    useState(false);
+  const [bucketToDelete, setBucketToDelete] = useState<ExpenseBucket | null>(
+    null,
+  );
+
   const {
     data: templates,
     isLoading,
@@ -60,6 +80,12 @@ export default function Templates() {
     isLoading: isLoadingCategories,
     refetch: refetchCategories,
   } = useCategories();
+  const {
+    data: buckets,
+    isLoading: isLoadingBuckets,
+    refetch: refetchBuckets,
+  } = useExpenseBuckets();
+  const { settings } = useUserSettings();
 
   // Template handlers
   const handleOpenTemplateDialog = (template?: ExpenseTemplate) => {
@@ -103,6 +129,27 @@ export default function Templates() {
     setCategoryToDelete(null);
   };
 
+  // Bucket handlers
+  const handleOpenBucketDialog = (bucket?: ExpenseBucket) => {
+    setEditingBucket(bucket || null);
+    setIsBucketDialogOpen(true);
+  };
+
+  const handleCloseBucketDialog = () => {
+    setIsBucketDialogOpen(false);
+    setEditingBucket(null);
+  };
+
+  const handleDeleteBucket = (bucket: ExpenseBucket) => {
+    setBucketToDelete(bucket);
+    setIsDeleteBucketDialogOpen(true);
+  };
+
+  const handleCloseDeleteBucketDialog = () => {
+    setIsDeleteBucketDialogOpen(false);
+    setBucketToDelete(null);
+  };
+
   const recurringTemplates = templates?.filter((t) => t.is_recurring) || [];
   const regularTemplates = templates?.filter((t) => !t.is_recurring) || [];
 
@@ -122,12 +169,17 @@ export default function Templates() {
           icon: Shapes,
           onClick: () => handleOpenCategoryDialog(),
         },
+        {
+          label: t("buckets.create"),
+          icon: WalletCards,
+          onClick: () => handleOpenBucketDialog(),
+        },
       ],
     },
   ];
 
   const handleRefresh = async () => {
-    await Promise.all([refetchTemplates(), refetchCategories()]);
+    await Promise.all([refetchTemplates(), refetchCategories(), refetchBuckets()]);
   };
 
   const content = (
@@ -163,6 +215,17 @@ export default function Templates() {
                   onEdit={handleOpenCategoryDialog}
                   onDelete={handleDeleteCategory}
                   onCreate={() => handleOpenCategoryDialog()}
+                />
+              )}
+              {isLoadingBuckets ? (
+                <GroupsLoadingSkeleton />
+              ) : (
+                <BucketsCard
+                  buckets={buckets || []}
+                  categories={categories || []}
+                  onEdit={handleOpenBucketDialog}
+                  onDelete={handleDeleteBucket}
+                  onCreate={() => handleOpenBucketDialog()}
                 />
               )}
             </div>
@@ -225,6 +288,28 @@ export default function Templates() {
           else setIsDeleteCategoryDialogOpen(true);
         }}
         category={categoryToDelete}
+      />
+
+      {/* Bucket Dialog (Create/Edit) */}
+      <BucketDialog
+        open={isBucketDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseBucketDialog();
+          else setIsBucketDialogOpen(true);
+        }}
+        bucket={editingBucket}
+        categories={categories || []}
+        defaultCurrency={settings?.primary_currency || "USD"}
+      />
+
+      {/* Delete Bucket Dialog */}
+      <DeleteBucketDialog
+        open={isDeleteBucketDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseDeleteBucketDialog();
+          else setIsDeleteBucketDialogOpen(true);
+        }}
+        bucket={bucketToDelete}
       />
     </div>
   );

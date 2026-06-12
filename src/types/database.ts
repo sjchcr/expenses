@@ -44,6 +44,39 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_buckets: {
+        Row: {
+          category_ids: Json
+          created_at: string | null
+          currency: string
+          id: string
+          monthly_budget: number
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_ids?: Json
+          created_at?: string | null
+          currency?: string
+          id?: string
+          monthly_budget?: number
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_ids?: Json
+          created_at?: string | null
+          currency?: string
+          id?: string
+          monthly_budget?: number
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expense_templates: {
         Row: {
           amounts: Json

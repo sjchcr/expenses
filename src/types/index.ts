@@ -112,6 +112,28 @@ export type ExpenseCategory = TemplateGroup;
 export type ExpenseCategoryInsert = TemplateGroupInsert;
 export type ExpenseCategoryUpdate = TemplateGroupUpdate;
 
+type ExpenseBucketRow =
+  Database["public"]["Tables"]["expense_buckets"]["Row"];
+type ExpenseBucketInsertBase =
+  Database["public"]["Tables"]["expense_buckets"]["Insert"];
+type ExpenseBucketUpdateBase =
+  Database["public"]["Tables"]["expense_buckets"]["Update"];
+
+export interface ExpenseBucket
+  extends Omit<ExpenseBucketRow, "category_ids"> {
+  category_ids: string[];
+}
+
+export interface ExpenseBucketInsert
+  extends Omit<ExpenseBucketInsertBase, "category_ids"> {
+  category_ids?: string[];
+}
+
+export interface ExpenseBucketUpdate
+  extends Omit<ExpenseBucketUpdateBase, "category_ids"> {
+  category_ids?: string[];
+}
+
 // Salary types (existing aguinaldo table)
 export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];

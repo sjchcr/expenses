@@ -3,7 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useDialogRegistration } from "@/contexts/KeyboardPaddingContext";
 
 function Dialog({
@@ -95,13 +95,12 @@ function DialogContent({
           <DialogPrimitive.Close
             data-slot="dialog-close"
             className={cn(
-              "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 w-11 sm:w-9",
+              "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 w-11 sm:w-9 bg-muted/50",
+              buttonVariants({ variant: "outline", size: "icon" }),
               submitOnTop ? "left-4 sm:left-auto sm:right-4" : "right-4",
             )}
           >
-            <Button variant="outline" size="icon" className="bg-muted/50">
-              <X />
-            </Button>
+            <X />
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>

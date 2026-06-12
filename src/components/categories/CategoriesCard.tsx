@@ -90,39 +90,34 @@ export function CategoriesCard({
         <Table>
           <TableBody>
             {categories.map((category) => (
-              <>
-                <TableRow key={category.id} className="hover:bg-primary/5">
-                  <TableCell className="font-medium pl-4">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <CategoryIcon
-                        icon={category.icon}
-                        color={category.color}
-                      />
-                      <span className="truncate text-sm font-medium">
-                        {category.name}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="pr-4 w-24">
-                    <div className="flex shrink-0 gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(category)}
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghostDestructive"
-                        size="icon"
-                        onClick={() => onDelete(category)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </>
+              <TableRow key={category.id} className="hover:bg-primary/5">
+                <TableCell className="font-medium pl-4">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <CategoryIcon icon={category.icon} color={category.color} />
+                    <span className="truncate text-sm font-medium">
+                      {category.name}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="pr-4 w-24">
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(category)}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghostDestructive"
+                      size="icon"
+                      onClick={() => onDelete(category)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
           <TableFooter>
