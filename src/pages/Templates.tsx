@@ -179,7 +179,11 @@ export default function Templates() {
   ];
 
   const handleRefresh = async () => {
-    await Promise.all([refetchTemplates(), refetchCategories(), refetchBuckets()]);
+    await Promise.all([
+      refetchTemplates(),
+      refetchCategories(),
+      refetchBuckets(),
+    ]);
   };
 
   const content = (

@@ -100,7 +100,7 @@ export function getBucketBudgetSummaries({
 export function getTotalsByCurrency(
   summaries: BucketBudgetSummary[],
 ): BucketBudgetSummary | null {
-  if (!summaries) return null;
+  if (summaries.length === 0) return null;
 
   const bucket = {
     category_ids: [],

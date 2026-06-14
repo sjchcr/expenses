@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function TemplatesLoadingSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader>
           <Skeleton className="h-5 w-40" />
@@ -13,6 +13,22 @@ export function TemplatesLoadingSkeleton() {
         </CardContent>
       </Card>
       <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-40" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-32 w-full" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-40" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-32 w-full" />
+        </CardContent>
+      </Card>
+      <Card className="col-span-1 lg:col-span-3">
         <CardHeader>
           <Skeleton className="h-5 w-40" />
         </CardHeader>

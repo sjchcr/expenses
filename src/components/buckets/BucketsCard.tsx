@@ -1,6 +1,12 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleOff, FolderPlus, Pencil, Trash2, WalletCards } from "lucide-react";
+import {
+  CircleOff,
+  FolderPlus,
+  Pencil,
+  Trash2,
+  WalletCards,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -54,7 +60,7 @@ export function BucketsCard({
 
   if (buckets.length === 0) {
     return (
-      <Card className="gap-2 overflow-hidden border border-gray-200 bg-linear-to-b from-background to-accent shadow-md dark:border-gray-900">
+      <Card className="gap-2 overflow-hidden border border-gray-200 bg-linear-to-b from-background to-accent shadow-md dark:border-gray-900 col-span-1 lg:col-span-3">
         <CardContent className="px-2">
           <Empty>
             <EmptyHeader>
@@ -62,7 +68,9 @@ export function BucketsCard({
                 <CircleOff />
               </EmptyMedia>
               <EmptyTitle>{t("buckets.empty")}</EmptyTitle>
-              <EmptyDescription>{t("buckets.emptyDescription")}</EmptyDescription>
+              <EmptyDescription>
+                {t("buckets.emptyDescription")}
+              </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row justify-center gap-2">
               <Button onClick={onCreate}>
@@ -77,7 +85,7 @@ export function BucketsCard({
   }
 
   return (
-    <Card className="gap-2 overflow-hidden border border-gray-200 bg-linear-to-b from-background to-accent shadow-md dark:border-gray-900">
+    <Card className="gap-2 overflow-hidden border border-gray-200 bg-linear-to-b from-background to-accent shadow-md dark:border-gray-900 col-span-1 lg:col-span-3">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <WalletCards className="h-4 w-4" />
@@ -110,10 +118,6 @@ export function BucketsCard({
                         <span className="truncate text-sm font-medium">
                           {bucket.name}
                         </span>
-                        <span className="shrink-0 text-xs font-medium text-muted-foreground tabular-nums">
-                          {getCurrencySymbol(bucket.currency)}
-                          {formatBudgetAmount(bucket.monthly_budget)}
-                        </span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {bucketCategories.length === 0 ? (
@@ -138,6 +142,12 @@ export function BucketsCard({
                         )}
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell className="pl-4 shrink-0 text-right">
+                    <span className="shrink-0 tabular-nums">
+                      {getCurrencySymbol(bucket.currency)}
+                      {formatBudgetAmount(bucket.monthly_budget)}
+                    </span>
                   </TableCell>
                   <TableCell className="w-24 pr-4">
                     <div className="flex shrink-0 gap-1">

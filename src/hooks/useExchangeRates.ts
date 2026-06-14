@@ -7,10 +7,12 @@ interface CurrencyPair {
 }
 
 export function useExchangeRates(currencies: string[]) {
+  const sortedCurrencies = [...new Set(currencies)].sort();
+
   // Generate all currency pairs needed for conversion
   const pairs: CurrencyPair[] = [];
-  for (const from of currencies) {
-    for (const to of currencies) {
+  for (const from of sortedCurrencies) {
+    for (const to of sortedCurrencies) {
       if (from !== to) {
         pairs.push({ from, to });
       }
@@ -18,7 +20,7 @@ export function useExchangeRates(currencies: string[]) {
   }
 
   return useQuery({
-    queryKey: ["exchangeRates", currencies.sort().join(",")],
+    queryKey: ["exchangeRates", sortedCurrencies.join(",")],
     queryFn: async () => {
       const rates: Record<string, number> = {};
 
@@ -34,7 +36,7 @@ export function useExchangeRates(currencies: string[]) {
 
       return rates;
     },
-    enabled: currencies.length > 1,
+    enabled: sortedCurrencies.length > 1,
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 }
