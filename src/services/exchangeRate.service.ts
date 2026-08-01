@@ -46,6 +46,23 @@ export const exchangeRateService = {
       const data = await response.json();
 
       if (response.ok && data.rate) {
+        const { error: cacheError } = await supabase
+          .from("exchange_rates")
+          .upsert(
+            {
+              from_currency: fromCurrency,
+              to_currency: toCurrency,
+              date: dateStr,
+              rate: data.rate,
+              source: "api",
+            },
+            { onConflict: "from_currency,to_currency,date" },
+          );
+
+        if (cacheError) {
+          console.warn("Failed to cache exchange rate:", cacheError);
+        }
+
         return data.rate;
       } else {
         console.error("Exchange rate API error:", data.error);

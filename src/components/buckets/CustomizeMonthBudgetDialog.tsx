@@ -15,8 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
-import { formatBudgetAmount, getCurrencySymbol } from "./bucketUtils";
+import {
+  formatBudgetAmount,
+  getCurrencySymbol,
+} from "@/components/buckets/bucketUtils";
 import type { ExpenseBucket, ExpenseCategory } from "@/types";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "../ui/badge";
 
 interface CustomizeMonthBudgetDialogProps {
   open: boolean;
@@ -162,19 +167,39 @@ function CustomizeMonthBudgetForm({
           const bucketCategories = bucket.category_ids
             .map((categoryId) => categoriesById.get(categoryId))
             .filter((category): category is ExpenseCategory => !!category);
+          const bucketSelectedCategories = bucketCategories.filter((category) =>
+            draftExcludedSet.has(category.id),
+          );
 
           return (
-            <section key={bucket.id} className="space-y-3">
-              <div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
-                <div>
-                  <p className="text-sm font-semibold">{bucket.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("buckets.defaultBudget", {
-                      amount: `${getCurrencySymbol(
-                        bucket.currency,
-                      )}${formatBudgetAmount(bucket.monthly_budget)}`,
-                    })}
-                  </p>
+            <section
+              key={bucket.id}
+              className="border border-lg rounded-lg overflow-auto"
+            >
+              <div className="flex flex-col gap-2 bg-background p-3">
+                <div className="flex justify-between gap-2 items-start">
+                  <div>
+                    <p className="text-sm font-semibold">{bucket.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("buckets.defaultBudget", {
+                        amount: `${getCurrencySymbol(
+                          bucket.currency,
+                        )}${formatBudgetAmount(bucket.monthly_budget)}`,
+                      })}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      bucketSelectedCategories.length !==
+                      bucketCategories.length
+                        ? "success"
+                        : "destructiveLight"
+                    }
+                  >
+                    {bucketSelectedCategories.length !== bucketCategories.length
+                      ? "Active"
+                      : "Inactive"}
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
@@ -217,6 +242,8 @@ function CustomizeMonthBudgetForm({
                 )}
               </div>
 
+              {bucketCategories.length > 0 && <Separator />}
+
               {bucketCategories.map((category) => {
                 const checkboxId = `month-budget-category-${category.id}`;
                 const checked = !draftExcludedSet.has(category.id);
@@ -225,7 +252,7 @@ function CustomizeMonthBudgetForm({
                   <Label
                     key={category.id}
                     htmlFor={checkboxId}
-                    className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border bg-background p-3 text-sm"
+                    className="flex min-h-12 cursor-pointer items-center gap-3 bg-background p-3 text-sm"
                   >
                     <Checkbox
                       id={checkboxId}
