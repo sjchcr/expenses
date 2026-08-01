@@ -118,13 +118,15 @@ function App() {
     const hasNames = Boolean(metadata.first_name && metadata.last_name);
     const hasAvatar = Boolean(
       avatarService.getCustomAvatarPath(user) ||
-        avatarService.getAvatarUrl(user),
+      avatarService.getAvatarUrl(user),
     );
     return !(hasNames && hasAvatar);
   }, [user]);
 
   useEffect(() => {
-    setShowOnboardingReminder(Boolean(user && needsOnboarding && !isAppTourOpen));
+    setShowOnboardingReminder(
+      Boolean(user && needsOnboarding && !isAppTourOpen),
+    );
   }, [isAppTourOpen, needsOnboarding, user]);
 
   if (loading) {
@@ -141,7 +143,9 @@ function App() {
         />
         <div className="flex flex-col items-center justify-center gap-1">
           <h2 className="font-bold text-2xl">{t("dashboard.welcomeBack")}</h2>
-          <p className="text-muted-foreground">{t("common.loadingMessage")}</p>
+          <p className="text-muted-foreground text-center">
+            {t("common.loadingMessage")}
+          </p>
         </div>
       </div>
     );
