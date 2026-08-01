@@ -13,6 +13,10 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { useCategories } from "@/hooks/useCategories";
 import { useExpenseBuckets } from "@/hooks/useExpenseBuckets";
+import {
+  useMonthlyBudgetOverride,
+  useSaveMonthlyBudgetOverride,
+} from "@/hooks/useMonthlyBudgetOverrides";
 import { useMobile } from "@/hooks/useMobile";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
@@ -28,7 +32,10 @@ import {
   ExpensesLoadingSkeleton,
   ExpensesEmptyState,
 } from "@/components/expenses";
-import { BucketsBudgetAccordion } from "@/components/buckets";
+import {
+  BucketsBudgetAccordion,
+  CustomizeMonthBudgetDialog,
+} from "@/components/buckets";
 import type { Expense } from "@/types";
 
 export default function Expenses() {
@@ -108,6 +115,8 @@ export default function Expenses() {
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
   const [isCreateTemplateDialogOpen, setIsCreateTemplateDialogOpen] =
     useState(false);
+  const [isCustomizeMonthDialogOpen, setIsCustomizeMonthDialogOpen] =
+    useState(false);
   const [expenseForTemplate, setExpenseForTemplate] = useState<Expense | null>(
     null,
   );
@@ -116,8 +125,23 @@ export default function Expenses() {
   const { settings } = useUserSettings();
   const { data: categories } = useCategories();
   const { data: buckets } = useExpenseBuckets();
+  const selectedMonthKey = format(
+    new Date(selectedYear, selectedMonth, 1),
+    "yyyy-MM",
+  );
+  const selectedMonthLabel = format(
+    new Date(selectedYear, selectedMonth, 1),
+    "MMMM yyyy",
+  );
+  const { data: monthlyBudgetOverride } =
+    useMonthlyBudgetOverride(selectedMonthKey);
   const deleteMutation = useDeleteExpense();
   const toggleAmountPaidMutation = useToggleAmountPaid();
+  const saveMonthlyBudgetOverrideMutation = useSaveMonthlyBudgetOverride();
+  const excludedCategoryIds =
+    monthlyBudgetOverride?.excluded_category_ids || [];
+  const bucketBudgetOverrides =
+    monthlyBudgetOverride?.bucket_budget_overrides || {};
 
   const availableCurrencies = useMemo(() => {
     if (!expenses) return (buckets || []).map((bucket) => bucket.currency);
@@ -181,6 +205,26 @@ export default function Expenses() {
     setIsAddDialogOpen(true);
   };
 
+  const handleSaveMonthlyBudgetOverride = async ({
+    excludedCategoryIds: nextExcludedCategoryIds,
+    bucketBudgetOverrides: nextBucketBudgetOverrides,
+  }: {
+    excludedCategoryIds: string[];
+    bucketBudgetOverrides: Record<string, number>;
+  }) => {
+    try {
+      await saveMonthlyBudgetOverrideMutation.mutateAsync({
+        month: selectedMonthKey,
+        excludedCategoryIds: nextExcludedCategoryIds,
+        bucketBudgetOverrides: nextBucketBudgetOverrides,
+      });
+      toast.success(t("buckets.customizedMonthSaved"));
+      setIsCustomizeMonthDialogOpen(false);
+    } catch {
+      toast.error(t("buckets.failed"));
+    }
+  };
+
   const expensesByPeriod = useMemo(() => {
     if (!expenses) return {};
     const grouped: Record<string, Expense[]> = {};
@@ -238,6 +282,9 @@ export default function Expenses() {
             expenses={expenses || []}
             exchangeRates={exchangeRates}
             isLoadingRates={isLoadingRates}
+            excludedCategoryIds={excludedCategoryIds}
+            bucketBudgetOverrides={bucketBudgetOverrides}
+            onCustomizeMonth={() => setIsCustomizeMonthDialogOpen(true)}
           />
           {expenses && expenses.length > 0 ? (
             <ExpensesByPeriod
@@ -323,6 +370,18 @@ export default function Expenses() {
               }
             : null
         }
+      />
+
+      <CustomizeMonthBudgetDialog
+        open={isCustomizeMonthDialogOpen}
+        onOpenChange={setIsCustomizeMonthDialogOpen}
+        buckets={buckets || []}
+        categories={categories || []}
+        monthLabel={selectedMonthLabel}
+        excludedCategoryIds={excludedCategoryIds}
+        bucketBudgetOverrides={bucketBudgetOverrides}
+        isSaving={saveMonthlyBudgetOverrideMutation.isPending}
+        onSave={handleSaveMonthlyBudgetOverride}
       />
     </div>
   );

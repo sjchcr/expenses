@@ -56,14 +56,28 @@ export function getBucketBudgetSummaries({
   buckets,
   expenses,
   exchangeRates,
+  excludedCategoryIds = [],
+  bucketBudgetOverrides = {},
 }: {
   buckets: ExpenseBucket[];
   categories: ExpenseCategory[];
   expenses: Expense[];
   exchangeRates: Record<string, number> | undefined;
+  excludedCategoryIds?: string[];
+  bucketBudgetOverrides?: Record<string, number>;
 }): BucketBudgetSummary[] {
-  return buckets.map((bucket) => {
-    const categoryIds = new Set(bucket.category_ids);
+  const excludedIds = new Set(excludedCategoryIds);
+
+  return buckets.flatMap((bucket) => {
+    const activeCategoryIds = bucket.category_ids.filter(
+      (categoryId) => !excludedIds.has(categoryId),
+    );
+
+    if (bucket.category_ids.length > 0 && activeCategoryIds.length === 0) {
+      return [];
+    }
+
+    const categoryIds = new Set(activeCategoryIds);
     let spent = 0;
     let hasAllRates = true;
 
@@ -88,10 +102,17 @@ export function getBucketBudgetSummaries({
       });
     });
 
+    const monthlyBudget = bucketBudgetOverrides[bucket.id];
+    const summaryBucket = {
+      ...bucket,
+      monthly_budget:
+        monthlyBudget !== undefined ? monthlyBudget : bucket.monthly_budget,
+    };
+
     return {
-      bucket,
+      bucket: summaryBucket,
       spent,
-      remaining: bucket.monthly_budget - spent,
+      remaining: summaryBucket.monthly_budget - spent,
       hasAllRates,
     };
   });

@@ -77,6 +77,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_budget_overrides: {
+        Row: {
+          bucket_budget_overrides: Json
+          created_at: string | null
+          excluded_category_ids: Json
+          id: string
+          month: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bucket_budget_overrides?: Json
+          created_at?: string | null
+          excluded_category_ids?: Json
+          id?: string
+          month: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bucket_budget_overrides?: Json
+          created_at?: string | null
+          excluded_category_ids?: Json
+          id?: string
+          month?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expense_templates: {
         Row: {
           amounts: Json

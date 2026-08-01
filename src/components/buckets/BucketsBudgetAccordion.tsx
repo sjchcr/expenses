@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Settings2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import type { Expense, ExpenseBucket, ExpenseCategory } from "@/types";
 import {
   getBucketBudgetSummaries,
@@ -19,6 +21,9 @@ interface BucketsBudgetAccordionProps {
   expenses: Expense[];
   exchangeRates: Record<string, number> | undefined;
   isLoadingRates: boolean;
+  excludedCategoryIds?: string[];
+  bucketBudgetOverrides?: Record<string, number>;
+  onCustomizeMonth?: () => void;
 }
 
 export function BucketsBudgetAccordion({
@@ -27,6 +32,9 @@ export function BucketsBudgetAccordion({
   expenses,
   exchangeRates,
   isLoadingRates,
+  excludedCategoryIds = [],
+  bucketBudgetOverrides = {},
+  onCustomizeMonth,
 }: BucketsBudgetAccordionProps) {
   const { t } = useTranslation();
   const summaries = useMemo(
@@ -36,8 +44,17 @@ export function BucketsBudgetAccordion({
         categories,
         expenses,
         exchangeRates,
+        excludedCategoryIds,
+        bucketBudgetOverrides,
       }),
-    [buckets, categories, exchangeRates, expenses],
+    [
+      bucketBudgetOverrides,
+      buckets,
+      categories,
+      exchangeRates,
+      excludedCategoryIds,
+      expenses,
+    ],
   );
 
   const totals = useMemo(() => {
@@ -65,6 +82,19 @@ export function BucketsBudgetAccordion({
           </div>
         </AccordionTrigger>
         <AccordionContent>
+          {onCustomizeMonth && (
+            <div className="mb-3 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onCustomizeMonth}
+              >
+                <Settings2 className="size-4" />
+                {t("buckets.customizeMonth")}
+              </Button>
+            </div>
+          )}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {totals && (
               <BucketStatsCard summary={totals} isLoading={isLoadingRates} />

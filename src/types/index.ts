@@ -134,6 +134,18 @@ export interface ExpenseBucketUpdate
   category_ids?: string[];
 }
 
+type MonthlyBudgetOverrideRow =
+  Database["public"]["Tables"]["monthly_budget_overrides"]["Row"];
+
+export interface MonthlyBudgetOverride
+  extends Omit<
+    MonthlyBudgetOverrideRow,
+    "bucket_budget_overrides" | "excluded_category_ids"
+  > {
+  bucket_budget_overrides: Record<string, number>;
+  excluded_category_ids: string[];
+}
+
 // Salary types (existing aguinaldo table)
 export type Salary = Database["public"]["Tables"]["salaries"]["Row"];
 export type SalaryInsert = Database["public"]["Tables"]["salaries"]["Insert"];
