@@ -44,7 +44,7 @@ export function ExpensesByPeriod({
   const isMobile = useMobile();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
       {sortedPeriods.map((period) => (
         <Card
           key={period}

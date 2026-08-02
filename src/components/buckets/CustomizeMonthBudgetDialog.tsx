@@ -170,6 +170,13 @@ function CustomizeMonthBudgetForm({
           const bucketSelectedCategories = bucketCategories.filter((category) =>
             draftExcludedSet.has(category.id),
           );
+          const bucketStatus =
+            draftBudgetOverrides[bucket.id] !== String(bucket.monthly_budget) &&
+            draftBudgetOverrides[bucket.id]
+              ? "overridden"
+              : bucketSelectedCategories.length !== bucketCategories.length
+                ? "active"
+                : "inactive";
 
           return (
             <section
@@ -190,15 +197,20 @@ function CustomizeMonthBudgetForm({
                   </div>
                   <Badge
                     variant={
-                      bucketSelectedCategories.length !==
-                      bucketCategories.length
-                        ? "success"
-                        : "destructiveLight"
+                      bucketStatus === "overridden"
+                        ? "warning"
+                        : bucketSelectedCategories.length !==
+                            bucketCategories.length
+                          ? "success"
+                          : "destructiveLight"
                     }
                   >
-                    {bucketSelectedCategories.length !== bucketCategories.length
-                      ? "Active"
-                      : "Inactive"}
+                    {bucketStatus === "overridden"
+                      ? t("buckets.overridden")
+                      : bucketSelectedCategories.length !==
+                          bucketCategories.length
+                        ? t("buckets.active")
+                        : t("buckets.inactive")}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">

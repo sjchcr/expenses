@@ -1,12 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Settings2 } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import type { Expense, ExpenseBucket, ExpenseCategory } from "@/types";
 import {
@@ -14,6 +8,16 @@ import {
   getTotalsByCurrency,
 } from "@/components/buckets/bucketUtils";
 import BucketStatsCard from "@/components/buckets/BucketStatsCard";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { useMobile } from "@/hooks/useMobile";
+import { Input } from "../ui/input";
 
 interface BucketsBudgetAccordionProps {
   buckets: ExpenseBucket[];
@@ -37,6 +41,8 @@ export function BucketsBudgetAccordion({
   onCustomizeMonth,
 }: BucketsBudgetAccordionProps) {
   const { t } = useTranslation();
+  const isMobile = useMobile();
+  const [searchQuery, setSearchQuery] = useState("");
   const summaries = useMemo(
     () =>
       getBucketBudgetSummaries({
@@ -61,54 +67,62 @@ export function BucketsBudgetAccordion({
     return getTotalsByCurrency(summaries);
   }, [summaries]);
 
+  const budgetSummaries = useMemo(() => {
+    const allSummaries = totals ? [totals, ...summaries] : summaries;
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+    if (!normalizedQuery) return allSummaries;
+
+    return allSummaries.filter((summary) =>
+      summary.bucket.name.toLocaleLowerCase().includes(normalizedQuery),
+    );
+  }, [searchQuery, summaries, totals]);
+
   if (buckets.length === 0) return null;
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      defaultValue="budgets"
-      className="rounded-2xl border bg-linear-to-b from-background to-accent shadow-md dark:border-gray-900"
+    <Card
+      className={cn(
+        "bg-linear-to-b from-background to-accent dark:bg-accent border border-gray-200 dark:border-gray-900 shadow-md overflow-hidden",
+        isMobile ? "gap-4" : "gap-0",
+      )}
     >
-      <AccordionItem value="budgets" className="border-b-0 px-4">
-        <AccordionTrigger className="hover:no-underline">
-          <div className="text-left flex flex-col gap-1">
-            <p className="leading-none font-semibold text-[16px] flex items-center h-full">
-              {t("buckets.monthlyBudgets")}
-            </p>
-            <p className="text-sm font-normal text-muted-foreground">
-              {t("buckets.monthlyBudgetsDescription")}
-            </p>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          {onCustomizeMonth && (
-            <div className="mb-3 flex justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onCustomizeMonth}
-              >
-                <Settings2 className="size-4" />
-                {t("buckets.customizeMonth")}
-              </Button>
-            </div>
-          )}
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {totals && (
-              <BucketStatsCard summary={totals} isLoading={isLoadingRates} />
-            )}
-            {summaries.map((summary) => (
+      <CardHeader className="hover:no-underline px-4 flex justify-between items-center gap-2 w-full">
+        <CardTitle className="flex items-center h-full">
+          {t("buckets.monthlyBudgets")}
+        </CardTitle>
+        {onCustomizeMonth && (
+          <CardAction>
+            <Button type="button" size="icon" onClick={onCustomizeMonth}>
+              <Settings2 className="size-4" />
+            </Button>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="px-4 py-2">
+          <Input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={t("common.search")}
+          />
+        </div>
+        {budgetSummaries.length > 0 && (
+          <div className="grid md:grid-cols-2 xl:grid-cols-1">
+            {budgetSummaries.map((summary, index) => (
               <BucketStatsCard
                 key={summary.bucket.id}
                 summary={summary}
                 isLoading={isLoadingRates}
+                className={cn(
+                  "border-b border-gray-200",
+                  index === budgetSummaries.length - 1 && "border-b-0",
+                )}
               />
             ))}
           </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        )}
+      </CardContent>
+    </Card>
   );
 }

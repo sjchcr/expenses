@@ -31,6 +31,9 @@ export const formatBudgetAmount = (amount: number): string =>
     maximumFractionDigits: 2,
   });
 
+export const getPercentage = (baseline: number, value: number): number =>
+  baseline === 0 ? 0 : (value / baseline) * 100;
+
 export interface BucketBudgetSummary {
   bucket: ExpenseBucket;
   spent: number;

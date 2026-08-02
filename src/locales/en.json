@@ -37,7 +37,8 @@
     "deselectAll": "Deselect all",
     "loadingMessage": "We are making sure all your data is available.",
     "back": "Back",
-    "next": "Next"
+    "next": "Next",
+    "search": "Search category..."
   },
   "months": {
     "january": "January",
@@ -459,7 +460,10 @@
     "total": "Monthly total",
     "spent": "Spent",
     "remaining": "Remaining",
-    "over": "Over budget"
+    "over": "Over budget",
+    "active": "Active",
+    "inactive": "Inactive",
+    "overridden": "Overridden"
   },
   "settings": {
     "title": "Settings",

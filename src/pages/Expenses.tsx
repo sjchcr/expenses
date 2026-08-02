@@ -272,38 +272,40 @@ export default function Expenses() {
         isLoadingRates={isLoadingRates}
       />
 
-      {isLoading ? (
-        <ExpensesLoadingSkeleton />
-      ) : (
-        <>
-          <BucketsBudgetAccordion
-            buckets={buckets || []}
-            categories={categories || []}
-            expenses={expenses || []}
-            exchangeRates={exchangeRates}
-            isLoadingRates={isLoadingRates}
-            excludedCategoryIds={excludedCategoryIds}
-            bucketBudgetOverrides={bucketBudgetOverrides}
-            onCustomizeMonth={() => setIsCustomizeMonthDialogOpen(true)}
-          />
-          {expenses && expenses.length > 0 ? (
-            <ExpensesByPeriod
-              expensesByPeriod={expensesByPeriod}
-              sortedPeriods={sortedPeriods}
-              togglingId={togglingId}
-              defaultTab={defaultTab}
-              onToggleAmountPaid={handleToggleAmountPaid}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onCreateTemplate={handleCreateTemplate}
-              onAddExpense={handleAddExpense}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-0 xl:gap-6 gap-y-6">
+        {isLoading ? (
+          <ExpensesLoadingSkeleton />
+        ) : (
+          <>
+            <BucketsBudgetAccordion
+              buckets={buckets || []}
               categories={categories || []}
+              expenses={expenses || []}
+              exchangeRates={exchangeRates}
+              isLoadingRates={isLoadingRates}
+              excludedCategoryIds={excludedCategoryIds}
+              bucketBudgetOverrides={bucketBudgetOverrides}
+              onCustomizeMonth={() => setIsCustomizeMonthDialogOpen(true)}
             />
-          ) : (
-            <ExpensesEmptyState onAddExpense={handleAddExpense} />
-          )}
-        </>
-      )}
+            {expenses && expenses.length > 0 ? (
+              <ExpensesByPeriod
+                expensesByPeriod={expensesByPeriod}
+                sortedPeriods={sortedPeriods}
+                togglingId={togglingId}
+                defaultTab={defaultTab}
+                onToggleAmountPaid={handleToggleAmountPaid}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onCreateTemplate={handleCreateTemplate}
+                onAddExpense={handleAddExpense}
+                categories={categories || []}
+              />
+            ) : (
+              <ExpensesEmptyState onAddExpense={handleAddExpense} />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 
