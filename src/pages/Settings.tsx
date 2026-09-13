@@ -11,6 +11,7 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import {
   SettingsHeader,
   AccountCard,
+  EmailLoginCard,
   PaymentPeriodsCard,
   PrimaryCurrencyCard,
   ExportDataCard,
@@ -60,6 +61,7 @@ export default function Settings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AccountCard user={user} onProfileUpdate={refreshUser} />
+        <EmailLoginCard user={user} />
 
         <PaymentPeriodsCard
           initialPeriods={

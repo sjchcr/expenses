@@ -1,5 +1,6 @@
 export { SettingsHeader } from "./SettingsHeader";
 export { AccountCard } from "./AccountCard";
+export { EmailLoginCard } from "./EmailLoginCard";
 export { PaymentPeriodsCard } from "./PaymentPeriodsCard";
 export { PrimaryCurrencyCard } from "./PrimaryCurrencyCard";
 export { ExportDataCard } from "./ExportDataCard";
